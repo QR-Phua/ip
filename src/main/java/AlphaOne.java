@@ -38,12 +38,7 @@ public class AlphaOne {
             } else if (input.equalsIgnoreCase("list")) {
                 getTasks();
             } else {
-                Task newTask = new Task(input);
-                taskList.add(newTask);
-                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                System.out.println("added: " + input);
-                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-
+                addTask(input);
             }
         }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -62,6 +57,14 @@ public class AlphaOne {
         } else {
             System.out.println("Your task list is currently empty!");
         }
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+    }
+
+    private static void addTask(String input) {
+        Task newTask = new Task(input);
+        taskList.add(newTask);
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println("added: " + input);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 }
