@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 public class AlphaOne {
     public static void main(String[] args) {
@@ -22,6 +23,7 @@ public class AlphaOne {
         """;
         System.out.println(logo);
         Scanner scanner = new Scanner(System.in);
+        ArrayList<String> taskList = new ArrayList<>();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Hello! I am AlphaOne, your chatbot companion! ");
         System.out.println("Tell me what you would like to do!  ");
@@ -31,9 +33,10 @@ public class AlphaOne {
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("bye")) {
                 break;
-            } else {
+            }  else {
+                taskList.add(input);
                 System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                System.out.println(input);
+                System.out.println("added: " + input);
                 System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
 
             }
