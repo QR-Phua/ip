@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -6,6 +7,7 @@ public class AlphaOne {
     private static int counter = 1;
     private static Scanner scanner = new Scanner(System.in);
     private static HashMap<Integer,Task> taskList = new HashMap<>();
+    public enum TaskType {TODO, DEADLINE, EVENT;}
     public static void main(String[] args) {
         String logo =
         """
@@ -35,7 +37,6 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
 
         while (true) {
-
             String input = scanner.nextLine();
             String[] commands = input.split("\\s+");
             try {
@@ -82,8 +83,8 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
 
-                } else {
-                    addTask(input);
+                } else if (commands[0].equalsIgnoreCase("todo")) {
+                    addTask(input, );
                 }
             } catch (InvalidCommandException ice) {
                 System.out.println(ice.getMessage());
@@ -109,12 +110,26 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    private static void addTask(String input) {
-        Task newTask = new Task(input);
+    private static void addTask(String input, TaskType type, String... params) {
+        Task newTask = null;
+        switch (type) {
+            case TODO:
+                newTask = new ToDo(input);
+                break;
+            case DEADLINE:
+                newTask = new Deadline(input, params[0]);
+                break;
+            case EVENT:
+                newTask = new Event(input, params[0],params[1]);
+                break;
+            default:
+                System.out.println("Invalid task type!");
+        }
         taskList.put(counter, newTask);
         counter++;
+
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("added: " + input);
+        System.out.println("New task added to your task list!",);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
