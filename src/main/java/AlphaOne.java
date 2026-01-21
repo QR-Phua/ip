@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
 public class AlphaOne {
     private static int counter = 1;
     private static Scanner scanner = new Scanner(System.in);
@@ -34,47 +35,60 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
 
         while (true) {
+
             String input = scanner.nextLine();
             String[] commands = input.split("\\s+");
-            if (commands[0].equalsIgnoreCase("bye")) {
-                break;
-            } else if (commands[0].equalsIgnoreCase("list")) {
-                getTasks();
-            } else if (commands[0].equalsIgnoreCase("mark")) {
-                try {
-                    int taskNum =  Integer.parseInt(commands[1]);
-                    if (!taskList.containsKey(taskNum) || commands.length != 2) {
-                        throw new Exception();
+            try {
+                if (commands[0].equalsIgnoreCase("bye")) {
+                    int expectedLength = 1;
+                    commandLengthChecker(expectedLength, commands.length);
+                    break;
+                } else if (commands[0].equalsIgnoreCase("list")) {
+                    int expectedLength = 1;
+                    commandLengthChecker(expectedLength, commands.length);
+                    getTasks();
+                } else if (commands[0].equalsIgnoreCase("mark")) {
+                    int expectedLength = 2;
+                    commandLengthChecker(expectedLength, commands.length);
+                    try {
+                        int taskNum =  Integer.parseInt(commands[1]);
+                        taskExistenceChecker(taskNum);
+                        markDone(taskList.get(taskNum));
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println("Task marked done successfully!");
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    } catch (InvalidTaskItemException itie) {
+                        System.out.println(itie.getMessage());
+                    } catch (Exception e) {
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println("Invalid task number!");
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
-                    markDone(taskList.get(taskNum));
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                    System.out.println("Task marked done successfully!");
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                } catch (Exception e) {
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                    System.out.println("Invalid command!");
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                }
-            } else if (commands[0].equalsIgnoreCase("unmark")) {
-
-                try {
-                    int taskNum = Integer.parseInt(commands[1]);
-                    if (!taskList.containsKey(taskNum) || commands.length != 2) {
-                        throw new Exception();
+                } else if (commands[0].equalsIgnoreCase("unmark")) {
+                    int expectedLength = 2;
+                    commandLengthChecker(expectedLength, commands.length);
+                    try {
+                        int taskNum =  Integer.parseInt(commands[1]);
+                        taskExistenceChecker(taskNum);
+                        unmarkDone(taskList.get(taskNum));
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println("Task unmarked successfully!");
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    } catch (InvalidTaskItemException itie) {
+                        System.out.println(itie.getMessage());
+                    } catch (Exception e) {
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println("Invalid task number!");
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
-                    unmarkDone(taskList.get(taskNum));
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                    System.out.println("Task unmarked successfully!");
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                }  catch (Exception e) {
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                    System.out.println("Invalid command!");
-                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                }
 
-            } else {
-                addTask(input);
+                } else {
+                    addTask(input);
+                }
+            } catch (InvalidCommandException ice) {
+                System.out.println(ice.getMessage());
             }
+
         }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Thank you for using AlphaOne! ");
@@ -109,5 +123,17 @@ public class AlphaOne {
 
     private static void unmarkDone(Task currentTask) {
         currentTask.markNotDone();
+    }
+
+    private static void commandLengthChecker(int expected, int actual) throws InvalidCommandException {
+        if (expected != actual) {
+            throw new InvalidCommandException();
+        }
+    }
+
+    private static void taskExistenceChecker(int selectedTask) throws InvalidTaskItemException {
+        if (selectedTask < 0 || selectedTask > taskList.size()) {
+            throw new InvalidTaskItemException();
+        }
     }
 }
