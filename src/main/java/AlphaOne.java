@@ -1,8 +1,10 @@
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 public class AlphaOne {
+    private static int counter = 1;
     private static Scanner scanner = new Scanner(System.in);
-    private static ArrayList<Task> taskList = new ArrayList<>();
+    private static HashMap<Integer,Task> taskList = new HashMap<>();
     public static void main(String[] args) {
         String logo =
         """
@@ -50,9 +52,8 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         if (!taskList.isEmpty()) {
             System.out.printf("You have these tasks in your list:%n");
-            for (int i = 0; i < taskList.size(); i++) {
-                Task currentTask = taskList.get(i);
-                System.out.printf("%d. [%s] %s%n", i + 1, currentTask.getStatus(), currentTask.getDescription() );
+            for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+                System.out.printf("%d. [%s] %s%n", entry.getKey(), entry.getValue().getStatus(), entry.getValue().getDescription());
             }
         } else {
             System.out.println("Your task list is currently empty!");
@@ -62,7 +63,8 @@ public class AlphaOne {
 
     private static void addTask(String input) {
         Task newTask = new Task(input);
-        taskList.add(newTask);
+        taskList.put(counter, newTask);
+        counter++;
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("added: " + input);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
