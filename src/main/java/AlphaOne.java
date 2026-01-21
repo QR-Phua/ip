@@ -100,7 +100,8 @@ public class AlphaOne {
         if (!taskList.isEmpty()) {
             System.out.printf("You have these tasks in your list:%n");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
-                System.out.printf("%d. [%s] %s%n", entry.getKey(), entry.getValue().getStatus(), entry.getValue().getDescription());
+                Task currentTask = entry.getValue();
+                System.out.printf("%d. [%s] [%s] %s%n", entry.getKey(), currentTask.getType(), currentTask.getStatus(), currentTask.getDescription());
             }
         } else {
             System.out.println("Your task list is currently empty!");

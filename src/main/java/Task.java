@@ -27,5 +27,8 @@ public class Task {
         this.done = false;
     }
 
+    public String getType() {
+        return "";
+    }
 
 }
