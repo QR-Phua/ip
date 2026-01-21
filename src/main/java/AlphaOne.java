@@ -33,7 +33,17 @@ public class AlphaOne {
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("bye")) {
                 break;
-            }  else {
+            } else if (input.equalsIgnoreCase("list")) {
+                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                if (!taskList.isEmpty()) {
+                    for (int i = 0; i < taskList.size(); i++) {
+                        System.out.printf("%d. %s%n", i + 1, taskList.get(i));
+                    }
+                } else {
+                    System.out.println("Your task list is currently empty!");
+                }
+                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+            } else {
                 taskList.add(input);
                 System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                 System.out.println("added: " + input);
