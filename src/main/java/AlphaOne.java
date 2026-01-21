@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 public class AlphaOne {
+    private static Scanner scanner = new Scanner(System.in);
+    private static ArrayList<Task> taskList = new ArrayList<>();
     public static void main(String[] args) {
         String logo =
         """
@@ -22,11 +24,11 @@ public class AlphaOne {
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
         System.out.println(logo);
-        Scanner scanner = new Scanner(System.in);
-        ArrayList<String> taskList = new ArrayList<>();
+
+
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("Hello! I am AlphaOne, your chatbot companion! ");
-        System.out.println("Tell me what you would like to do!  ");
+        System.out.println("Hello! I am AlphaOne, your chatbot companion!");
+        System.out.println("Tell me what you would like to do!");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
 
         while (true) {
@@ -34,17 +36,10 @@ public class AlphaOne {
             if (input.equalsIgnoreCase("bye")) {
                 break;
             } else if (input.equalsIgnoreCase("list")) {
-                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                if (!taskList.isEmpty()) {
-                    for (int i = 0; i < taskList.size(); i++) {
-                        System.out.printf("%d. %s%n", i + 1, taskList.get(i));
-                    }
-                } else {
-                    System.out.println("Your task list is currently empty!");
-                }
-                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                getTasks();
             } else {
-                taskList.add(input);
+                Task newTask = new Task(input);
+                taskList.add(newTask);
                 System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                 System.out.println("added: " + input);
                 System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -53,6 +48,20 @@ public class AlphaOne {
         }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Thank you for using AlphaOne! ");
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+    }
+
+    private static void getTasks() {
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        if (!taskList.isEmpty()) {
+            System.out.printf("You have these tasks in your list:%n");
+            for (int i = 0; i < taskList.size(); i++) {
+                Task currentTask = taskList.get(i);
+                System.out.printf("%d. [%s] %s%n", i + 1, currentTask.getStatus(), currentTask.getDescription() );
+            }
+        } else {
+            System.out.println("Your task list is currently empty!");
+        }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 }
