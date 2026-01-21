@@ -1,3 +1,4 @@
+import java.util.Scanner;
 public class AlphaOne {
     public static void main(String[] args) {
         String logo =
@@ -20,11 +21,25 @@ public class AlphaOne {
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
         System.out.println(logo);
-        System.out.println();
-        System.out.println("+----------------------------------------------+");
-        System.out.println("  Hello! I am AlphaOne, your chatbot companion! ");
-        System.out.println("  Tell me what you would like to do!  ");
-        System.out.println("+----------------------------------------------+");
-        System.out.println("  Thank you for using AlphaOne! ");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println("Hello! I am AlphaOne, your chatbot companion! ");
+        System.out.println("Tell me what you would like to do!  ");
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("bye")) {
+                break;
+            } else {
+                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                System.out.println(input);
+                System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+
+            }
+        }
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println("Thank you for using AlphaOne! ");
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 }
