@@ -1,13 +1,10 @@
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class AlphaOne {
     private static int counter = 1;
     private static Scanner scanner = new Scanner(System.in);
     private static HashMap<Integer,Task> taskList = new HashMap<>();
-    public enum TaskType {TODO, DEADLINE, EVENT;}
+    public enum TaskType {TODO, DEADLINE, EVENT}
     public static void main(String[] args) {
         String logo =
         """
@@ -82,9 +79,22 @@ public class AlphaOne {
                         System.out.println("Invalid task number!");
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
-
                 } else if (commands[0].equalsIgnoreCase("todo")) {
-                    addTask(input, );
+                    if (commands.length < 2) {
+                        throw new InvalidCommandException();
+                    }
+                    addTask(todoPrep(commands), TaskType.TODO);
+
+                } else if (commands[0].equalsIgnoreCase("deadline")) {
+                    if (commands.length < 2) {
+                        throw new InvalidCommandException();
+                    }
+                    ArrayList<String> tidied = descriptionPrep(commands, TaskType.DEADLINE);
+                    addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
+
+                } else if (commands[0].equalsIgnoreCase("event")) {
+                    ArrayList<String> tidied = descriptionPrep(commands, TaskType.EVENT);
+                    addTask(tidied.get(0), TaskType.EVENT, tidied.get(1),  tidied.get(2));
                 }
             } catch (InvalidCommandException ice) {
                 System.out.println(ice.getMessage());
@@ -113,23 +123,16 @@ public class AlphaOne {
     private static void addTask(String input, TaskType type, String... params) {
         Task newTask = null;
         switch (type) {
-            case TODO:
-                newTask = new ToDo(input);
-                break;
-            case DEADLINE:
-                newTask = new Deadline(input, params[0]);
-                break;
-            case EVENT:
-                newTask = new Event(input, params[0],params[1]);
-                break;
-            default:
-                System.out.println("Invalid task type!");
+            case TODO -> newTask = new ToDo(input);
+            case DEADLINE -> newTask = new Deadline(input, params[0]);
+            case EVENT -> newTask = new Event(input, params[0], params[1]);
+            default -> System.out.println("Invalid task type!");
         }
         taskList.put(counter, newTask);
         counter++;
 
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("New task added to your task list!",);
+        System.out.println("New task added to your task list!");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
@@ -151,5 +154,58 @@ public class AlphaOne {
         if (selectedTask < 0 || selectedTask > taskList.size()) {
             throw new InvalidTaskItemException();
         }
+    }
+
+    private static String todoPrep(String[] commands) {
+        List<String> stringList = new ArrayList<>(Arrays.asList(commands));
+        stringList.remove(0);
+        return String.join(" ", stringList);
+    }
+
+    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException {
+        switch (taskType) {
+            case DEADLINE -> {
+                List<String> stringList = new ArrayList<>(Arrays.asList(commands));
+                stringList.remove(0);
+                int finder = stringList.indexOf("/by");
+                if (finder == -1 || finder == 0) { // add new exception for incomplete details
+                    throw new InvalidCommandException();
+                }
+                List<String> deadlineList = stringList.subList(finder +1, stringList.size());
+                String deadline = String.join(" ", deadlineList);
+
+                List<String> descriptionList = stringList.subList(0, finder);
+                String description = String.join(" ", descriptionList);
+
+                return new ArrayList<>(Arrays.asList(description, deadline));
+            }
+            case EVENT -> {
+                List<String> stringList = new ArrayList<>(Arrays.asList(commands));
+                stringList.remove(0);
+                int finderFrom = stringList.indexOf("/from");
+                int finderTo = stringList.indexOf("/to");
+                if (finderTo == -1 || finderFrom == -1 || finderTo < finderFrom  || Math.abs(finderTo - finderFrom) <= 1) { // add new exception for incomplete details
+                    throw new InvalidCommandException();
+                }
+                List<String> fromList = stringList.subList(finderFrom +1, finderTo);
+                if (fromList.isEmpty()) {
+                    throw new InvalidCommandException();
+                }
+                String fromDesc = String.join(" ", fromList);
+
+                List<String> ToList = stringList.subList(finderTo +1, stringList.size());
+                if (ToList.isEmpty()) {
+                    throw new InvalidCommandException();
+                }
+                String toDesc = String.join(" ", ToList);
+
+                List<String> descList = stringList.subList(0, finderFrom);
+                String description = String.join(" ", descList);
+
+                return new ArrayList<>(Arrays.asList(description, fromDesc, toDesc));
+            }
+            default -> throw new InvalidCommandException();
+        }
+
     }
 }
