@@ -19,6 +19,12 @@ public class AlphaOne {
         (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
-        System.out.println("Hello from\n" + logo);
+        System.out.println(logo);
+        System.out.println();
+        System.out.println("+----------------------------------------------+");
+        System.out.println("  Hello! I am AlphaOne, your chatbot companion! ");
+        System.out.println("  Tell me what you would like to do!  ");
+        System.out.println("+----------------------------------------------+");
+        System.out.println("  Thank you for using AlphaOne! ");
     }
 }
