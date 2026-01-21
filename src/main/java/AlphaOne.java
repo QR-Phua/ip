@@ -35,10 +35,43 @@ public class AlphaOne {
 
         while (true) {
             String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("bye")) {
+            String[] commands = input.split("\\s+");
+            if (commands[0].equalsIgnoreCase("bye")) {
                 break;
-            } else if (input.equalsIgnoreCase("list")) {
+            } else if (commands[0].equalsIgnoreCase("list")) {
                 getTasks();
+            } else if (commands[0].equalsIgnoreCase("mark")) {
+                try {
+                    int taskNum =  Integer.parseInt(commands[1]);
+                    if (!taskList.containsKey(taskNum) || commands.length != 2) {
+                        throw new Exception();
+                    }
+                    markDone(taskList.get(taskNum));
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    System.out.println("Task marked done successfully!");
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                } catch (Exception e) {
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    System.out.println("Invalid command!");
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                }
+            } else if (commands[0].equalsIgnoreCase("unmark")) {
+
+                try {
+                    int taskNum = Integer.parseInt(commands[1]);
+                    if (!taskList.containsKey(taskNum) || commands.length != 2) {
+                        throw new Exception();
+                    }
+                    unmarkDone(taskList.get(taskNum));
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    System.out.println("Task unmarked successfully!");
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                }  catch (Exception e) {
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    System.out.println("Invalid command!");
+                    System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                }
+
             } else {
                 addTask(input);
             }
@@ -68,5 +101,13 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("added: " + input);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+    }
+
+    private static void markDone(Task currentTask) {
+        currentTask.markDone();
+    }
+
+    private static void unmarkDone(Task currentTask) {
+        currentTask.markNotDone();
     }
 }
