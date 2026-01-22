@@ -99,9 +99,6 @@ Please add in what you would like to do?
 Example: todo cook a feast
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-New task added to your task list!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
 Invalid DEADLINE command! Please try again.
 Example: deadline [task description] /by [task due date]
 +––––––––––––––––––––––––––––––––––––––––––––––+
@@ -134,6 +131,30 @@ Example: event [event description] /from [date time] /to [date time]
 Incomplete details to create task!
 Please add in what you would like to do followed with /by to set the deadline.
 Example: deadline write report /by tomorrow evening
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid command! Please try again.
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid task number!
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid command! Please try again.
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+The following task has been deleted!
+[T] [ ] project
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+The following task has been deleted!
+[D] [ ] quiz (by: saturday night)
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+The following task has been deleted!
+[E] [ ] party (from 9pm to 6am)
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Your task list is currently empty!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Thank you for using AlphaOne!

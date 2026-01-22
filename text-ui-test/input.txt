@@ -19,9 +19,8 @@ mark 32
 mark 3 nonsense
 mark whatever
 unmark 23425
-unmark nonsene
+unmark nonsense
 todo
-todo eat pizza
 deadline play game
 deadline /by
 event exam
@@ -30,4 +29,11 @@ event test /to 9 april /from 9 april
 event wedding /from 10 oct /to
 event picnic /from /to 1 aug
 deadline run /by
+delete
+delete giberish123
+delete extra stuff
+delete 1
+delete 2
+delete 3
+list
 bye
