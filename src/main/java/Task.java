@@ -31,4 +31,9 @@ public class Task {
         return "";
     }
 
+    @Override
+    public String toString() {
+        return String.format("[%s] [%s] %s%n",this.getType(), this.getStatus(), this.getDescription());
+    }
+
 }
