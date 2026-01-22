@@ -174,6 +174,9 @@ public class AlphaOne {
                     throw new InvalidCommandException();
                 }
                 List<String> deadlineList = stringList.subList(finder +1, stringList.size());
+                if (deadlineList.isEmpty()) {
+                    throw new InvalidCommandException();
+                }
                 String deadline = String.join(" ", deadlineList);
 
                 List<String> descriptionList = stringList.subList(0, finder);
