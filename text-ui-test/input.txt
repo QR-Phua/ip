@@ -1,0 +1,33 @@
+list
+mark
+todo project
+
+deadline quiz /by saturday night
+event party /from 9pm /to 6am
+list
+mark 1
+mark 2
+mark 3
+list
+unmark 1
+unmark 2
+unmark 3
+list
+unmark 1
+gibberish
+mark 32
+mark 3 nonsense
+mark whatever
+unmark 23425
+unmark nonsene
+todo
+todo eat pizza
+deadline play game
+deadline /by
+event exam
+event /from /to
+event test /to 9 april /from 9 april
+event wedding /from 10 oct /to
+event picnic /from /to 1 aug
+deadline run /by
+bye
