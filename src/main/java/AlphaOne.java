@@ -74,6 +74,21 @@ public class AlphaOne {
                         System.out.println("Invalid task number!");
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
+                } else if (commands[0].equalsIgnoreCase("delete")) {
+                    int expectedLength = 2;
+                    commandLengthChecker(expectedLength, commands.length);
+                    try {
+                        int taskNum =  Integer.parseInt(commands[1]);
+                        taskExistenceChecker(taskNum);
+                        deleteTask(taskNum);
+
+                    } catch (InvalidTaskItemException itie) {
+                        System.out.println(itie.getMessage());
+                    } catch (Exception e) {
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println("Invalid task number!");
+                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                    }
                 } else if (commands[0].equalsIgnoreCase("todo")) {
                     if (commands.length < 2) {
                         throw new IncompleteDetailsException(TaskType.TODO);
@@ -108,7 +123,7 @@ public class AlphaOne {
             System.out.printf("You have these tasks in your list:%n");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                 Task currentTask = entry.getValue();
-                System.out.printf("%d. %s", entry.getKey(), currentTask);
+                System.out.printf("%d. %s%n", entry.getKey(), currentTask);
             }
         } else {
             System.out.println("Your task list is currently empty!");
@@ -131,6 +146,14 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    private static void deleteTask(int taskNum) {
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        Task deleteTask = taskList.get(taskNum);
+        taskList.remove(taskNum);
+        System.out.println("The following task has been deleted!");
+        System.out.println(deleteTask);
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+    }
 
 
     private static void markDone(Task currentTask) {
@@ -154,7 +177,8 @@ public class AlphaOne {
     }
 
     private static void taskExistenceChecker(int selectedTask) throws InvalidTaskItemException {
-        if (selectedTask < 0 || selectedTask > taskList.size()) {
+        Task searchTask = taskList.getOrDefault(selectedTask, null);
+        if (searchTask == null) {
             throw new InvalidTaskItemException();
         }
     }

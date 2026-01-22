@@ -33,7 +33,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s%n",this.getType(), this.getStatus(), this.getDescription());
+        return String.format("[%s] [%s] %s",this.getType(), this.getStatus(), this.getDescription());
     }
 
 }
