@@ -98,8 +98,8 @@ public class AlphaOne {
                 } else {
                     throw new InvalidCommandException();
                 }
-            } catch (InvalidCommandException ice) {
-                System.out.println(ice.getMessage());
+            } catch (InvalidCommandException | IncompleteDetailsException exe) {
+                System.out.println(exe.getMessage());
             }
 
         }
@@ -164,18 +164,18 @@ public class AlphaOne {
         return String.join(" ", stringList);
     }
 
-    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException {
+    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException, IncompleteDetailsException  {
         switch (taskType) {
             case DEADLINE -> {
                 List<String> stringList = new ArrayList<>(Arrays.asList(commands));
                 stringList.remove(0);
                 int finder = stringList.indexOf("/by");
-                if (finder == -1 || finder == 0) { // add new exception for incomplete details
-                    throw new InvalidCommandException();
+                if (finder == -1 || finder == 0) {
+                    throw new IncompleteDetailsException();
                 }
                 List<String> deadlineList = stringList.subList(finder +1, stringList.size());
                 if (deadlineList.isEmpty()) {
-                    throw new InvalidCommandException();
+                    throw new IncompleteDetailsException();
                 }
                 String deadline = String.join(" ", deadlineList);
 
@@ -189,18 +189,18 @@ public class AlphaOne {
                 stringList.remove(0);
                 int finderFrom = stringList.indexOf("/from");
                 int finderTo = stringList.indexOf("/to");
-                if (finderTo == -1 || finderFrom == -1 || finderTo < finderFrom  || Math.abs(finderTo - finderFrom) <= 1) { // add new exception for incomplete details
+                if (finderTo == -1 || finderFrom == -1 || finderTo <= finderFrom + 1) {
                     throw new InvalidCommandException();
                 }
                 List<String> fromList = stringList.subList(finderFrom +1, finderTo);
                 if (fromList.isEmpty()) {
-                    throw new InvalidCommandException();
+                    throw new IncompleteDetailsException();
                 }
                 String fromDesc = String.join(" ", fromList);
 
                 List<String> ToList = stringList.subList(finderTo +1, stringList.size());
                 if (ToList.isEmpty()) {
-                    throw new InvalidCommandException();
+                    throw new IncompleteDetailsException();
                 }
                 String toDesc = String.join(" ", ToList);
 
