@@ -22,7 +22,8 @@ Tell me what you would like to do!
 Your task list is currently empty!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command! Please try again.
+Invalid MARK command! Please try again.
+Example: mark [task number]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 New task added to your task list!
@@ -92,7 +93,8 @@ Invalid command! Please try again.
 Invalid Task! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command! Please try again.
+Invalid MARK command! Please try again.
+Example: mark [task number]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Invalid task number!
@@ -143,13 +145,15 @@ Please add in what you would like to do followed with /by to set the deadline.
 Example: deadline write report /by tomorrow evening
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command! Please try again.
+Invalid DELETE command! Please try again.
+Example: delete [task number]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Invalid task number!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command! Please try again.
+Invalid DELETE command! Please try again.
+Example: delete [task number]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 The following task has been deleted!
@@ -165,6 +169,14 @@ The following task has been deleted!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Your task list is currently empty!
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid LIST command! No other parameters required.
+Example: list
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid BYE command! No other parameters required.
+Example: bye
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Thank you for using AlphaOne!

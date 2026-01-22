@@ -4,6 +4,7 @@ public class AlphaOne {
     private static Scanner scanner = new Scanner(System.in);
     private static TaskList taskList = new TaskList();
     public enum TaskType {TODO, DEADLINE, EVENT}
+    public enum CommandType {BYE, LIST, UNMARK, MARK, DELETE}
     public static void main(String[] args) {
         String logo =
         """
@@ -35,16 +36,13 @@ public class AlphaOne {
             String[] commands = input.split("\\s+");
             try {
                 if (commands[0].equalsIgnoreCase("bye")) {
-                    int expectedLength = 1;
-                    commandLengthChecker(expectedLength, commands.length);
+                    commandLengthChecker(commands.length, CommandType.BYE) ;
                     break;
                 } else if (commands[0].equalsIgnoreCase("list")) {
-                    int expectedLength = 1;
-                    commandLengthChecker(expectedLength, commands.length);
+                    commandLengthChecker(commands.length, CommandType.LIST);
                     taskList.getTasks();
                 } else if (commands[0].equalsIgnoreCase("mark")) {
-                    int expectedLength = 2;
-                    commandLengthChecker(expectedLength, commands.length);
+                    commandLengthChecker(commands.length, CommandType.MARK);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
@@ -57,8 +55,7 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
                 } else if (commands[0].equalsIgnoreCase("unmark")) {
-                    int expectedLength = 2;
-                    commandLengthChecker(expectedLength, commands.length);
+                    commandLengthChecker(commands.length, CommandType.UNMARK);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
@@ -72,8 +69,8 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
                 } else if (commands[0].equalsIgnoreCase("delete")) {
-                    int expectedLength = 2;
-                    commandLengthChecker(expectedLength, commands.length);
+
+                    commandLengthChecker(commands.length,  CommandType.DELETE);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
@@ -113,9 +110,15 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    private static void commandLengthChecker(int expected, int actual) throws InvalidCommandException {
+    private static void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
+        int expected;
+        switch (type) {
+            case BYE, LIST -> expected = 1;
+            case MARK, UNMARK, DELETE-> expected = 2;
+            default -> throw new InvalidCommandException();
+        }
         if (expected != actual) {
-            throw new InvalidCommandException();
+            throw new InvalidCommandException(type);
         }
     }
 

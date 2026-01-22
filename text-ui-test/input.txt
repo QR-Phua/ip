@@ -36,4 +36,6 @@ delete 1
 delete 2
 delete 3
 list
+list giberishhh
+bye nonsense
 bye
