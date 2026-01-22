@@ -1,9 +1,8 @@
 import java.util.*;
 
 public class AlphaOne {
-    private static int counter = 1;
     private static Scanner scanner = new Scanner(System.in);
-    private static HashMap<Integer,Task> taskList = new HashMap<>();
+    private static TaskList taskList = new TaskList();
     public enum TaskType {TODO, DEADLINE, EVENT}
     public static void main(String[] args) {
         String logo =
@@ -26,8 +25,6 @@ public class AlphaOne {
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
         System.out.println(logo);
-
-
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Hello! I am AlphaOne, your chatbot companion!");
         System.out.println("Tell me what you would like to do!");
@@ -44,14 +41,14 @@ public class AlphaOne {
                 } else if (commands[0].equalsIgnoreCase("list")) {
                     int expectedLength = 1;
                     commandLengthChecker(expectedLength, commands.length);
-                    getTasks();
+                    taskList.getTasks();
                 } else if (commands[0].equalsIgnoreCase("mark")) {
                     int expectedLength = 2;
                     commandLengthChecker(expectedLength, commands.length);
                     try {
                         int taskNum =  Integer.parseInt(commands[1]);
-                        taskExistenceChecker(taskNum);
-                        markDone(taskList.get(taskNum));
+                        taskList.taskExistenceChecker(taskNum);
+                        taskList.markDone(taskList.get(taskNum));
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
@@ -63,9 +60,9 @@ public class AlphaOne {
                     int expectedLength = 2;
                     commandLengthChecker(expectedLength, commands.length);
                     try {
-                        int taskNum =  Integer.parseInt(commands[1]);
-                        taskExistenceChecker(taskNum);
-                        unmarkDone(taskList.get(taskNum));
+                        int taskNum = Integer.parseInt(commands[1]);
+                        taskList.taskExistenceChecker(taskNum);
+                        taskList.unmarkDone(taskList.get(taskNum));
 
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
@@ -79,8 +76,8 @@ public class AlphaOne {
                     commandLengthChecker(expectedLength, commands.length);
                     try {
                         int taskNum =  Integer.parseInt(commands[1]);
-                        taskExistenceChecker(taskNum);
-                        deleteTask(taskNum);
+                        taskList.taskExistenceChecker(taskNum);
+                        taskList.deleteTask(taskNum);
 
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
@@ -93,18 +90,18 @@ public class AlphaOne {
                     if (commands.length < 2) {
                         throw new IncompleteDetailsException(TaskType.TODO);
                     }
-                    addTask(todoPrep(commands), TaskType.TODO);
+                    taskList.addTask(todoPrep(commands), TaskType.TODO);
 
                 } else if (commands[0].equalsIgnoreCase("deadline")) {
                     if (commands.length < 2) {
                         throw new InvalidCommandException(TaskType.DEADLINE);
                     }
                     ArrayList<String> tidied = descriptionPrep(commands, TaskType.DEADLINE);
-                    addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
+                    taskList.addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
 
                 } else if (commands[0].equalsIgnoreCase("event")) {
                     ArrayList<String> tidied = descriptionPrep(commands, TaskType.EVENT);
-                    addTask(tidied.get(0), TaskType.EVENT, tidied.get(1),  tidied.get(2));
+                    taskList.addTask(tidied.get(0), TaskType.EVENT, tidied.get(1),  tidied.get(2));
                 } else {
                     throw new InvalidCommandException();
                 }
@@ -117,69 +114,9 @@ public class AlphaOne {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    private static void getTasks() {
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        if (!taskList.isEmpty()) {
-            System.out.printf("You have these tasks in your list:%n");
-            for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
-                Task currentTask = entry.getValue();
-                System.out.printf("%d. %s%n", entry.getKey(), currentTask);
-            }
-        } else {
-            System.out.println("Your task list is currently empty!");
-        }
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-    }
-
-    private static void addTask(String input, TaskType type, String... params) {
-        Task newTask = null;
-        switch (type) {
-            case TODO -> newTask = new ToDo(input);
-            case DEADLINE -> newTask = new Deadline(input, params[0]);
-            case EVENT -> newTask = new Event(input, params[0], params[1]);
-            default -> System.out.println("Invalid task type!");
-        }
-        taskList.put(counter, newTask);
-        counter++;
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("New task added to your task list!");
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-    }
-
-    private static void deleteTask(int taskNum) {
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        Task deleteTask = taskList.get(taskNum);
-        taskList.remove(taskNum);
-        System.out.println("The following task has been deleted!");
-        System.out.println(deleteTask);
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-    }
-
-
-    private static void markDone(Task currentTask) {
-        currentTask.markDone();
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("Task marked done successfully!");
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-    }
-
-    private static void unmarkDone(Task currentTask) {
-        currentTask.markNotDone();
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        System.out.println("Task unmarked successfully!");
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-    }
-
     private static void commandLengthChecker(int expected, int actual) throws InvalidCommandException {
         if (expected != actual) {
             throw new InvalidCommandException();
-        }
-    }
-
-    private static void taskExistenceChecker(int selectedTask) throws InvalidTaskItemException {
-        Task searchTask = taskList.getOrDefault(selectedTask, null);
-        if (searchTask == null) {
-            throw new InvalidTaskItemException();
         }
     }
 
