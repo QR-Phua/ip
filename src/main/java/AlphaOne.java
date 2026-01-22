@@ -95,6 +95,8 @@ public class AlphaOne {
                 } else if (commands[0].equalsIgnoreCase("event")) {
                     ArrayList<String> tidied = descriptionPrep(commands, TaskType.EVENT);
                     addTask(tidied.get(0), TaskType.EVENT, tidied.get(1),  tidied.get(2));
+                } else {
+                    throw new InvalidCommandException();
                 }
             } catch (InvalidCommandException ice) {
                 System.out.println(ice.getMessage());
