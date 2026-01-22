@@ -52,9 +52,6 @@ public class AlphaOne {
                         int taskNum =  Integer.parseInt(commands[1]);
                         taskExistenceChecker(taskNum);
                         markDone(taskList.get(taskNum));
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                        System.out.println("Task marked done successfully!");
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
@@ -69,9 +66,7 @@ public class AlphaOne {
                         int taskNum =  Integer.parseInt(commands[1]);
                         taskExistenceChecker(taskNum);
                         unmarkDone(taskList.get(taskNum));
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-                        System.out.println("Task unmarked successfully!");
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
@@ -132,7 +127,6 @@ public class AlphaOne {
         }
         taskList.put(counter, newTask);
         counter++;
-
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("New task added to your task list!");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -140,10 +134,16 @@ public class AlphaOne {
 
     private static void markDone(Task currentTask) {
         currentTask.markDone();
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println("Task marked done successfully!");
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
     private static void unmarkDone(Task currentTask) {
         currentTask.markNotDone();
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println("Task unmarked successfully!");
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
     private static void commandLengthChecker(int expected, int actual) throws InvalidCommandException {
