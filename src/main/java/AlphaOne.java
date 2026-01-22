@@ -46,9 +46,9 @@ public class AlphaOne {
                     int expectedLength = 2;
                     commandLengthChecker(expectedLength, commands.length);
                     try {
-                        int taskNum =  Integer.parseInt(commands[1]);
+                        int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
-                        taskList.markDone(taskList.get(taskNum));
+                        taskList.markDone(taskNum);
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
@@ -62,7 +62,7 @@ public class AlphaOne {
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
-                        taskList.unmarkDone(taskList.get(taskNum));
+                        taskList.unmarkDone(taskNum);
 
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
@@ -75,10 +75,9 @@ public class AlphaOne {
                     int expectedLength = 2;
                     commandLengthChecker(expectedLength, commands.length);
                     try {
-                        int taskNum =  Integer.parseInt(commands[1]);
+                        int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
                         taskList.deleteTask(taskNum);
-
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {

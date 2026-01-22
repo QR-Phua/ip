@@ -48,17 +48,21 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    public void markDone(Task currentTask) {
-        currentTask.markDone();
+    public void markDone(int taskNum) {
+        Task markTask = taskList.get(taskNum);
+        markTask.markDone();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Task marked done successfully!");
+        System.out.println(markTask);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    public void unmarkDone(Task currentTask) {
-        currentTask.markNotDone();
+    public void unmarkDone(int taskNum) {
+        Task unMarkTask = taskList.get(taskNum);
+        unMarkTask.markNotDone();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Task unmarked successfully!");
+        System.out.println(unMarkTask);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
@@ -69,7 +73,4 @@ public class TaskList {
         }
     }
 
-    public Task get(int index) {
-        return taskList.get(index);
-    }
 }
