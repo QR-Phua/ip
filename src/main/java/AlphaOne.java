@@ -76,13 +76,13 @@ public class AlphaOne {
                     }
                 } else if (commands[0].equalsIgnoreCase("todo")) {
                     if (commands.length < 2) {
-                        throw new InvalidCommandException();
+                        throw new IncompleteDetailsException(TaskType.TODO);
                     }
                     addTask(todoPrep(commands), TaskType.TODO);
 
                 } else if (commands[0].equalsIgnoreCase("deadline")) {
                     if (commands.length < 2) {
-                        throw new InvalidCommandException();
+                        throw new InvalidCommandException(TaskType.DEADLINE);
                     }
                     ArrayList<String> tidied = descriptionPrep(commands, TaskType.DEADLINE);
                     addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
@@ -96,7 +96,6 @@ public class AlphaOne {
             } catch (InvalidCommandException | IncompleteDetailsException exe) {
                 System.out.println(exe.getMessage());
             }
-
         }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Thank you for using AlphaOne! ");
@@ -171,11 +170,11 @@ public class AlphaOne {
                 stringList.remove(0);
                 int finder = stringList.indexOf("/by");
                 if (finder == -1 || finder == 0) {
-                    throw new IncompleteDetailsException();
+                    throw new InvalidCommandException(taskType);
                 }
                 List<String> deadlineList = stringList.subList(finder +1, stringList.size());
                 if (deadlineList.isEmpty()) {
-                    throw new IncompleteDetailsException();
+                    throw new IncompleteDetailsException(taskType);
                 }
                 String deadline = String.join(" ", deadlineList);
 
@@ -190,17 +189,17 @@ public class AlphaOne {
                 int finderFrom = stringList.indexOf("/from");
                 int finderTo = stringList.indexOf("/to");
                 if (finderTo == -1 || finderFrom == -1 || finderTo <= finderFrom + 1) {
-                    throw new InvalidCommandException();
+                    throw new InvalidCommandException(taskType);
                 }
                 List<String> fromList = stringList.subList(finderFrom +1, finderTo);
                 if (fromList.isEmpty()) {
-                    throw new IncompleteDetailsException();
+                    throw new IncompleteDetailsException(taskType);
                 }
                 String fromDesc = String.join(" ", fromList);
 
                 List<String> ToList = stringList.subList(finderTo +1, stringList.size());
                 if (ToList.isEmpty()) {
-                    throw new IncompleteDetailsException();
+                    throw new IncompleteDetailsException(taskType);
                 }
                 String toDesc = String.join(" ", ToList);
 

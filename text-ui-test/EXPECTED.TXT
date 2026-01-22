@@ -14,7 +14,6 @@
  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_
 (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)
-
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Hello! I am AlphaOne, your chatbot companion!
 Tell me what you would like to do!
@@ -23,13 +22,13 @@ Tell me what you would like to do!
 Your task list is currently empty!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
+Invalid command! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 New task added to your task list!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
+Invalid command! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 New task added to your task list!
@@ -77,58 +76,68 @@ You have these tasks in your list:
 Task unmarked successfully!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
+Invalid command! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid Task!
+Invalid Task! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid task number!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid Task!
+Invalid command! Please try again.
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Invalid task number!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
+Invalid Task! Please try again.
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid task number!
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Incomplete details to create task!
+Please add in what you would like to do?
+Example: todo cook a feast
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 New task added to your task list!
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Incomplete details to create task!
+Invalid DEADLINE command! Please try again.
+Example: deadline [task description] /by [task due date]
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid DEADLINE command! Please try again.
+Example: deadline [task description] /by [task due date]
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid EVENT command! Please try again.
+Example: event [event description] /from [date time] /to [date time]
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid EVENT command! Please try again.
+Example: event [event description] /from [date time] /to [date time]
++––––––––––––––––––––––––––––––––––––––––––––––+
++––––––––––––––––––––––––––––––––––––––––––––––+
+Invalid EVENT command! Please try again.
+Example: event [event description] /from [date time] /to [date time]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Incomplete details to create task!
+Please add in what you would like to do followed with /from and /to to set the duration?
+Example: event attend wedding on saturday /from 12pm /to 6pm
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
+Invalid EVENT command! Please try again.
+Example: event [event description] /from [date time] /to [date time]
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Incomplete details to create task!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Invalid command!
-+––––––––––––––––––––––––––––––––––––––––––––––+
-+––––––––––––––––––––––––––––––––––––––––––––––+
-Incomplete details to create task!
+Please add in what you would like to do followed with /by to set the deadline.
+Example: deadline write report /by tomorrow evening
 +––––––––––––––––––––––––––––––––––––––––––––––+
 +––––––––––––––––––––––––––––––––––––––––––––––+
 Thank you for using AlphaOne!
 +––––––––––––––––––––––––––––––––––––––––––––––+
-
-
 
 
 
