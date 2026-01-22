@@ -35,6 +35,7 @@ public class TaskList {
         counter++;
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("New task added to your task list!");
+        System.out.println(newTask);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
