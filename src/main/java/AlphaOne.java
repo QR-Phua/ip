@@ -108,7 +108,7 @@ public class AlphaOne {
             System.out.printf("You have these tasks in your list:%n");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                 Task currentTask = entry.getValue();
-                System.out.printf("%d. [%s] [%s] %s%n", entry.getKey(), currentTask.getType(), currentTask.getStatus(), currentTask.getDescription());
+                System.out.printf("%d. %s", entry.getKey(), currentTask);
             }
         } else {
             System.out.println("Your task list is currently empty!");
@@ -130,6 +130,8 @@ public class AlphaOne {
         System.out.println("New task added to your task list!");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
+
+
 
     private static void markDone(Task currentTask) {
         currentTask.markDone();
