@@ -1,14 +1,20 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public class Deadline extends Task {
-    private String deadline;
+    private final LocalDate deadline;
+    private final DateTimeFormatter stringDateTimeFormatter = DateTimeFormatter
+            .ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
 
     public Deadline(String description, String deadline) {
         super(description);
-        this.deadline = deadline;
+        this.deadline = LocalDate.parse(deadline);
     }
 
     public Deadline(boolean wasDone, String description, String deadline) {
         super(description);
-        this.deadline = deadline;
+        this.deadline = LocalDate.parse(deadline);
         if (wasDone) {
             this.markDone();
         }
@@ -18,13 +24,14 @@ public class Deadline extends Task {
         return ("D");
     }
 
-    public String getDeadline() {
+    public LocalDate getDeadline() {
         return deadline;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s (by: %s)",this.getType(), this.getStatus(), super.getDescription(), deadline);
+        return String.format("[%s] [%s] %s (by: %s)",this.getType(),
+                this.getStatus(), super.getDescription(), deadline.format(stringDateTimeFormatter));
     }
 
     @Override

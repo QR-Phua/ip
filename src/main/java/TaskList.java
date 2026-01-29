@@ -1,9 +1,9 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -13,7 +13,8 @@ import java.util.Objects;
 
 public class TaskList {
     private HashMap<Integer,Task> taskList;
-    private final Path fileStoragePath = Paths.get("..","data", "alphaone.txt");
+    // use app working dir + data/alphaone.txt so path is predictable and writable
+    private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
     private int counter = 1;
 
     public TaskList() {
@@ -98,19 +99,31 @@ public class TaskList {
         return newTask;
     }
 
-    public void retrieveTaskList() {
-        try (BufferedReader br = new BufferedReader(
-                new FileReader(fileStoragePath.toString()))) {
-
-            HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
-
-            String nextline;
-            while ((nextline = br.readLine()) != null) { // Read until the end of the file (null)
-                String[] split = nextline.split("!@!");
-                rebuiltTaskList.put(counter, rebuildTask(split));
-                counter++;
+    private void retrieveTaskList() {
+        try {
+            // ensure parent directory exists
+            Path parent = fileStoragePath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
             }
-            this.taskList = rebuiltTaskList;
+            // ensure file exists (create empty file if missing) and return early
+            if (!Files.exists(fileStoragePath)) {
+                Files.createFile(fileStoragePath);
+                return; // nothing to read
+            }
+
+            try (BufferedReader br = Files.newBufferedReader(fileStoragePath, StandardCharsets.UTF_8)) {
+
+                HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
+
+                String nextline;
+                while ((nextline = br.readLine()) != null) { // Read until the end of the file (null)
+                    String[] split = nextline.split("!@!");
+                    rebuiltTaskList.put(counter, rebuildTask(split));
+                    counter++;
+                }
+                this.taskList = rebuiltTaskList;
+            }
         }
         catch (IOException e) {
             System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -121,12 +134,20 @@ public class TaskList {
     }
 
     public void saveTaskList() {
-        try (BufferedWriter bw = new BufferedWriter(
-                new FileWriter(fileStoragePath.toString()))) {
+        try {
+            Path parent = fileStoragePath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            if (!Files.exists(fileStoragePath)) {
+                Files.createFile(fileStoragePath);
+            }
 
-            for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
-                bw.write(entry.getValue().serialiseTask());
-                bw.newLine();
+            try (BufferedWriter bw = Files.newBufferedWriter(fileStoragePath, StandardCharsets.UTF_8)) {
+                for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+                    bw.write(entry.getValue().serialiseTask());
+                    bw.newLine();
+                }
             }
 
         } catch (IOException e) {

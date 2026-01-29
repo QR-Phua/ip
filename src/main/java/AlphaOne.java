@@ -1,4 +1,12 @@
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+
 
 public class AlphaOne {
     private static Scanner scanner = new Scanner(System.in);
@@ -25,7 +33,6 @@ public class AlphaOne {
         (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
-        taskList.retrieveTaskList();
         System.out.println(logo);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Hello! I am AlphaOne, your chatbot companion!");
@@ -70,7 +77,6 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
                 } else if (commands[0].equalsIgnoreCase("delete")) {
-
                     commandLengthChecker(commands.length,  CommandType.DELETE);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
@@ -102,7 +108,7 @@ public class AlphaOne {
                 } else {
                     throw new InvalidCommandException();
                 }
-            } catch (InvalidCommandException | IncompleteDetailsException exe) {
+            } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exe) {
                 System.out.println(exe.getMessage());
             }
         }
@@ -130,52 +136,76 @@ public class AlphaOne {
         return String.join(" ", stringList);
     }
 
-    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException, IncompleteDetailsException  {
+    private static void localDateChecker(String input, TaskType type) throws InvalidDateTimeException {
+        if (type.equals(TaskType.DEADLINE)) {
+            try {
+                LocalDate.parse(input);
+            } catch (DateTimeParseException dtpe) {
+                throw new InvalidDateTimeException(type);
+            }
+        } else {
+            try {
+                LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+            } catch (DateTimeParseException dtpe) {
+                throw new InvalidDateTimeException(type);
+            }
+        }
+    }
+
+    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         switch (taskType) {
-            case DEADLINE -> {
-                List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-                stringList.remove(0);
-                int finder = stringList.indexOf("/by");
-                if (finder == -1 || finder == 0) {
-                    throw new InvalidCommandException(taskType);
-                }
-                List<String> deadlineList = stringList.subList(finder +1, stringList.size());
-                if (deadlineList.isEmpty()) {
-                    throw new IncompleteDetailsException(taskType);
-                }
-                String deadline = String.join(" ", deadlineList);
-
-                List<String> descriptionList = stringList.subList(0, finder);
-                String description = String.join(" ", descriptionList);
-
-                return new ArrayList<>(Arrays.asList(description, deadline));
+        case DEADLINE -> {
+            List<String> stringList = new ArrayList<>(Arrays.asList(commands));
+            stringList.remove(0);
+            int finder = stringList.indexOf("/by");
+            if (finder == -1 || finder == 0) {
+                throw new InvalidCommandException(taskType);
             }
-            case EVENT -> {
-                List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-                stringList.remove(0);
-                int finderFrom = stringList.indexOf("/from");
-                int finderTo = stringList.indexOf("/to");
-                if (finderTo == -1 || finderFrom == -1 || finderTo <= finderFrom + 1) {
-                    throw new InvalidCommandException(taskType);
-                }
-                List<String> fromList = stringList.subList(finderFrom +1, finderTo);
-                if (fromList.isEmpty()) {
-                    throw new IncompleteDetailsException(taskType);
-                }
-                String fromDesc = String.join(" ", fromList);
-
-                List<String> ToList = stringList.subList(finderTo +1, stringList.size());
-                if (ToList.isEmpty()) {
-                    throw new IncompleteDetailsException(taskType);
-                }
-                String toDesc = String.join(" ", ToList);
-
-                List<String> descList = stringList.subList(0, finderFrom);
-                String description = String.join(" ", descList);
-
-                return new ArrayList<>(Arrays.asList(description, fromDesc, toDesc));
+            List<String> deadlineList = stringList.subList(finder +1, stringList.size());
+            if (deadlineList.isEmpty()) {
+                throw new IncompleteDetailsException(taskType);
             }
-            default -> throw new InvalidCommandException();
+            String deadline = String.join(" ", deadlineList);
+
+            localDateChecker(deadline, taskType);
+
+            List<String> descriptionList = stringList.subList(0, finder);
+            String description = String.join(" ", descriptionList);
+
+            return new ArrayList<>(Arrays.asList(description, deadline));
+        }
+        case EVENT -> {
+            List<String> stringList = new ArrayList<>(Arrays.asList(commands));
+            stringList.remove(0);
+            int finderFrom = stringList.indexOf("/from");
+            int finderTo = stringList.indexOf("/to");
+            if (finderTo == -1 || finderFrom == -1 || finderTo <= finderFrom + 1) {
+                throw new InvalidCommandException(taskType);
+            }
+            List<String> fromList = stringList.subList(finderFrom +1, finderTo);
+            if (fromList.isEmpty()) {
+                throw new IncompleteDetailsException(taskType);
+            }
+
+            String fromDesc = String.join(" ", fromList);
+
+            localDateChecker(fromDesc, taskType);
+
+            List<String> ToList = stringList.subList(finderTo +1, stringList.size());
+            if (ToList.isEmpty()) {
+                throw new IncompleteDetailsException(taskType);
+            }
+
+            String toDesc = String.join(" ", ToList);
+
+            localDateChecker(toDesc, taskType);
+
+            List<String> descList = stringList.subList(0, finderFrom);
+            String description = String.join(" ", descList);
+
+            return new ArrayList<>(Arrays.asList(description, fromDesc, toDesc));
+        }
+        default -> throw new InvalidCommandException();
         }
 
     }
