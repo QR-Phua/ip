@@ -7,6 +7,10 @@ public class Task {
         this.done = false;
     }
 
+    public boolean done() {
+        return done;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -28,12 +32,16 @@ public class Task {
     }
 
     public String getType() {
-        return "";
+        return "Task";
     }
 
     @Override
     public String toString() {
         return String.format("[%s] [%s] %s",this.getType(), this.getStatus(), this.getDescription());
+    }
+
+    public String serialiseTask() {
+        return String.format("%s!@!%s!@!%s",this.getType(), this.isDone(), this.getDescription());
     }
 
 }
