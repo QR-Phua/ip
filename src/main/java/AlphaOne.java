@@ -25,6 +25,7 @@ public class AlphaOne {
         (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
          (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
         """;
+        taskList.retrieveTaskList();
         System.out.println(logo);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Hello! I am AlphaOne, your chatbot companion!");
@@ -105,6 +106,7 @@ public class AlphaOne {
                 System.out.println(exe.getMessage());
             }
         }
+        taskList.saveTaskList();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Thank you for using AlphaOne! ");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
