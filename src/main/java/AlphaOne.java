@@ -77,7 +77,6 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
                 } else if (commands[0].equalsIgnoreCase("delete")) {
-
                     commandLengthChecker(commands.length,  CommandType.DELETE);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);

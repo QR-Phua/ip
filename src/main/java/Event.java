@@ -1,17 +1,25 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public class Event extends Task {
-    private String eventStart;
-    private String eventEnd;
+    private final LocalDateTime eventStart;
+    private final LocalDateTime eventEnd;
+    private final DateTimeFormatter stringDateTimeFormatter = DateTimeFormatter
+            .ofPattern("MMMM dd, yyyy h:mm a", Locale.ENGLISH);
 
     public Event(String description, String eventStart, String eventEnd) {
         super(description);
-        this.eventStart = eventStart;
-        this.eventEnd = eventEnd;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+        this.eventStart = LocalDateTime.parse(eventStart, formatter);
+        this.eventEnd = LocalDateTime.parse(eventEnd, formatter);
     }
 
     public Event(boolean wasDone, String description, String eventStart, String eventEnd) {
         super(description);
-        this.eventStart = eventStart;
-        this.eventEnd = eventEnd;
+        this.eventStart = LocalDateTime.parse(eventStart);
+        this.eventEnd = LocalDateTime.parse(eventEnd);
         if (wasDone) {
             this.markDone();
         }
@@ -21,22 +29,25 @@ public class Event extends Task {
         return ("E");
     }
 
-    public String getEventStart() {
+    public LocalDateTime getEventStart() {
         return eventStart;
     }
 
-    public String getEventEnd() {
+    public LocalDateTime getEventEnd() {
         return eventEnd;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s (from %s to %s)",this.getType(), this.getStatus(), super.getDescription(), eventStart, eventEnd);
+        return String.format("[%s] [%s] %s (from %s to %s)",this.getType(),
+                this.getStatus(), super.getDescription(), eventStart.format(stringDateTimeFormatter),
+                eventEnd.format(stringDateTimeFormatter));
     }
 
     @Override
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s!@!%s!@!%s",this.getType(), this.isDone(), this.getDescription(), eventStart, eventEnd);
+        return String.format("%s!@!%s!@!%s!@!%s!@!%s",this.getType(), this.isDone(),
+                this.getDescription(), eventStart, eventEnd);
     }
 
 }

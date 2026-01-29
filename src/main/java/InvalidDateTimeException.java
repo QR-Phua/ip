@@ -14,16 +14,14 @@ public class InvalidDateTimeException extends Exception{
                 +––––––––––––––––––––––––––––––––––––––––––––––+
                 Datetime information provided is invalid!
                 For Deadline tasks, use YYYY-MM-DD
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                """;
+                +––––––––––––––––––––––––––––––––––––––––––––––+""";
         }
         case EVENT -> {
             return """
                 +––––––––––––––––––––––––––––––––––––––––––––––+
                 Datetime information provided is invalid!
                 For Event tasks, use YYYY-MM-DD HHMM
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                """;
+                +––––––––––––––––––––––––––––––––––––––––––––––+""";
         }
         default -> {
             return """

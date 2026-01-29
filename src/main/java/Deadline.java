@@ -1,7 +1,11 @@
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class Deadline extends Task {
-    private LocalDate deadline;
+    private final LocalDate deadline;
+    private final DateTimeFormatter stringDateTimeFormatter = DateTimeFormatter
+            .ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
 
     public Deadline(String description, String deadline) {
         super(description);
@@ -26,7 +30,8 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s (by: %s)",this.getType(), this.getStatus(), super.getDescription(), deadline);
+        return String.format("[%s] [%s] %s (by: %s)",this.getType(),
+                this.getStatus(), super.getDescription(), deadline.format(stringDateTimeFormatter));
     }
 
     @Override
