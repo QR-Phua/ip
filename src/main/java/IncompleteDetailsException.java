@@ -1,5 +1,5 @@
 public class IncompleteDetailsException extends Exception{
-    private AlphaOne.TaskType taskType;
+    private final AlphaOne.TaskType taskType;
 
     public IncompleteDetailsException(AlphaOne.TaskType taskType) {
         super();
