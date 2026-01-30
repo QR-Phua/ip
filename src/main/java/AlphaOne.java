@@ -12,7 +12,7 @@ public class AlphaOne {
     private static Scanner scanner = new Scanner(System.in);
     private static TaskList taskList = new TaskList();
     public enum TaskType {TODO, DEADLINE, EVENT}
-    public enum CommandType {BYE, LIST, UNMARK, MARK, DELETE}
+    public enum CommandType {BYE, LIST, UNMARK, MARK, DELETE, FIND}
     public static void main(String[] args) {
         String logo =
         """
@@ -77,7 +77,7 @@ public class AlphaOne {
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
                 } else if (commands[0].equalsIgnoreCase("delete")) {
-                    commandLengthChecker(commands.length,  CommandType.DELETE);
+                    commandLengthChecker(commands.length, CommandType.DELETE);
                     try {
                         int taskNum = Integer.parseInt(commands[1]);
                         taskList.taskExistenceChecker(taskNum);
@@ -89,6 +89,16 @@ public class AlphaOne {
                         System.out.println("Invalid task number!");
                         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
                     }
+                } else if (commands[0].equalsIgnoreCase("find")) {
+                    commandLengthChecker(commands.length, CommandType.FIND);
+                    // build the search keyword from the remaining tokens so multi-word keywords work
+                    String keyword = String.join(" ", Arrays.asList(commands).subList(1, commands.length)).trim();
+                    if (keyword.isEmpty()) {
+                        // enforce the same invalid command behavior as elsewhere
+                        throw new InvalidCommandException(CommandType.FIND);
+                    }
+                    taskList.displaySearchResults(keyword);
+
                 } else if (commands[0].equalsIgnoreCase("todo")) {
                     if (commands.length < 2) {
                         throw new IncompleteDetailsException(TaskType.TODO);
@@ -122,7 +132,7 @@ public class AlphaOne {
         int expected;
         switch (type) {
             case BYE, LIST -> expected = 1;
-            case MARK, UNMARK, DELETE-> expected = 2;
+            case MARK, UNMARK, DELETE, FIND-> expected = 2;
             default -> throw new InvalidCommandException();
         }
         if (expected != actual) {
