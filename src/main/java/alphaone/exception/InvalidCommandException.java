@@ -1,3 +1,7 @@
+package alphaone.exception;
+
+import alphaone.AlphaOne;
+
 public class InvalidCommandException extends Exception {
     private final AlphaOne.TaskType taskType;
     private final AlphaOne.CommandType commandType;

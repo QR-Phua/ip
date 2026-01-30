@@ -1,3 +1,5 @@
+package alphaone.exception;
+
 public class InvalidTaskItemException extends Exception {
     public InvalidTaskItemException() {
         super("""
@@ -7,5 +9,3 @@ public class InvalidTaskItemException extends Exception {
 
     }
 }
-
-
