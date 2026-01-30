@@ -10,24 +10,24 @@ public class InvalidDateTimeException extends Exception{
     public String getMessage() {
         switch (taskType) {
         case DEADLINE -> {
-            return """
+            return ("""
                 +––––––––––––––––––––––––––––––––––––––––––––––+
                 Datetime information provided is invalid!
                 For Deadline tasks, use YYYY-MM-DD
-                +––––––––––––––––––––––––––––––––––––––––––––––+""";
+                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
         }
         case EVENT -> {
-            return """
+            return ("""
                 +––––––––––––––––––––––––––––––––––––––––––––––+
                 Datetime information provided is invalid!
                 For Event tasks, use YYYY-MM-DD HHMM
-                +––––––––––––––––––––––––––––––––––––––––––––––+""";
+                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
         }
         default -> {
-            return """
+            return ("""
                 +––––––––––––––––––––––––––––––––––––––––––––––+
                 Datetime information provided is invalid!
-                +––––––––––––––––––––––––––––––––––––––––––––––+""";
+                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
         }
         }
     }

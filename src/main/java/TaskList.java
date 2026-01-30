@@ -25,7 +25,7 @@ public class TaskList {
     public void getTasks() {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         if (!taskList.isEmpty()) {
-            System.out.printf("You have these tasks in your list:%n");
+            System.out.println("You have these tasks in your list:");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                 Task currentTask = entry.getValue();
                 System.out.printf("%d. %s%n", entry.getKey(), currentTask);
@@ -157,6 +157,31 @@ public class TaskList {
             System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         }
 
+    }
+
+    public HashMap<Integer, Task> searchKeyword(String keyword) {
+        HashMap<Integer,Task> searchedTaskList = new HashMap<>();
+        for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+            Task currentTask = entry.getValue();
+            if (currentTask.getDescription().contains(keyword)) {
+                searchedTaskList.put(entry.getKey(), currentTask);
+            }
+        }
+        return searchedTaskList;
+    }
+
+    public void displaySearchResults(String keyword) {
+        HashMap<Integer,Task> searchedTaskList = searchKeyword(keyword);
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        if (!searchedTaskList.isEmpty()) {
+            System.out.println("These are the most relevant tasks");
+            for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
+                System.out.printf("%d. %s%n", entry.getKey(), entry.getValue());
+            }
+        } else {
+            System.out.println("No relevant tasks found!");
+        }
+        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
 }
