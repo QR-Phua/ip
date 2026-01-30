@@ -2,9 +2,17 @@ package alphaone.exception;
 
 import alphaone.AlphaOne;
 
+/**
+ * Signals that a command required additional details (e.g. /by, /from, /to) that were missing.
+ */
 public class IncompleteDetailsException extends Exception{
     private final AlphaOne.TaskType taskType;
 
+    /**
+     * Create an IncompleteDetailsException indicating which task type was missing details.
+     *
+     * @param taskType the task type with incomplete details.
+     */
     public IncompleteDetailsException(AlphaOne.TaskType taskType) {
         super();
         this.taskType = taskType;

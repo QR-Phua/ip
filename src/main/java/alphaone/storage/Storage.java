@@ -16,12 +16,24 @@ import alphaone.model.ToDo;
 import alphaone.model.Deadline;
 import alphaone.model.Event;
 
+/**
+ * Handles persistence for the application by reading/writing tasks to a text file.
+ *
+ * The Storage class reads a simple line-based serialization and reconstructs
+ * task objects. It is robust to malformed lines and will skip invalid entries.
+ */
 public class Storage {
     private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
 
     public Storage() {
     }
 
+    /**
+     * Loads tasks from the storage file and rebuilds an in-memory task map.
+     *
+     * @return a HashMap mapping integer identifiers to Task instances. If no
+     *         file exists an empty map is returned.
+     */
     public HashMap<Integer, Task> load() {
         HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
         int counter = 1;
@@ -85,6 +97,11 @@ public class Storage {
         return rebuiltTaskList;
     }
 
+    /**
+     * Persists the provided task map to the storage file, replacing its contents.
+     *
+     * @param taskList the task map to persist; keys and order are retained.
+     */
     public void save(HashMap<Integer, Task> taskList) {
         try {
             Path parent = fileStoragePath.getParent();

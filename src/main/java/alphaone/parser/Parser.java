@@ -13,17 +13,46 @@ import alphaone.exception.IncompleteDetailsException;
 import alphaone.exception.InvalidDateTimeException;
 import alphaone.AlphaOne;
 
+/**
+ * Utility class that provides parsing helpers for command-line input.
+ *
+ * The Parser contains small stateless helpers to split input tokens, join tokens
+ * from an index, validate date/time inputs and extract task descriptions and
+ * timings for deadline and event tasks.
+ */
 public class Parser {
 
+    /**
+     * Splits raw user input into tokens separated by whitespace.
+     *
+     * @param input the raw input line provided by the user.
+     * @return an array of tokens extracted from {@code input}.
+     */
     public static String[] splitInput(String input) {
         return input.split("\\s+");
     }
 
+    /**
+     * Joins tokens from the provided start index to the end into a single string.
+     *
+     * @param tokens the array of tokens to join.
+     * @param start the index at which to begin joining (inclusive).
+     * @return the joined string, or an empty string if {@code start} is past the end.
+     */
     public static String joinFromIndex(String[] tokens, int start) {
         if (start >= tokens.length) return "";
         return String.join(" ", Arrays.asList(tokens).subList(start, tokens.length)).trim();
     }
 
+    /**
+     * Validates a date or datetime string according to the task type.
+     *
+     * If the format is invalid an {@link InvalidDateTimeException} is thrown.
+     *
+     * @param input the date/datetime string to validate.
+     * @param type the task type that determines expected format.
+     * @throws InvalidDateTimeException if {@code input} cannot be parsed for {@code type}.
+     */
     public static void validateDate(String input, AlphaOne.TaskType type) throws InvalidDateTimeException {
         if (type.equals(AlphaOne.TaskType.DEADLINE)) {
             try {
@@ -40,6 +69,19 @@ public class Parser {
         }
     }
 
+    /**
+     * Extracts and validates description and date/time parts for deadline and event commands.
+     *
+     * For DEADLINE: expects input tokens to contain a "/by" marker. Returns [description, deadline].
+     * For EVENT: expects input tokens to contain "/from" and "/to" markers. Returns [description, from, to].
+     *
+     * @param commands the tokenised user input (first token is the command word).
+     * @param taskType the task type to parse (DEADLINE or EVENT).
+     * @return an ArrayList of strings containing parsed segments as described above.
+     * @throws InvalidCommandException if required markers are missing or misplaced.
+     * @throws IncompleteDetailsException if required segments are empty.
+     * @throws InvalidDateTimeException if any date/time segment fails validation.
+     */
     public static ArrayList<String> descriptionPrep(String[] commands, AlphaOne.TaskType taskType) throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         switch (taskType) {
         case DEADLINE -> {
