@@ -16,6 +16,13 @@ import alphaone.exception.InvalidTaskItemException;
 import alphaone.exception.IncompleteDetailsException;
 
 
+/**
+ * AlphaOne is the main application class that coordinates user input, parsing,
+ * task management and persistence.
+ * <p>
+ * It holds the application's {@code TaskList} and {@code Storage} instances and
+ * contains the interactive loop implemented in {@link #run()}.
+ */
 public class AlphaOne {
     private final TaskList taskList;
     private final Storage storage;
@@ -30,6 +37,13 @@ public class AlphaOne {
         // Optionally, you might want to merge storage.load() output into taskList here
     }
 
+    /**
+     * Start the interactive application loop.
+     * <p>
+     * This method prints the welcome banner, loads any saved tasks from
+     * {@link alphaone.storage.Storage}, processes commands until the user
+     * issues the {@code bye} command, and then persists the task list.
+     */
     public void run() {
         System.out.println(Ui.printLogo());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -151,6 +165,11 @@ public class AlphaOne {
     }
 
     // standard entry point so `java AlphaOne` works
+    /**
+     * Program entry point that creates the application instance and runs it.
+     *
+     * @param args command-line arguments (ignored)
+     */
     public static void main(String[] args) {
         new AlphaOne().run();
     }

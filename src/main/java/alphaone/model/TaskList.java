@@ -3,6 +3,12 @@ package alphaone.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * In-memory container for Tasks with helper operations.
+ *
+ * TaskList stores tasks indexed by integer ids, and offers operations to add,
+ * delete, mark/unmark and search tasks.
+ */
 public class TaskList {
     private HashMap<Integer,Task> taskList;
     private int counter = 1;
@@ -11,6 +17,9 @@ public class TaskList {
         taskList = new HashMap<>();
     }
 
+    /**
+     * Displays tasks to standard output in a numbered list.
+     */
     public void getTasks() {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         if (!taskList.isEmpty()) {
@@ -25,6 +34,13 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    /**
+     * Adds a new task of the specified type to the list.
+     *
+     * @param input the task description or primary input.
+     * @param type the task type to add (TODO, DEADLINE, EVENT).
+     * @param params optional additional parameters (e.g. date/time strings).
+     */
     public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
         Task newTask = null;
         switch (type) {
@@ -41,6 +57,11 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    /**
+     * Deletes the task with the specified id.
+     *
+     * @param taskNum identifier of the task to remove.
+     */
     public void deleteTask(int taskNum) {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         Task deleteTask = taskList.get(taskNum);
@@ -50,6 +71,11 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    /**
+     * Marks the specified task as done.
+     *
+     * @param taskNum identifier of the task to mark.
+     */
     public void markDone(int taskNum) {
         Task markTask = taskList.get(taskNum);
         markTask.markDone();
@@ -59,6 +85,11 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    /**
+     * Marks the specified task as not done.
+     *
+     * @param taskNum identifier of the task to unmark.
+     */
     public void unmarkDone(int taskNum) {
         Task unMarkTask = taskList.get(taskNum);
         unMarkTask.markNotDone();
@@ -68,6 +99,12 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
+    /**
+     * Verify that the specified task id exists in the list.
+     *
+     * @param selectedTask the id to check.
+     * @throws alphaone.exception.InvalidTaskItemException if the id does not exist.
+     */
     public void taskExistenceChecker(int selectedTask) throws alphaone.exception.InvalidTaskItemException {
         Task searchTask = taskList.getOrDefault(selectedTask, null);
         if (searchTask == null) {
@@ -76,6 +113,12 @@ public class TaskList {
     }
 
 
+    /**
+     * Searches the task descriptions for the provided keyword.
+     *
+     * @param keyword substring to search for.
+     * @return a map of matching tasks keyed by their ids.
+     */
     public HashMap<Integer, Task> searchKeyword(String keyword) {
         HashMap<Integer,Task> searchedTaskList = new HashMap<>();
         for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
@@ -87,6 +130,11 @@ public class TaskList {
         return searchedTaskList;
     }
 
+    /**
+     * Displays search results to standard output.
+     *
+     * @param keyword substring to search for.
+     */
     public void displaySearchResults(String keyword) {
         HashMap<Integer,Task> searchedTaskList = searchKeyword(keyword);
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
@@ -101,12 +149,20 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    // expose internal map for persistence and external inspection
+    /**
+     * Returns the internal task map for persistence.
+     *
+     * @return internal task map.
+     */
     public HashMap<Integer, Task> getInternalMap() {
         return this.taskList;
     }
 
-    // allow external code to replace the internal task map (used when loading from storage)
+    /**
+     * Replaces the internal task map with the provided one and adjusts the id counter.
+     *
+     * @param map the replacement map (ignored if null).
+     */
     public void setInternalMap(HashMap<Integer, Task> map) {
         if (map == null) return;
         this.taskList = map;

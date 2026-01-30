@@ -2,9 +2,16 @@ package alphaone.exception;
 
 import alphaone.AlphaOne;
 
+/**
+ * Signals that a user command was invalid or malformed.
+ */
 public class InvalidCommandException extends Exception {
     private final AlphaOne.TaskType taskType;
     private final AlphaOne.CommandType commandType;
+
+    /**
+     * Creates a generic invalid command exception with a default message.
+     */
     public InvalidCommandException() {
         super("""
                 +––––––––––––––––––––––––––––––––––––––––––––––+
@@ -13,12 +20,23 @@ public class InvalidCommandException extends Exception {
         this.taskType = null;
         this.commandType = null;
     }
+
+    /**
+     * Creates an InvalidCommandException for a specific task type (e.g. TODO).
+     *
+     * @param taskType the task type that had a malformed command.
+     */
     public InvalidCommandException(AlphaOne.TaskType taskType) {
         super();
         this.taskType = taskType;
         this.commandType = null;
     }
 
+    /**
+     * Creates an InvalidCommandException for a specific command type (e.g. MARK).
+     *
+     * @param commandType the command type that was invalid.
+     */
     public InvalidCommandException(AlphaOne.CommandType commandType) {
         super();
         this.commandType = commandType;
