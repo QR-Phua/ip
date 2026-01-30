@@ -1,50 +1,42 @@
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class AlphaOne {
-    private static Scanner scanner = new Scanner(System.in);
-    private static TaskList taskList = new TaskList();
+    private final TaskList taskList;
+    private final Storage storage;
+
     public enum TaskType {TODO, DEADLINE, EVENT}
     public enum CommandType {BYE, LIST, UNMARK, MARK, DELETE, FIND}
-    public static void main(String[] args) {
-        String logo =
-        """
-           _      _      _      _      _      _      _      _      _  \s
-         _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_\s
-        (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
-         (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
-           _                                                       _  \s
-         _( )_      _    _       _            ___                _( )_\s
-        (_ o _)    / \\  | |_ __ | |__   __ _ / _ \\ _ __   ___   (_ o _)
-         (_,_)    / _ \\ | | '_ \\| '_ \\ / _` | | | | '_ \\ / _ \\   (_,_)\s
-           _     / ___ \\| | |_) | | | | (_| | |_| | | | |  __/     _  \s
-         _( )_  /_/   \\_\\_| .__/|_| |_|\\__,_|\\___/|_| |_|\\___|   _( )_\s
-        (_ o _)           |_|                                   (_ o _)
-         (_,_)                                                   (_,_)\s
-           _      _      _      _      _      _      _      _      _  \s
-         _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_  _( )_\s
-        (_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)(_ o _)
-         (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)  (_,_)\s
-        """;
-        System.out.println(logo);
+
+    public AlphaOne() {
+        this.storage = new Storage();
+        // taskList will initialize its own storage if required
+        this.taskList = new TaskList();
+        // Optionally, you might want to merge storage.load() output into taskList here
+    }
+
+    public void run() {
+        System.out.println(Ui.printLogo());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Hello! I am AlphaOne, your chatbot companion!");
         System.out.println("Tell me what you would like to do!");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
 
+        // load tasks from storage if needed (kept for compatibility)
+        HashMap<Integer, Task> loaded = storage.load();
+        if (!loaded.isEmpty()) {
+            this.taskList.setInternalMap(loaded);
+        }
+
         while (true) {
-            String input = scanner.nextLine();
-            String[] commands = input.split("\\s+");
+            String input = Ui.readLine();
+            String[] commands = Parser.splitInput(input);
             try {
                 if (commands[0].equalsIgnoreCase("bye")) {
-                    commandLengthChecker(commands.length, CommandType.BYE) ;
+                    commandLengthChecker(commands.length, CommandType.BYE);
                     break;
                 } else if (commands[0].equalsIgnoreCase("list")) {
                     commandLengthChecker(commands.length, CommandType.LIST);
@@ -91,10 +83,8 @@ public class AlphaOne {
                     }
                 } else if (commands[0].equalsIgnoreCase("find")) {
                     commandLengthChecker(commands.length, CommandType.FIND);
-                    // build the search keyword from the remaining tokens so multi-word keywords work
-                    String keyword = String.join(" ", Arrays.asList(commands).subList(1, commands.length)).trim();
+                    String keyword = Parser.joinFromIndex(commands, 1);
                     if (keyword.isEmpty()) {
-                        // enforce the same invalid command behavior as elsewhere
                         throw new InvalidCommandException(CommandType.FIND);
                     }
                     taskList.displaySearchResults(keyword);
@@ -109,12 +99,12 @@ public class AlphaOne {
                     if (commands.length < 2) {
                         throw new InvalidCommandException(TaskType.DEADLINE);
                     }
-                    ArrayList<String> tidied = descriptionPrep(commands, TaskType.DEADLINE);
+                    ArrayList<String> tidied = Parser.descriptionPrep(commands, TaskType.DEADLINE);
                     taskList.addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
 
                 } else if (commands[0].equalsIgnoreCase("event")) {
-                    ArrayList<String> tidied = descriptionPrep(commands, TaskType.EVENT);
-                    taskList.addTask(tidied.get(0), TaskType.EVENT, tidied.get(1),  tidied.get(2));
+                    ArrayList<String> tidied = Parser.descriptionPrep(commands, TaskType.EVENT);
+                    taskList.addTask(tidied.get(0), TaskType.EVENT, tidied.get(1), tidied.get(2));
                 } else {
                     throw new InvalidCommandException();
                 }
@@ -122,13 +112,15 @@ public class AlphaOne {
                 System.out.println(exe.getMessage());
             }
         }
-        taskList.saveTaskList();
+
+        // persist to storage
+        storage.save(taskList.getInternalMap());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Thank you for using AlphaOne! ");
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    private static void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
+    private void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
         int expected;
         switch (type) {
             case BYE, LIST -> expected = 1;
@@ -140,83 +132,14 @@ public class AlphaOne {
         }
     }
 
-    private static String todoPrep(String[] commands) {
+    private String todoPrep(String[] commands) {
         List<String> stringList = new ArrayList<>(Arrays.asList(commands));
         stringList.remove(0);
         return String.join(" ", stringList);
     }
 
-    private static void localDateChecker(String input, TaskType type) throws InvalidDateTimeException {
-        if (type.equals(TaskType.DEADLINE)) {
-            try {
-                LocalDate.parse(input);
-            } catch (DateTimeParseException dtpe) {
-                throw new InvalidDateTimeException(type);
-            }
-        } else {
-            try {
-                LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-            } catch (DateTimeParseException dtpe) {
-                throw new InvalidDateTimeException(type);
-            }
-        }
-    }
-
-    private static ArrayList<String> descriptionPrep(String[] commands, TaskType taskType) throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
-        switch (taskType) {
-        case DEADLINE -> {
-            List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-            stringList.remove(0);
-            int finder = stringList.indexOf("/by");
-            if (finder == -1 || finder == 0) {
-                throw new InvalidCommandException(taskType);
-            }
-            List<String> deadlineList = stringList.subList(finder +1, stringList.size());
-            if (deadlineList.isEmpty()) {
-                throw new IncompleteDetailsException(taskType);
-            }
-            String deadline = String.join(" ", deadlineList);
-
-            localDateChecker(deadline, taskType);
-
-            List<String> descriptionList = stringList.subList(0, finder);
-            String description = String.join(" ", descriptionList);
-
-            return new ArrayList<>(Arrays.asList(description, deadline));
-        }
-        case EVENT -> {
-            List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-            stringList.remove(0);
-            int finderFrom = stringList.indexOf("/from");
-            int finderTo = stringList.indexOf("/to");
-            if (finderTo == -1 || finderFrom == -1 || finderTo <= finderFrom + 1) {
-                throw new InvalidCommandException(taskType);
-            }
-            List<String> fromList = stringList.subList(finderFrom +1, finderTo);
-            if (fromList.isEmpty()) {
-                throw new IncompleteDetailsException(taskType);
-            }
-
-            String fromDesc = String.join(" ", fromList);
-
-            localDateChecker(fromDesc, taskType);
-
-            List<String> ToList = stringList.subList(finderTo +1, stringList.size());
-            if (ToList.isEmpty()) {
-                throw new IncompleteDetailsException(taskType);
-            }
-
-            String toDesc = String.join(" ", ToList);
-
-            localDateChecker(toDesc, taskType);
-
-            List<String> descList = stringList.subList(0, finderFrom);
-            String description = String.join(" ", descList);
-
-            return new ArrayList<>(Arrays.asList(description, fromDesc, toDesc));
-        }
-        default -> throw new InvalidCommandException();
-        }
-
+    // standard entry point so `java AlphaOne` works
+    public static void main(String[] args) {
+        new AlphaOne().run();
     }
 }

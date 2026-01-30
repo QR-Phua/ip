@@ -1,25 +1,12 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class TaskList {
     private HashMap<Integer,Task> taskList;
-    // use app working dir + data/alphaone.txt so path is predictable and writable
-    private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
     private int counter = 1;
 
     public TaskList() {
         taskList = new HashMap<>();
-        retrieveTaskList();
     }
 
     public void getTasks() {
@@ -28,7 +15,7 @@ public class TaskList {
             System.out.println("You have these tasks in your list:");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                 Task currentTask = entry.getValue();
-                System.out.printf("%d. %s%n", entry.getKey(), currentTask);
+                System.out.println(String.format("%d. %s", entry.getKey(), currentTask));
             }
         } else {
             System.out.println("Your task list is currently empty!");
@@ -48,7 +35,7 @@ public class TaskList {
         counter++;
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("New task added to your task list!");
-        System.out.println(newTask);
+        System.out.println(newTask.toString());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
@@ -57,7 +44,7 @@ public class TaskList {
         Task deleteTask = taskList.get(taskNum);
         taskList.remove(taskNum);
         System.out.println("The following task has been deleted!");
-        System.out.println(deleteTask);
+        System.out.println(deleteTask.toString());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
@@ -86,84 +73,12 @@ public class TaskList {
         }
     }
 
-    private Task rebuildTask(String... params) {
-        Task newTask = null;
-        boolean wasDone = Objects.equals(params[1], "true");
-        switch (params[0].toLowerCase()) {
-        case "t" -> newTask = new ToDo(wasDone, params[2]);
-        case "d" -> newTask = new Deadline(wasDone, params[2], params[3]);
-        case "e" -> newTask = new Event(wasDone, params[2], params[3], params[4]);
-        default -> System.out.println("Error building task!");
-        }
-
-        return newTask;
-    }
-
-    private void retrieveTaskList() {
-        try {
-            // ensure parent directory exists
-            Path parent = fileStoragePath.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
-            }
-            // ensure file exists (create empty file if missing) and return early
-            if (!Files.exists(fileStoragePath)) {
-                Files.createFile(fileStoragePath);
-                return; // nothing to read
-            }
-
-            try (BufferedReader br = Files.newBufferedReader(fileStoragePath, StandardCharsets.UTF_8)) {
-
-                HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
-
-                String nextline;
-                while ((nextline = br.readLine()) != null) { // Read until the end of the file (null)
-                    String[] split = nextline.split("!@!");
-                    rebuiltTaskList.put(counter, rebuildTask(split));
-                    counter++;
-                }
-                this.taskList = rebuiltTaskList;
-            }
-        }
-        catch (IOException e) {
-            System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-            System.out.println("Error reading stored file!");
-            System.out.println("Starting new tasklist!");
-            System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        }
-    }
-
-    public void saveTaskList() {
-        try {
-            Path parent = fileStoragePath.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
-            }
-            if (!Files.exists(fileStoragePath)) {
-                Files.createFile(fileStoragePath);
-            }
-
-            try (BufferedWriter bw = Files.newBufferedWriter(fileStoragePath, StandardCharsets.UTF_8)) {
-                for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
-                    bw.write(entry.getValue().serialiseTask());
-                    bw.newLine();
-                }
-            }
-
-        } catch (IOException e) {
-            System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-            System.out.println("Error saved tasklist!");
-            System.out.println("Discarding tasklist!");
-            System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
-        }
-
-    }
 
     public HashMap<Integer, Task> searchKeyword(String keyword) {
         HashMap<Integer,Task> searchedTaskList = new HashMap<>();
         for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
             Task currentTask = entry.getValue();
-            if (currentTask.getDescription().contains(keyword)) {
+            if (currentTask.getDescription() != null && currentTask.getDescription().contains(keyword)) {
                 searchedTaskList.put(entry.getKey(), currentTask);
             }
         }
@@ -176,12 +91,29 @@ public class TaskList {
         if (!searchedTaskList.isEmpty()) {
             System.out.println("These are the most relevant tasks");
             for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
-                System.out.printf("%d. %s%n", entry.getKey(), entry.getValue());
+                System.out.println(String.format("%d. %s", entry.getKey(), entry.getValue()));
             }
         } else {
             System.out.println("No relevant tasks found!");
         }
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+    }
+
+    // expose internal map for persistence and external inspection
+    public HashMap<Integer, Task> getInternalMap() {
+        return this.taskList;
+    }
+
+    // allow external code to replace the internal task map (used when loading from storage)
+    public void setInternalMap(HashMap<Integer, Task> map) {
+        if (map == null) return;
+        this.taskList = map;
+        // update counter to be one greater than the current max key
+        int max = 0;
+        for (Integer k : map.keySet()) {
+            if (k != null && k > max) max = k;
+        }
+        this.counter = max + 1;
     }
 
 }
