@@ -46,10 +46,10 @@ public class AlphaOne {
      */
     public void run() {
         System.out.println(Ui.printLogo());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         System.out.println("Hello! I am AlphaOne, your chatbot companion!");
         System.out.println("Tell me what you would like to do!");
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
 
         // load tasks from storage if needed (kept for compatibility)
         HashMap<Integer, Task> loaded = storage.load();
@@ -76,9 +76,9 @@ public class AlphaOne {
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                         System.out.println("Invalid task number!");
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                     }
                 } else if (commands[0].equalsIgnoreCase("unmark")) {
                     commandLengthChecker(commands.length, CommandType.UNMARK);
@@ -90,9 +90,9 @@ public class AlphaOne {
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                         System.out.println("Invalid task number!");
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                     }
                 } else if (commands[0].equalsIgnoreCase("delete")) {
                     commandLengthChecker(commands.length, CommandType.DELETE);
@@ -103,9 +103,9 @@ public class AlphaOne {
                     } catch (InvalidTaskItemException itie) {
                         System.out.println(itie.getMessage());
                     } catch (Exception e) {
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                         System.out.println("Invalid task number!");
-                        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+                        System.out.println(Ui.BORDER);
                     }
                 } else if (commands[0].equalsIgnoreCase("find")) {
                     commandLengthChecker(commands.length, CommandType.FIND);
@@ -141,9 +141,9 @@ public class AlphaOne {
 
         // persist to storage
         storage.save(taskList.getInternalMap());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         System.out.println("Thank you for using AlphaOne! ");
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     private void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {

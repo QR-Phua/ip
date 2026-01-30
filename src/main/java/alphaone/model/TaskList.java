@@ -3,6 +3,8 @@ package alphaone.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import alphaone.ui.Ui;
+
 /**
  * In-memory container for Tasks with helper operations.
  *
@@ -21,7 +23,7 @@ public class TaskList {
      * Displays tasks to standard output in a numbered list.
      */
     public void getTasks() {
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         if (!taskList.isEmpty()) {
             System.out.println("You have these tasks in your list:");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
@@ -31,7 +33,7 @@ public class TaskList {
         } else {
             System.out.println("Your task list is currently empty!");
         }
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**
@@ -51,10 +53,10 @@ public class TaskList {
         }
         taskList.put(counter, newTask);
         counter++;
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         System.out.println("New task added to your task list!");
         System.out.println(newTask.toString());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**
@@ -63,12 +65,12 @@ public class TaskList {
      * @param taskNum identifier of the task to remove.
      */
     public void deleteTask(int taskNum) {
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         Task deleteTask = taskList.get(taskNum);
         taskList.remove(taskNum);
         System.out.println("The following task has been deleted!");
         System.out.println(deleteTask.toString());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**
@@ -79,10 +81,10 @@ public class TaskList {
     public void markDone(int taskNum) {
         Task markTask = taskList.get(taskNum);
         markTask.markDone();
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         System.out.println("Task marked done successfully!");
         System.out.println(markTask.toString());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**
@@ -93,10 +95,10 @@ public class TaskList {
     public void unmarkDone(int taskNum) {
         Task unMarkTask = taskList.get(taskNum);
         unMarkTask.markNotDone();
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         System.out.println("Task unmarked successfully!");
         System.out.println(unMarkTask.toString());
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**
@@ -137,7 +139,7 @@ public class TaskList {
      */
     public void displaySearchResults(String keyword) {
         HashMap<Integer,Task> searchedTaskList = searchKeyword(keyword);
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
         if (!searchedTaskList.isEmpty()) {
             System.out.println("These are the most relevant tasks");
             for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
@@ -146,7 +148,7 @@ public class TaskList {
         } else {
             System.out.println("No relevant tasks found!");
         }
-        System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
+        System.out.println(Ui.BORDER);
     }
 
     /**

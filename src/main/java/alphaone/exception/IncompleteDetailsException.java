@@ -1,6 +1,7 @@
 package alphaone.exception;
 
 import alphaone.AlphaOne;
+import alphaone.ui.Ui;
 
 /**
  * Signals that a command required additional details (e.g. /by, /from, /to) that were missing.
@@ -22,38 +23,25 @@ public class IncompleteDetailsException extends Exception{
     public String getMessage() {
         switch (taskType) {
             case TODO -> {
-                return ("""
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    Incomplete details to create task!
-                    Please add in what you would like to do?
-                    Example: todo cook a feast
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    """).stripTrailing();
+                String msg = "Incomplete details to create task!" + "\n"
+                        + "Please add in what you would like to do?" + "\n"
+                        + "Example: todo cook a feast";
+                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
             }
             case DEADLINE -> {
-                return ("""
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    Incomplete details to create task!
-                    Please add in what you would like to do followed with /by to set the deadline.
-                    Example: deadline write report /by tomorrow evening
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    """).stripTrailing();
+                String msg = "Incomplete details to create task!" + "\n"
+                        + "Please add in what you would like to do followed with /by to set the deadline." + "\n"
+                        + "Example: deadline write report /by tomorrow evening";
+                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
             }
             case EVENT -> {
-                return ("""
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    Incomplete details to create task!
-                    Please add in what you would like to do followed with /from and /to to set the duration?
-                    Example: event attend wedding on saturday /from 12pm /to 6pm
-                    +––––––––––––––––––––––––––––––––––––––––––––––+
-                    """).stripTrailing();
+                String msg = "Incomplete details to create task!" + "\n"
+                        + "Please add in what you would like to do followed with /from and /to to set the duration?"
+                        + "\n" + "Example: event attend wedding on saturday /from 12pm /to 6pm";
+                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
             }
             default -> {
-                return ("""
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                Incomplete details to create task!
-                %s
-                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
+                return Ui.BORDER + "\n" + "Incomplete details to create task!" + "\n" + Ui.BORDER;
             }
         }
     }

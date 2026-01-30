@@ -15,6 +15,7 @@ import alphaone.model.Task;
 import alphaone.model.ToDo;
 import alphaone.model.Deadline;
 import alphaone.model.Event;
+import alphaone.ui.Ui;
 
 /**
  * Handles persistence for the application by reading/writing tasks to a text file.
@@ -52,7 +53,8 @@ public class Storage {
                     }
                     String[] split = nextline.split("!@!");
                     if (split.length < 3) {
-                        System.out.println("Warning: skipping malformed storage line: '" + nextline + "'");
+                        String warn = "Warning: skipping malformed storage line: '" + nextline + "'";
+                        System.out.println(warn);
                         continue;
                     }
                     String type = split[0].toLowerCase();
@@ -62,7 +64,8 @@ public class Storage {
                             case "t" -> {
                                 // ToDo expects type, done, description
                                 if (split.length < 3) {
-                                    System.out.println("Warning: malformed ToDo entry, skipping: '" + nextline + "'");
+                                    String warn = "Warning: malformed ToDo entry, skipping: '" + nextline + "'";
+                                    System.out.println(warn);
                                 } else {
                                     rebuiltTaskList.put(counter, new ToDo(wasDone, split[2]));
                                 }
@@ -70,7 +73,8 @@ public class Storage {
                             case "d" -> {
                                 // Deadline expects type, done, description, deadline
                                 if (split.length < 4) {
-                                    System.out.println("Warning: malformed Deadline entry, skipping: '" + nextline + "'");
+                                    String warn = "Warning: malformed Deadline entry, skipping: '" + nextline + "'";
+                                    System.out.println(warn);
                                 } else {
                                     rebuiltTaskList.put(counter, new Deadline(wasDone, split[2], split[3]));
                                 }
@@ -78,21 +82,29 @@ public class Storage {
                             case "e" -> {
                                 // Event expects type, done, description, start, end
                                 if (split.length < 5) {
-                                    System.out.println("Warning: malformed Event entry, skipping: '" + nextline + "'");
+                                    String warn = "Warning: malformed Event entry, skipping: '" + nextline + "'";
+                                    System.out.println(warn);
                                 } else {
                                     rebuiltTaskList.put(counter, new Event(wasDone, split[2], split[3], split[4]));
                                 }
                             }
-                            default -> System.out.println("Warning: unknown task type in storage, skipping: '" + nextline + "'");
+                            default -> {
+                                String warn = "Warning: unknown task type in storage, skipping: '" + nextline + "'";
+                                System.out.println(warn);
+                            }
                         }
                     } catch (Exception e) {
-                        System.out.println("Warning: failed to rebuild task from storage line: '" + nextline + "' -> " + e.getMessage());
+                        String warn = "Warning: failed to rebuild task from storage line: '" + nextline + "' -> "
+                                + e.getMessage();
+                        System.out.println(warn);
                     }
                     counter++;
                 }
             }
         } catch (IOException ioe) {
+            System.out.println(Ui.BORDER);
             System.out.println("Error reading stored file, starting fresh");
+            System.out.println(Ui.BORDER);
         }
         return rebuiltTaskList;
     }
@@ -114,7 +126,9 @@ public class Storage {
                 }
             }
         } catch (IOException e) {
+            System.out.println(Ui.BORDER);
             System.out.println("Error saving tasklist");
+            System.out.println(Ui.BORDER);
         }
     }
 }
