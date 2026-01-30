@@ -1,3 +1,5 @@
+package alphaone.storage;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -8,6 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import alphaone.model.Task;
+import alphaone.model.ToDo;
+import alphaone.model.Deadline;
+import alphaone.model.Event;
 
 public class Storage {
     private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
@@ -41,7 +48,7 @@ public class Storage {
                     try {
                         switch (type) {
                             case "t" -> {
-                                // expects type, done, description
+                                // ToDo expects type, done, description
                                 if (split.length < 3) {
                                     System.out.println("Warning: malformed ToDo entry, skipping: '" + nextline + "'");
                                 } else {

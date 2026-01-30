@@ -1,3 +1,5 @@
+package alphaone.model;
+
 public class Task {
     private String description;
     private boolean done;

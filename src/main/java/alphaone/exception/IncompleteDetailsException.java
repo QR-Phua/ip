@@ -1,3 +1,7 @@
+package alphaone.exception;
+
+import alphaone.AlphaOne;
+
 public class IncompleteDetailsException extends Exception{
     private final AlphaOne.TaskType taskType;
 

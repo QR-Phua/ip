@@ -1,3 +1,5 @@
+package alphaone.model;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ public class TaskList {
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    public void addTask(String input, AlphaOne.TaskType type, String... params) {
+    public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
         Task newTask = null;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
@@ -53,7 +55,7 @@ public class TaskList {
         markTask.markDone();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Task marked done successfully!");
-        System.out.println(markTask);
+        System.out.println(markTask.toString());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
@@ -62,14 +64,14 @@ public class TaskList {
         unMarkTask.markNotDone();
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
         System.out.println("Task unmarked successfully!");
-        System.out.println(unMarkTask);
+        System.out.println(unMarkTask.toString());
         System.out.println("+––––––––––––––––––––––––––––––––––––––––––––––+");
     }
 
-    public void taskExistenceChecker(int selectedTask) throws InvalidTaskItemException {
+    public void taskExistenceChecker(int selectedTask) throws alphaone.exception.InvalidTaskItemException {
         Task searchTask = taskList.getOrDefault(selectedTask, null);
         if (searchTask == null) {
-            throw new InvalidTaskItemException();
+            throw new alphaone.exception.InvalidTaskItemException();
         }
     }
 
