@@ -82,7 +82,10 @@ public class Parser {
      * @throws IncompleteDetailsException if required segments are empty.
      * @throws InvalidDateTimeException if any date/time segment fails validation.
      */
-    public static ArrayList<String> descriptionPrep(String[] commands, AlphaOne.TaskType taskType) throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
+    public static ArrayList<String> descriptionPrep(
+            String[] commands,
+            AlphaOne.TaskType taskType)
+            throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         switch (taskType) {
         case DEADLINE -> {
             List<String> stringList = new ArrayList<>(Arrays.asList(commands));

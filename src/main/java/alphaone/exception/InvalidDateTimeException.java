@@ -1,6 +1,7 @@
 package alphaone.exception;
 
 import alphaone.AlphaOne;
+import alphaone.ui.Ui;
 
 /**
  * Signals that a provided date/time string is invalid for the expected task type.
@@ -23,24 +24,18 @@ public class InvalidDateTimeException extends Exception{
     public String getMessage() {
         switch (taskType) {
         case DEADLINE -> {
-            return ("""
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                Datetime information provided is invalid!
-                For Deadline tasks, use YYYY-MM-DD
-                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
+            String msg = "Datetime information provided is invalid!" + "\n"
+                    + "For Deadline tasks, use YYYY-MM-DD";
+            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
         }
         case EVENT -> {
-            return ("""
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                Datetime information provided is invalid!
-                For Event tasks, use YYYY-MM-DD HHMM
-                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
+            String msg = "Datetime information provided is invalid!" + "\n"
+                    + "For Event tasks, use YYYY-MM-DD HHMM";
+            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
         }
         default -> {
-            return ("""
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                Datetime information provided is invalid!
-                +––––––––––––––––––––––––––––––––––––––––––––––+""").stripTrailing();
+            String msg = "Datetime information provided is invalid!";
+            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
         }
         }
     }

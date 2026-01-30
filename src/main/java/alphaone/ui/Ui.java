@@ -8,6 +8,8 @@ package alphaone.ui;
  * ASCII art logo.
  */
 public class Ui {
+    /** A reusable border string for UI sections. */
+    public static final String BORDER = "+" + "\u2013".repeat(46) + "+";
     private static final java.util.Scanner scanner = new java.util.Scanner(System.in);
 
     /**

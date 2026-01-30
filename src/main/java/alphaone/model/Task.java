@@ -4,7 +4,7 @@ package alphaone.model;
  * Base class representing a generic task with a description and completion state.
  */
 public class Task {
-    private String description;
+    private final String description;
     private boolean done;
 
     /**
@@ -15,15 +15,6 @@ public class Task {
     public Task(String description) {
         this.description = description;
         this.done = false;
-    }
-
-    /**
-     * Returns whether the underlying internal flag is set for this task.
-     *
-     * @return true if set, false otherwise.
-     */
-    public boolean done() {
-        return done;
     }
 
     /**

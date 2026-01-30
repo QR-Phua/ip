@@ -1,6 +1,7 @@
 package alphaone.exception;
 
 import alphaone.AlphaOne;
+import alphaone.ui.Ui;
 
 /**
  * Signals that a user command was invalid or malformed.
@@ -13,10 +14,7 @@ public class InvalidCommandException extends Exception {
      * Creates a generic invalid command exception with a default message.
      */
     public InvalidCommandException() {
-        super("""
-                +––––––––––––––––––––––––––––––––––––––––––––––+
-                Invalid command! Please try again.
-                +––––––––––––––––––––––––––––––––––––––––––––––+""");
+        super(Ui.BORDER + "\n" + "Invalid command! Please try again." + "\n" + Ui.BORDER);
         this.taskType = null;
         this.commandType = null;
     }
@@ -48,28 +46,16 @@ public class InvalidCommandException extends Exception {
         if (taskType != null) {
             switch (taskType) {
                 case TODO -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid TODO command! Please try again.
-                            Example: todo [task description]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid TODO command! Please try again.\n" +
+                            "Example: todo [task description]" + "\n" + Ui.BORDER;
                 }
                 case DEADLINE -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid DEADLINE command! Please try again.
-                            Example: deadline [task description] /by [task due date]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid DEADLINE command! Please try again.\n" +
+                            "Example: deadline [task description] /by [task due date]" + "\n" + Ui.BORDER;
                 }
                 case EVENT -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid EVENT command! Please try again.
-                            Example: event [event description] /from [date time] /to [date time]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid EVENT command! Please try again.\n" +
+                            "Example: event [event description] /from [date time] /to [date time]" + "\n" + Ui.BORDER;
                 }
                 default -> {
                     return super.getMessage();
@@ -78,51 +64,27 @@ public class InvalidCommandException extends Exception {
         } else if (commandType != null) {
             switch (commandType) {
                 case MARK -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid MARK command! Please try again.
-                            Example: mark [task number]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid MARK command! Please try again.\n" +
+                            "Example: mark [task number]" + "\n" + Ui.BORDER;
                 }
                 case UNMARK -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid UNMARK command! Please try again.
-                            Example: unmark [task number]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid UNMARK command! Please try again.\n" +
+                            "Example: unmark [task number]" + "\n" + Ui.BORDER;
                 }
                 case DELETE -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid DELETE command! Please try again.
-                            Example: delete [task number]
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    return Ui.BORDER + "\n" + "Invalid DELETE command! Please try again.\n" +
+                            "Example: delete [task number]" + "\n" + Ui.BORDER;
                 }
                 case BYE -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid BYE command! No other parameters required.
-                            Example: bye
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    String msg = "Invalid BYE command! No other parameters required." + "\n" + "Example: bye";
+                    return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
                 }
                 case LIST -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid LIST command! No other parameters required.
-                            Example: list
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    String msg = "Invalid LIST command! No other parameters required." + "\n" + "Example: list";
+                    return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
                 } case FIND -> {
-                    return ("""
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            Invalid FIND command! Please enter keyword(s)
-                            Example: find assignment
-                            +––––––––––––––––––––––––––––––––––––––––––––––+
-                            """).stripTrailing();
+                    String msg = "Invalid FIND command! Please enter keyword(s)" + "\n" + "Example: find assignment";
+                    return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
                 }
                 default -> {
                     return super.getMessage();
