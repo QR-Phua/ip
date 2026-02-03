@@ -80,8 +80,8 @@ public class Storage {
                     }
                     String[] split = nextline.split("!@!");
                     if (split.length < 3) {
-                        String warn = "Warning: skipping malformed storage line: '" + nextline + "'";
-                        warn(warn);
+                        String warning = "Warning: skipping malformed storage line: '" + nextline + "'";
+                        warn(warning);
                         continue;
                     }
                     String type = split[0].toLowerCase();
@@ -116,14 +116,14 @@ public class Storage {
                             }
                         }
                         default -> {
-                            String warn = "Warning: unknown task type in storage, skipping: '" + nextline + "'";
-                            warn(warn);
+                            String warning = "Warning: unknown task type in storage, skipping: '" + nextline + "'";
+                            warn(warning);
                         }
                         }
                     } catch (Exception e) {
-                        String warn = "Warning: failed to rebuild task from storage line: '" + nextline + "' -> "
+                        String warning = "Warning: failed to rebuild task from storage line: '" + nextline + "' -> "
                                 + e.getMessage();
-                        warn(warn);
+                        warn(warning);
                     }
                     counter++;
                 }
