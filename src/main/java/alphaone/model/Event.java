@@ -73,14 +73,14 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s (from %s to %s)", this.getType(),
+        return String.format("[%s] [%s] %s (from %s to %s)",this.getType(),
                 this.getStatus(), super.getDescription(), eventStart.format(stringDateTimeFormatter),
                 eventEnd.format(stringDateTimeFormatter));
     }
 
     @Override
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s!@!%s!@!%s", this.getType(), this.isDone(),
+        return String.format("%s!@!%s!@!%s!@!%s!@!%s",this.getType(), this.isDone(),
                 this.getDescription(), eventStart, eventEnd);
     }
 

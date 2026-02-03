@@ -1,7 +1,8 @@
 package alphaone.storage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import alphaone.model.ToDo;
+import alphaone.model.Task;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -10,15 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import org.junit.jupiter.api.Test;
-
-import alphaone.model.Task;
-import alphaone.model.ToDo;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StorageTest {
 
@@ -42,18 +37,10 @@ public class StorageTest {
             assertEquals("taskone", loaded.get(1).getDescription());
             assertEquals("tasktwo", loaded.get(2).getDescription());
         } finally {
-            if (originalAlpha == null) {
-                System.clearProperty("alphaone.test");
-            } else {
-                System.setProperty("alphaone.test", originalAlpha);
-            }
+            if (originalAlpha == null) System.clearProperty("alphaone.test"); else System.setProperty("alphaone.test", originalAlpha);
             System.setProperty("user.dir", originalUserDir);
             // cleanup
-            try {
-                Files.walk(tmp).sorted((a, b)->b.compareTo(a)).forEach(p->p.toFile().delete());
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
+            try { Files.walk(tmp).sorted((a,b)->b.compareTo(a)).forEach(p->p.toFile().delete()); } catch (Exception ignored) {}
         }
     }
 
@@ -101,29 +88,19 @@ public class StorageTest {
         } finally {
             logger.removeHandler(handler);
             logger.setLevel(oldLevel);
-            if (originalAlpha == null) {
-                System.clearProperty("alphaone.test");
-            } else {
-                System.setProperty("alphaone.test", originalAlpha);
-            }
+            if (originalAlpha == null) System.clearProperty("alphaone.test"); else System.setProperty("alphaone.test", originalAlpha);
             System.setProperty("user.dir", originalUserDir);
             System.setOut(originalOut);
-            try {
-                Files.walk(tmp).sorted((a, b)->b.compareTo(a)).forEach(p->p.toFile().delete());
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
+            try { Files.walk(tmp).sorted((a,b)->b.compareTo(a)).forEach(p->p.toFile().delete()); } catch (Exception ignored) {}
         }
     }
 
     private static class TestLogHandler extends Handler {
-        private java.util.List<String> messages = new java.util.ArrayList<>();
+        public java.util.List<String> messages = new java.util.ArrayList<>();
 
         @Override
         public void publish(LogRecord record) {
-            if (record == null) {
-                return;
-            }
+            if (record == null) return;
             messages.add(record.getMessage());
         }
 

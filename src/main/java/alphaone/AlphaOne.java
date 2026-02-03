@@ -5,15 +5,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import alphaone.exception.IncompleteDetailsException;
+import alphaone.ui.Ui;
+import alphaone.parser.Parser;
+import alphaone.storage.Storage;
+import alphaone.model.Task;
+import alphaone.model.TaskList;
 import alphaone.exception.InvalidCommandException;
 import alphaone.exception.InvalidDateTimeException;
 import alphaone.exception.InvalidTaskItemException;
-import alphaone.model.Task;
-import alphaone.model.TaskList;
-import alphaone.parser.Parser;
-import alphaone.storage.Storage;
-import alphaone.ui.Ui;
+import alphaone.exception.IncompleteDetailsException;
+
 
 /**
  * AlphaOne is the main application class that coordinates user input, parsing,
@@ -26,32 +27,9 @@ public class AlphaOne {
     private final TaskList taskList;
     private final Storage storage;
 
-    /**
-     * Types of tasks supported by the application.
-     *
-     * <p>TODO — a task without an associated date/time.
-     * DEADLINE — a task with a due date.
-     * EVENT — a task with a start and end time.</p>
-     */
-    public enum TaskType { TODO, DEADLINE, EVENT }
-    /**
-     * Command keywords recognized by the parser.
-     *
-     * <p>BYE — exit the application.
-     * LIST — display all tasks.
-     * UNMARK — mark a task as not done.
-     * MARK — mark a task as done.
-     * DELETE — remove a task by index.
-     * FIND — search tasks by keyword.</p>
-     */
-    public enum CommandType { BYE, LIST, UNMARK, MARK, DELETE, FIND }
-    /**
-     * Creates a new AlphaOne application instance.
-     *
-     * <p>Initialises storage and the task list. The task list will
-     * initialise its own storage if required. Storage is used to
-     * persist and load tasks from disk.</p>
-     */
+    public enum TaskType {TODO, DEADLINE, EVENT}
+    public enum CommandType {BYE, LIST, UNMARK, MARK, DELETE, FIND}
+
     public AlphaOne() {
         this.storage = new Storage();
         // taskList will initialize its own storage if required
@@ -171,9 +149,9 @@ public class AlphaOne {
     private void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
         int expected;
         switch (type) {
-        case BYE, LIST -> expected = 1;
-        case MARK, UNMARK, DELETE, FIND-> expected = 2;
-        default -> throw new InvalidCommandException();
+            case BYE, LIST -> expected = 1;
+            case MARK, UNMARK, DELETE, FIND-> expected = 2;
+            default -> throw new InvalidCommandException();
         }
         if (expected != actual) {
             throw new InvalidCommandException(type);

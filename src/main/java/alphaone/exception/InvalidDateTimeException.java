@@ -6,7 +6,7 @@ import alphaone.ui.Ui;
 /**
  * Signals that a provided date/time string is invalid for the expected task type.
  */
-public class InvalidDateTimeException extends Exception {
+public class InvalidDateTimeException extends Exception{
     private final AlphaOne.TaskType taskType;
 
     /**

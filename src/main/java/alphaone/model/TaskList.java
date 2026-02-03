@@ -12,7 +12,7 @@ import alphaone.ui.Ui;
  * delete, mark/unmark and search tasks.
  */
 public class TaskList {
-    private HashMap<Integer, Task> taskList;
+    private HashMap<Integer,Task> taskList;
     private int counter = 1;
 
     public TaskList() {
@@ -122,7 +122,7 @@ public class TaskList {
      * @return a map of matching tasks keyed by their ids.
      */
     public HashMap<Integer, Task> searchKeyword(String keyword) {
-        HashMap<Integer, Task> searchedTaskList = new HashMap<>();
+        HashMap<Integer,Task> searchedTaskList = new HashMap<>();
         for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
             Task currentTask = entry.getValue();
             if (currentTask.getDescription() != null && currentTask.getDescription().contains(keyword)) {
@@ -138,7 +138,7 @@ public class TaskList {
      * @param keyword substring to search for.
      */
     public void displaySearchResults(String keyword) {
-        HashMap<Integer, Task> searchedTaskList = searchKeyword(keyword);
+        HashMap<Integer,Task> searchedTaskList = searchKeyword(keyword);
         System.out.println(Ui.BORDER);
         if (!searchedTaskList.isEmpty()) {
             System.out.println("These are the most relevant tasks");
@@ -166,16 +166,12 @@ public class TaskList {
      * @param map the replacement map (ignored if null).
      */
     public void setInternalMap(HashMap<Integer, Task> map) {
-        if (map == null) {
-            return;
-        }
+        if (map == null) return;
         this.taskList = map;
         // update counter to be one greater than the current max key
         int max = 0;
         for (Integer k : map.keySet()) {
-            if (k != null && k > max) {
-                max = k;
-            }
+            if (k != null && k > max) max = k;
         }
         this.counter = max + 1;
     }

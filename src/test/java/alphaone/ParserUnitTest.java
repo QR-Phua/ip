@@ -1,17 +1,15 @@
-package alphaone.parser;
+package alphaone;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import alphaone.parser.Parser;
+import alphaone.AlphaOne;
+import alphaone.exception.InvalidCommandException;
+import alphaone.exception.IncompleteDetailsException;
+import alphaone.exception.InvalidDateTimeException;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Test;
-
-import alphaone.AlphaOne;
-import alphaone.exception.IncompleteDetailsException;
-import alphaone.exception.InvalidCommandException;
-import alphaone.exception.InvalidDateTimeException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserUnitTest {
 
@@ -28,8 +26,7 @@ public class ParserUnitTest {
         // valid ISO date for deadlines
         Parser.validateDate("2026-01-31", AlphaOne.TaskType.DEADLINE);
         // invalid format should throw
-        assertThrows(InvalidDateTimeException.class, () -> Parser.validateDate(
-                "31-01-2026", AlphaOne.TaskType.DEADLINE));
+        assertThrows(InvalidDateTimeException.class, () -> Parser.validateDate("31-01-2026", AlphaOne.TaskType.DEADLINE));
     }
 
     @Test
@@ -37,8 +34,7 @@ public class ParserUnitTest {
         // valid datetime pattern yyyy-MM-dd HHmm
         Parser.validateDate("2026-01-01 0900", AlphaOne.TaskType.EVENT);
         // invalid format should throw
-        assertThrows(InvalidDateTimeException.class, () -> Parser.validateDate(
-                "2026/01/01 09:00", AlphaOne.TaskType.EVENT));
+        assertThrows(InvalidDateTimeException.class, () -> Parser.validateDate("2026/01/01 09:00", AlphaOne.TaskType.EVENT));
     }
 
     @Test
@@ -50,12 +46,10 @@ public class ParserUnitTest {
         assertEquals("2026-01-31", out.get(1));
 
         String[] missingBy = new String[]{"deadline", "homework", "2026-01-31"};
-        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(
-                missingBy, AlphaOne.TaskType.DEADLINE));
+        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(missingBy, AlphaOne.TaskType.DEADLINE));
 
         String[] incomplete = new String[]{"deadline", "todo", "/by"};
-        assertThrows(IncompleteDetailsException.class, () -> Parser.descriptionPrep(
-                incomplete, AlphaOne.TaskType.DEADLINE));
+        assertThrows(IncompleteDetailsException.class, () -> Parser.descriptionPrep(incomplete, AlphaOne.TaskType.DEADLINE));
     }
 
     @Test
@@ -68,12 +62,10 @@ public class ParserUnitTest {
         assertEquals("2026-01-01 1700", out.get(2));
 
         String[] missingTokens = new String[]{"event", "party", "/from", "2026-01-01"};
-        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(
-                missingTokens, AlphaOne.TaskType.EVENT));
+        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(missingTokens, AlphaOne.TaskType.EVENT));
 
         String[] incompleteFrom = new String[]{"event", "party", "/from", "/to", "2026-01-01", "1700"};
         // Parser throws InvalidCommandException when /from and /to are adjacent (no description between them)
-        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(
-                incompleteFrom, AlphaOne.TaskType.EVENT));
+        assertThrows(InvalidCommandException.class, () -> Parser.descriptionPrep(incompleteFrom, AlphaOne.TaskType.EVENT));
     }
 }

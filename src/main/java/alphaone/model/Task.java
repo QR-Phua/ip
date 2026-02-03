@@ -69,7 +69,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s", this.getType(), this.getStatus(), this.getDescription());
+        return String.format("[%s] [%s] %s",this.getType(), this.getStatus(), this.getDescription());
     }
 
     /**
@@ -78,7 +78,7 @@ public class Task {
      * @return a serialised representation of the task.
      */
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s", this.getType(), this.isDone(), this.getDescription());
+        return String.format("%s!@!%s!@!%s",this.getType(), this.isDone(), this.getDescription());
     }
 
 }

@@ -1,14 +1,15 @@
-package alphaone.model;
+package alphaone;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import alphaone.model.TaskList;
+import alphaone.model.Task;
+import alphaone.model.ToDo;
+import alphaone.model.Deadline;
+import alphaone.exception.InvalidTaskItemException;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import org.junit.jupiter.api.Test;
-
-import alphaone.exception.InvalidTaskItemException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskListUnitTest {
 
