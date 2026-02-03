@@ -1,22 +1,23 @@
 package alphaone.storage;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import alphaone.model.Task;
-import alphaone.model.ToDo;
 import alphaone.model.Deadline;
 import alphaone.model.Event;
+import alphaone.model.Task;
+import alphaone.model.ToDo;
 import alphaone.ui.Ui;
 
 /**
@@ -64,7 +65,9 @@ public class Storage {
         int counter = 1;
         try {
             Path parent = fileStoragePath.getParent();
-            if (parent != null) Files.createDirectories(parent);
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
             if (!Files.exists(fileStoragePath)) {
                 Files.createFile(fileStoragePath);
                 return rebuiltTaskList;
@@ -85,37 +88,37 @@ public class Storage {
                     boolean wasDone = split.length > 1 && Objects.equals(split[1], "true");
                     try {
                         switch (type) {
-                            case "t" -> {
-                                // ToDo expects type, done, description
-                                if (split.length < 3) {
-                                    String warn = "Warning: malformed ToDo entry, skipping: '" + nextline + "'";
-                                    warn(warn);
-                                } else {
-                                    rebuiltTaskList.put(counter, new ToDo(wasDone, split[2]));
-                                }
-                            }
-                            case "d" -> {
-                                // Deadline expects type, done, description, deadline
-                                if (split.length < 4) {
-                                    String warn = "Warning: malformed Deadline entry, skipping: '" + nextline + "'";
-                                    warn(warn);
-                                } else {
-                                    rebuiltTaskList.put(counter, new Deadline(wasDone, split[2], split[3]));
-                                }
-                            }
-                            case "e" -> {
-                                // Event expects type, done, description, start, end
-                                if (split.length < 5) {
-                                    String warn = "Warning: malformed Event entry, skipping: '" + nextline + "'";
-                                    warn(warn);
-                                } else {
-                                    rebuiltTaskList.put(counter, new Event(wasDone, split[2], split[3], split[4]));
-                                }
-                            }
-                            default -> {
-                                String warn = "Warning: unknown task type in storage, skipping: '" + nextline + "'";
+                        case "t" -> {
+                            // ToDo expects type, done, description
+                            if (split.length < 3) {
+                                String warn = "Warning: malformed ToDo entry, skipping: '" + nextline + "'";
                                 warn(warn);
+                            } else {
+                                rebuiltTaskList.put(counter, new ToDo(wasDone, split[2]));
                             }
+                        }
+                        case "d" -> {
+                            // Deadline expects type, done, description, deadline
+                            if (split.length < 4) {
+                                String warn = "Warning: malformed Deadline entry, skipping: '" + nextline + "'";
+                                warn(warn);
+                            } else {
+                                rebuiltTaskList.put(counter, new Deadline(wasDone, split[2], split[3]));
+                            }
+                        }
+                        case "e" -> {
+                            // Event expects type, done, description, start, end
+                            if (split.length < 5) {
+                                String warn = "Warning: malformed Event entry, skipping: '" + nextline + "'";
+                                warn(warn);
+                            } else {
+                                rebuiltTaskList.put(counter, new Event(wasDone, split[2], split[3], split[4]));
+                            }
+                        }
+                        default -> {
+                            String warn = "Warning: unknown task type in storage, skipping: '" + nextline + "'";
+                            warn(warn);
+                        }
                         }
                     } catch (Exception e) {
                         String warn = "Warning: failed to rebuild task from storage line: '" + nextline + "' -> "
@@ -139,8 +142,12 @@ public class Storage {
     public void save(HashMap<Integer, Task> taskList) {
         try {
             Path parent = fileStoragePath.getParent();
-            if (parent != null) Files.createDirectories(parent);
-            if (!Files.exists(fileStoragePath)) Files.createFile(fileStoragePath);
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            if (!Files.exists(fileStoragePath)) {
+                Files.createFile(fileStoragePath);
+            }
             try (BufferedWriter bw = Files.newBufferedWriter(fileStoragePath, StandardCharsets.UTF_8)) {
                 for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                     bw.write(entry.getValue().serialiseTask());

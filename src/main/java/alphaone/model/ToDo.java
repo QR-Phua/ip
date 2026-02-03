@@ -1,5 +1,4 @@
 package alphaone.model;
-
 /**
  * A simple task representing a to-do item without associated date/time.
  */
@@ -37,12 +36,11 @@ public class ToDo extends Task {
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s",this.getType(), this.getStatus(), this.getDescription());
+        return String.format("[%s] [%s] %s", this.getType(), this.getStatus(), this.getDescription());
     }
 
     @Override
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s",this.getType(), this.isDone(), this.getDescription());
+        return String.format("%s!@!%s!@!%s", this.getType(), this.isDone(), this.getDescription());
     }
-
 }

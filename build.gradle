@@ -2,6 +2,15 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion = '11.0.0'
+    configFile = file('config/checkstyle/checkstyle.xml')                       // path to your checkstyle.xml
+    configProperties = [ 'suppressionFile': file('config/checkstyle/suppressions.xml').absolutePath ]
+    ignoreFailures = false    // set to true to only warn instead of failing the build
+    showViolations = true
 }
 
 repositories {
