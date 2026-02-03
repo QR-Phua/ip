@@ -1,15 +1,16 @@
 package alphaone.model;
 
-import alphaone.model.TaskList;
-import alphaone.model.Task;
-import alphaone.model.ToDo;
-import alphaone.model.Deadline;
-import alphaone.exception.InvalidTaskItemException;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import alphaone.exception.InvalidTaskItemException;
 
 public class TaskListTest {
 
@@ -19,7 +20,7 @@ public class TaskListTest {
         tl.addTask("a task", alphaone.AlphaOne.TaskType.TODO);
         HashMap<Integer, Task> map = tl.getInternalMap();
         assertEquals(1, map.size());
-        assertTrue(map.get(1) instanceof ToDo);
+        assertInstanceOf(ToDo.class, map.get(1));
     }
 
     @Test
