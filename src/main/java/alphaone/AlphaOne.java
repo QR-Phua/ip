@@ -147,12 +147,13 @@ public class AlphaOne {
                     if (commands.length < 2) {
                         throw new InvalidCommandException(TaskType.DEADLINE);
                     }
-                    ArrayList<String> tidied = Parser.descriptionPrep(commands, TaskType.DEADLINE);
-                    taskList.addTask(tidied.get(0), TaskType.DEADLINE, tidied.get(1));
+                    ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, TaskType.DEADLINE);
+                    taskList.addTask(tidiedDescription.get(0), TaskType.DEADLINE, tidiedDescription.get(1));
 
                 } else if (commands[0].equalsIgnoreCase("event")) {
-                    ArrayList<String> tidied = Parser.descriptionPrep(commands, TaskType.EVENT);
-                    taskList.addTask(tidied.get(0), TaskType.EVENT, tidied.get(1), tidied.get(2));
+                    ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, TaskType.EVENT);
+                    taskList.addTask(tidiedDescription.get(0), TaskType.EVENT,
+                            tidiedDescription.get(1), tidiedDescription.get(2));
                 } else {
                     throw new InvalidCommandException();
                 }
@@ -169,13 +170,13 @@ public class AlphaOne {
     }
 
     private void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
-        int expected;
+        int expectedLength = actual;
         switch (type) {
-        case BYE, LIST -> expected = 1;
-        case MARK, UNMARK, DELETE, FIND-> expected = 2;
+        case BYE, LIST -> expectedLength = 1;
+        case MARK, UNMARK, DELETE, FIND-> expectedLength = 2;
         default -> throw new InvalidCommandException();
         }
-        if (expected != actual) {
+        if (expectedLength != actual) {
             throw new InvalidCommandException(type);
         }
     }

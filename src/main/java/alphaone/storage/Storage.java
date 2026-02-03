@@ -91,8 +91,8 @@ public class Storage {
                         case "t" -> {
                             // ToDo expects type, done, description
                             if (split.length < 3) {
-                                String warn = "Warning: malformed ToDo entry, skipping: '" + nextline + "'";
-                                warn(warn);
+                                String warning = "Warning: malformed ToDo entry, skipping: '" + nextline + "'";
+                                warn(warning);
                             } else {
                                 rebuiltTaskList.put(counter, new ToDo(wasDone, split[2]));
                             }
@@ -100,8 +100,8 @@ public class Storage {
                         case "d" -> {
                             // Deadline expects type, done, description, deadline
                             if (split.length < 4) {
-                                String warn = "Warning: malformed Deadline entry, skipping: '" + nextline + "'";
-                                warn(warn);
+                                String warning = "Warning: malformed Deadline entry, skipping: '" + nextline + "'";
+                                warn(warning);
                             } else {
                                 rebuiltTaskList.put(counter, new Deadline(wasDone, split[2], split[3]));
                             }
@@ -109,8 +109,8 @@ public class Storage {
                         case "e" -> {
                             // Event expects type, done, description, start, end
                             if (split.length < 5) {
-                                String warn = "Warning: malformed Event entry, skipping: '" + nextline + "'";
-                                warn(warn);
+                                String warning = "Warning: malformed Event entry, skipping: '" + nextline + "'";
+                                warn(warning);
                             } else {
                                 rebuiltTaskList.put(counter, new Event(wasDone, split[2], split[3], split[4]));
                             }
