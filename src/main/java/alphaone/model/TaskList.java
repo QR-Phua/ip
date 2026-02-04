@@ -20,85 +20,138 @@ public class TaskList {
     }
 
     /**
-     * Displays tasks to standard output in a numbered list.
+     * Returns a formatted representation of current tasks.
+     *
+     * @return a string that contains the same content previously printed by getTasks().
      */
-    public void getTasks() {
-        System.out.println(Ui.BORDER);
+    public String getTasksString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
         if (!taskList.isEmpty()) {
-            System.out.println("You have these tasks in your list:");
+            sb.append("You have these tasks in your list:\n");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
                 Task currentTask = entry.getValue();
-                System.out.println(String.format("%d. %s", entry.getKey(), currentTask));
+                sb.append(String.format("%d. %s\n", entry.getKey(), currentTask));
             }
         } else {
-            System.out.println("Your task list is currently empty!");
+            sb.append("Your task list is currently empty!\n");
         }
-        System.out.println(Ui.BORDER);
+        sb.append(Ui.BORDER);
+        return sb.toString();
     }
 
     /**
-     * Adds a new task of the specified type to the list.
+     * Displays tasks to standard output in a numbered list.
+     */
+    public void getTasks() {
+        System.out.println(getTasksString());
+    }
+
+    /**
+     * Adds a new task of the specified type to the list and returns a formatted confirmation.
      *
      * @param input the task description or primary input.
      * @param type the task type to add (TODO, DEADLINE, EVENT).
      * @param params optional additional parameters (e.g. date/time strings).
+     * @return the message that would previously be printed to the console.
      */
-    public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
+    public String addTaskString(String input, alphaone.AlphaOne.TaskType type, String... params) {
         Task newTask = null;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
         case DEADLINE -> newTask = new Deadline(input, params[0]);
         case EVENT -> newTask = new Event(input, params[0], params[1]);
-        default -> System.out.println("Invalid task type!");
+        default -> {
+            return "Invalid task type!";
+        }
         }
         taskList.put(counter, newTask);
         counter++;
-        System.out.println(Ui.BORDER);
-        System.out.println("New task added to your task list!");
-        System.out.println(newTask.toString());
-        System.out.println(Ui.BORDER);
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
+        sb.append("New task added to your task list!\n");
+        sb.append(newTask.toString()).append("\n");
+        sb.append(Ui.BORDER);
+        return sb.toString();
     }
 
     /**
-     * Deletes the task with the specified id.
+     * Adds a new task and prints the confirmation to standard output (legacy behaviour).
+     */
+    public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
+        System.out.println(addTaskString(input, type, params));
+    }
+
+    /**
+     * Deletes the task with the specified id and returns a formatted confirmation.
      *
      * @param taskNum identifier of the task to remove.
+     * @return message describing the deleted task.
      */
-    public void deleteTask(int taskNum) {
-        System.out.println(Ui.BORDER);
+    public String deleteTaskString(int taskNum) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
         Task deleteTask = taskList.get(taskNum);
         taskList.remove(taskNum);
-        System.out.println("The following task has been deleted!");
-        System.out.println(deleteTask.toString());
-        System.out.println(Ui.BORDER);
+        sb.append("The following task has been deleted!\n");
+        sb.append(deleteTask.toString()).append("\n");
+        sb.append(Ui.BORDER);
+        return sb.toString();
     }
 
     /**
-     * Marks the specified task as done.
+     * Deletes a task and prints the confirmation to standard output (legacy behaviour).
+     */
+    public void deleteTask(int taskNum) {
+        System.out.println(deleteTaskString(taskNum));
+    }
+
+    /**
+     * Marks the specified task as done and returns a formatted confirmation.
      *
      * @param taskNum identifier of the task to mark.
+     * @return message describing the marked task.
      */
-    public void markDone(int taskNum) {
+    public String markDoneString(int taskNum) {
         Task markTask = taskList.get(taskNum);
         markTask.markDone();
-        System.out.println(Ui.BORDER);
-        System.out.println("Task marked done successfully!");
-        System.out.println(markTask.toString());
-        System.out.println(Ui.BORDER);
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
+        sb.append("Task marked done successfully!\n");
+        sb.append(markTask.toString()).append("\n");
+        sb.append(Ui.BORDER);
+        return sb.toString();
     }
 
     /**
-     * Marks the specified task as not done.
+     * Marks a task as done and prints the confirmation to standard output (legacy behaviour).
+     */
+    public void markDone(int taskNum) {
+        System.out.println(markDoneString(taskNum));
+    }
+
+    /**
+     * Marks the specified task as not done and returns a formatted confirmation.
      *
      * @param taskNum identifier of the task to unmark.
+     * @return message describing the unmarked task.
      */
-    public void unmarkDone(int taskNum) {
+    public String unmarkDoneString(int taskNum) {
         Task unMarkTask = taskList.get(taskNum);
         unMarkTask.markNotDone();
-        System.out.println(Ui.BORDER);
-        System.out.println("Task unmarked successfully!");
-        System.out.println(unMarkTask.toString());
-        System.out.println(Ui.BORDER);
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
+        sb.append("Task unmarked successfully!\n");
+        sb.append(unMarkTask.toString()).append("\n");
+        sb.append(Ui.BORDER);
+        return sb.toString();
+    }
+
+    /**
+     * Unmarks a task and prints the confirmation to standard output (legacy behaviour).
+     */
+    public void unmarkDone(int taskNum) {
+        System.out.println(unmarkDoneString(taskNum));
     }
 
     /**
@@ -133,22 +186,34 @@ public class TaskList {
     }
 
     /**
+     * Returns a formatted string with search results (no printing).
+     *
+     * @param keyword substring to search for.
+     * @return formatted search results.
+     */
+    public String displaySearchResultsString(String keyword) {
+        HashMap<Integer, Task> searchedTaskList = searchKeyword(keyword);
+        StringBuilder sb = new StringBuilder();
+        sb.append(Ui.BORDER).append("\n");
+        if (!searchedTaskList.isEmpty()) {
+            sb.append("These are the most relevant tasks\n");
+            for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
+                sb.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
+            }
+        } else {
+            sb.append("No relevant tasks found!\n");
+        }
+        sb.append(Ui.BORDER);
+        return sb.toString();
+    }
+
+    /**
      * Displays search results to standard output.
      *
      * @param keyword substring to search for.
      */
     public void displaySearchResults(String keyword) {
-        HashMap<Integer, Task> searchedTaskList = searchKeyword(keyword);
-        System.out.println(Ui.BORDER);
-        if (!searchedTaskList.isEmpty()) {
-            System.out.println("These are the most relevant tasks");
-            for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
-                System.out.println(String.format("%d. %s", entry.getKey(), entry.getValue()));
-            }
-        } else {
-            System.out.println("No relevant tasks found!");
-        }
-        System.out.println(Ui.BORDER);
+        System.out.println(displaySearchResultsString(keyword));
     }
 
     /**
