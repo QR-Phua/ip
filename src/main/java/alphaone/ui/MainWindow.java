@@ -25,31 +25,18 @@ public class MainWindow extends AnchorPane {
     private AlphaOne alphaOne;
 
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-
     private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
-    /**
-     * Initializes the controller after its root element has been completely processed.
-     *
-     * <p>Verifies that all FXML-injected fields are not null and binds the scroll pane's
-     * vertical value to the dialog container height so new dialogs are scrolled into view.
-     */
     @FXML
     public void initialize() {
-        assert(this.userImage != null);
-        assert(this.dukeImage != null);
-        assert(this.userInput != null);
-        assert(this.sendButton != null);
-        assert(this.scrollPane != null);
-        assert(this.dialogContainer != null);
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
     /** Injects the Duke instance */
     public void setAlphaOne(AlphaOne bot) {
         this.alphaOne = bot;
+        // Show same startup message as the CLI; tasks are already loaded by AlphaOne constructor
         String startup = alphaOne.getStartupMessage();
-        assert(startup != null);
         if (startup != null && !startup.isEmpty()) {
             dialogContainer.getChildren().addAll(
                     DialogBox.getDukeDialog(startup, dukeImage)
