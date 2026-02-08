@@ -1,17 +1,9 @@
 package alphaone;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
-import alphaone.exception.IncompleteDetailsException;
-import alphaone.exception.InvalidCommandException;
-import alphaone.exception.InvalidDateTimeException;
-import alphaone.exception.InvalidTaskItemException;
 import alphaone.model.Task;
 import alphaone.model.TaskList;
-import alphaone.parser.Parser;
 import alphaone.storage.Storage;
 import alphaone.ui.Ui;
 
@@ -25,7 +17,7 @@ import alphaone.ui.Ui;
 public class AlphaOne {
     private final TaskList taskList;
     private final Storage storage;
-    private boolean isExit = false;
+    private final CommandProcessor commandProcessor;
 
     /**
      * Types of tasks supported by the application.
@@ -63,6 +55,8 @@ public class AlphaOne {
         if (!loaded.isEmpty()) {
             this.taskList.setInternalMap(loaded);
         }
+        // create the processor after loading so it has immediate access to tasks
+        this.commandProcessor = new CommandProcessor(this.taskList, this.storage);
     }
 
     /**
@@ -80,21 +74,11 @@ public class AlphaOne {
         sb.append(Ui.BORDER);
         return sb.toString();
     }
-
-    /**
-     * Returns the formatted tasks list suitable for display (may indicate empty list).
-     *
-     * @return formatted task list string
-     */
-    public String getTaskListString() {
-        return taskList.getTasksString();
-    }
-
     /**
      * Returns true if the last processed command was an exit command.
      */
     public boolean isExit() {
-        return isExit;
+        return commandProcessor.isExit();
     }
 
     /**
@@ -105,89 +89,8 @@ public class AlphaOne {
      * @return textual response to display to the user
      */
     public String getResponse(String input) {
-        String[] commands = Parser.splitInput(input);
-        try {
-            if (commands[0].equalsIgnoreCase("bye")) {
-                commandLengthChecker(commands.length, CommandType.BYE);
-                // persist to storage before exiting
-                storage.save(taskList.getInternalMap());
-                isExit = true;
-                return Ui.BORDER + "\nThank you for using AlphaOne! \n" + Ui.BORDER;
-            } else if (commands[0].equalsIgnoreCase("list")) {
-                commandLengthChecker(commands.length, CommandType.LIST);
-                return taskList.getTasksString();
-            } else if (commands[0].equalsIgnoreCase("mark")) {
-                commandLengthChecker(commands.length, CommandType.MARK);
-                try {
-                    int taskNum = Integer.parseInt(commands[1]);
-                    taskList.taskExistenceChecker(taskNum);
-                    return taskList.markDoneString(taskNum);
-                } catch (InvalidTaskItemException itie) {
-                    return itie.getMessage();
-                } catch (Exception e) {
-                    return Ui.BORDER + "\nInvalid task number!\n" + Ui.BORDER;
-                }
-            } else if (commands[0].equalsIgnoreCase("unmark")) {
-                commandLengthChecker(commands.length, CommandType.UNMARK);
-                try {
-                    int taskNum = Integer.parseInt(commands[1]);
-                    taskList.taskExistenceChecker(taskNum);
-                    return taskList.unmarkDoneString(taskNum);
-
-                } catch (InvalidTaskItemException itie) {
-                    return itie.getMessage();
-                } catch (Exception e) {
-                    return Ui.BORDER + "\nInvalid task number!\n" + Ui.BORDER;
-                }
-            } else if (commands[0].equalsIgnoreCase("delete")) {
-                commandLengthChecker(commands.length, CommandType.DELETE);
-                try {
-                    int taskNum = Integer.parseInt(commands[1]);
-                    taskList.taskExistenceChecker(taskNum);
-                    return taskList.deleteTaskString(taskNum);
-                } catch (InvalidTaskItemException itie) {
-                    return itie.getMessage();
-                } catch (Exception e) {
-                    return Ui.BORDER + "\nInvalid task number!\n" + Ui.BORDER;
-                }
-            } else if (commands[0].equalsIgnoreCase("find")) {
-                commandLengthChecker(commands.length, CommandType.FIND);
-                String keyword = Parser.joinFromIndex(commands, 1);
-                if (keyword.isEmpty()) {
-                    throw new InvalidCommandException(CommandType.FIND);
-                }
-                return taskList.displaySearchResultsString(keyword);
-
-            } else if (commands[0].equalsIgnoreCase("todo")) {
-                if (commands.length < 2) {
-                    throw new IncompleteDetailsException(TaskType.TODO);
-                }
-                return taskList.addTaskString(todoPrep(commands), TaskType.TODO);
-
-            } else if (commands[0].equalsIgnoreCase("deadline")) {
-                if (commands.length < 2) {
-                    throw new InvalidCommandException(TaskType.DEADLINE);
-                }
-                ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, TaskType.DEADLINE);
-                return taskList.addTaskString(tidiedDescription.get(0), TaskType.DEADLINE, tidiedDescription.get(1));
-
-            } else if (commands[0].equalsIgnoreCase("event")) {
-                ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, TaskType.EVENT);
-                return taskList.addTaskString(tidiedDescription.get(0), TaskType.EVENT,
-                        tidiedDescription.get(1), tidiedDescription.get(2));
-            } else {
-                throw new InvalidCommandException();
-            }
-        } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exe) {
-            return exe.getMessage();
-        }
-    }
-
-    /**
-     * Generates a simple response for the user's chat message (used in tests).
-     */
-    public String getResponseSimple(String input) {
-        return "AlphaOne heard: " + input;
+        // delegate parsing & execution to the CommandProcessor
+        return commandProcessor.process(input);
     }
 
     /**
@@ -201,28 +104,10 @@ public class AlphaOne {
             String input = Ui.readLine();
             String response = getResponse(input);
             System.out.println(response);
-            if (isExit) {
+            if (commandProcessor.isExit()) {
                 break;
             }
         }
-    }
-
-    private void commandLengthChecker(int actual, CommandType type) throws InvalidCommandException {
-        int expectedLength = actual;
-        switch (type) {
-        case BYE, LIST -> expectedLength = 1;
-        case MARK, UNMARK, DELETE, FIND-> expectedLength = 2;
-        default -> throw new InvalidCommandException();
-        }
-        if (expectedLength != actual) {
-            throw new InvalidCommandException(type);
-        }
-    }
-
-    private String todoPrep(String[] commands) {
-        List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-        stringList.remove(0);
-        return String.join(" ", stringList);
     }
 
     // standard entry point so `java AlphaOne` works
