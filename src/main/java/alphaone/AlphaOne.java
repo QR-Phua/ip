@@ -56,12 +56,13 @@ public class AlphaOne {
      */
     public AlphaOne() {
         this.storage = new Storage();
-        // taskList will initialize its own storage if required
+        assert(this.storage != null);
         this.taskList = new TaskList();
+        assert(this.taskList != null);
         // Load persisted tasks immediately so GUI can display them without calling run().
-        HashMap<Integer, Task> loaded = storage.load();
-        if (!loaded.isEmpty()) {
-            this.taskList.setInternalMap(loaded);
+        HashMap<Integer, Task> loadedTasks = storage.load();
+        if (!loadedTasks.isEmpty()) {
+            this.taskList.setInternalMap(loadedTasks);
         }
     }
 
@@ -80,16 +81,6 @@ public class AlphaOne {
         sb.append(Ui.BORDER);
         return sb.toString();
     }
-
-    /**
-     * Returns the formatted tasks list suitable for display (may indicate empty list).
-     *
-     * @return formatted task list string
-     */
-    public String getTaskListString() {
-        return taskList.getTasksString();
-    }
-
     /**
      * Returns true if the last processed command was an exit command.
      */
