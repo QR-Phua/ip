@@ -3,30 +3,53 @@ package alphaone.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import alphaone.storage.Storage;
 import alphaone.ui.Ui;
 
 /**
  * In-memory container for Tasks with helper operations.
- *
- * TaskList stores tasks indexed by integer ids, and offers operations to add,
- * delete, mark/unmark and search tasks.
  */
 public class TaskList {
     private HashMap<Integer, Task> taskList;
     private int counter = 1;
+    private final Storage storage; // may be null for in-memory-only instances
 
     public TaskList() {
+        this(null);
+    }
+
+    /**
+     * Create a TaskList that uses the provided Storage instance for persistence.
+     * If storage is null the TaskList operates in-memory only.
+     *
+     * @param storage storage instance to load/save tasks, or null for no persistence
+     */
+    public TaskList(Storage storage) {
+        this.storage = storage;
+        if (this.storage != null) {
+            HashMap<Integer, Task> loaded = this.storage.load();
+            if (loaded != null && !loaded.isEmpty()) {
+                this.taskList = loaded;
+                int max = 0;
+                for (Integer k : loaded.keySet()) {
+                    if (k != null && k > max) {
+                        max = k;
+                    }
+                }
+                this.counter = max + 1;
+                return;
+            }
+        }
         taskList = new HashMap<>();
     }
 
     /**
-     * Returns a formatted representation of current tasks.
+     * Returns a raw (unformatted) representation of current tasks. Ui will add borders.
      *
-     * @return a string that contains the same content previously printed by getTasks().
+     * @return raw formatted tasks text
      */
     public String getTasksString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
         if (!taskList.isEmpty()) {
             sb.append("You have these tasks in your list:\n");
             for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
@@ -36,27 +59,26 @@ public class TaskList {
         } else {
             sb.append("Your task list is currently empty!\n");
         }
-        sb.append(Ui.BORDER);
         return sb.toString();
     }
 
     /**
-     * Displays tasks to standard output in a numbered list.
+     * Print the raw tasks string to the UI (Ui will add borders).
      */
     public void getTasks() {
-        System.out.println(getTasksString());
+        Ui.print(getTasksString());
     }
 
     /**
-     * Adds a new task of the specified type to the list and returns a formatted confirmation.
+     * Add a task and return a raw confirmation message (no borders).
      *
-     * @param input the task description or primary input.
-     * @param type the task type to add (TODO, DEADLINE, EVENT).
-     * @param params optional additional parameters (e.g. date/time strings).
-     * @return the message that would previously be printed to the console.
+     * @param input task text
+     * @param type task type
+     * @param params optional extra params
+     * @return raw confirmation message
      */
     public String addTaskString(String input, alphaone.AlphaOne.TaskType type, String... params) {
-        Task newTask = null;
+        Task newTask;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
         case DEADLINE -> newTask = new Deadline(input, params[0]);
@@ -67,91 +89,93 @@ public class TaskList {
         }
         taskList.put(counter, newTask);
         counter++;
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
-        sb.append("New task added to your task list!\n");
-        sb.append(newTask.toString()).append("\n");
-        sb.append(Ui.BORDER);
-        return sb.toString();
+        if (this.storage != null) {
+            this.storage.save(this.taskList);
+        }
+        return "New task added to your task list!\n" + newTask;
     }
 
     /**
-     * Adds a new task and prints the confirmation to standard output (legacy behaviour).
+     * Legacy: add task and print confirmation.
+     *
+     * @param input task text
+     * @param type task type
+     * @param params optional params
      */
     public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
-        System.out.println(addTaskString(input, type, params));
+        Ui.print(addTaskString(input, type, params));
     }
 
     /**
-     * Deletes the task with the specified id and returns a formatted confirmation.
+     * Delete a task and return a raw confirmation (no borders).
      *
-     * @param taskNum identifier of the task to remove.
-     * @return message describing the deleted task.
+     * @param taskNum id to delete
+     * @return raw deletion message
      */
     public String deleteTaskString(int taskNum) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
         Task deleteTask = taskList.get(taskNum);
         taskList.remove(taskNum);
-        sb.append("The following task has been deleted!\n");
-        sb.append(deleteTask.toString()).append("\n");
-        sb.append(Ui.BORDER);
-        return sb.toString();
+        if (this.storage != null) {
+            this.storage.save(this.taskList);
+        }
+        return "The following task has been deleted!\n" + deleteTask;
     }
 
     /**
-     * Deletes a task and prints the confirmation to standard output (legacy behaviour).
+     * Legacy: delete and print.
+     *
+     * @param taskNum id to delete
      */
     public void deleteTask(int taskNum) {
-        System.out.println(deleteTaskString(taskNum));
+        Ui.print(deleteTaskString(taskNum));
     }
 
     /**
-     * Marks the specified task as done and returns a formatted confirmation.
+     * Mark the task and return raw confirmation (no borders).
      *
-     * @param taskNum identifier of the task to mark.
-     * @return message describing the marked task.
+     * @param taskNum id to mark
+     * @return raw message
      */
     public String markDoneString(int taskNum) {
         Task markTask = taskList.get(taskNum);
         markTask.markDone();
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
-        sb.append("Task marked done successfully!\n");
-        sb.append(markTask.toString()).append("\n");
-        sb.append(Ui.BORDER);
-        return sb.toString();
+        if (this.storage != null) {
+            this.storage.save(this.taskList);
+        }
+        return "Task marked done successfully!\n" + markTask;
     }
 
     /**
-     * Marks a task as done and prints the confirmation to standard output (legacy behaviour).
+     * Legacy: mark and print.
+     *
+     * @param taskNum id to mark
      */
     public void markDone(int taskNum) {
-        System.out.println(markDoneString(taskNum));
+        Ui.print(markDoneString(taskNum));
     }
 
     /**
-     * Marks the specified task as not done and returns a formatted confirmation.
+     * Unmark the task and return raw confirmation (no borders).
      *
-     * @param taskNum identifier of the task to unmark.
-     * @return message describing the unmarked task.
+     * @param taskNum id to unmark
+     * @return raw message
      */
     public String unmarkDoneString(int taskNum) {
         Task unMarkTask = taskList.get(taskNum);
         unMarkTask.markNotDone();
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
-        sb.append("Task unmarked successfully!\n");
-        sb.append(unMarkTask.toString()).append("\n");
-        sb.append(Ui.BORDER);
-        return sb.toString();
+        if (this.storage != null) {
+            this.storage.save(this.taskList);
+        }
+        return "Task unmarked successfully!\n" + unMarkTask;
     }
 
     /**
-     * Unmarks a task and prints the confirmation to standard output (legacy behaviour).
+     * Legacy: unmark and print.
+     *
+     * @param taskNum id to unmark
      */
     public void unmarkDone(int taskNum) {
-        System.out.println(unmarkDoneString(taskNum));
+        Ui.print(unmarkDoneString(taskNum));
     }
 
     /**
@@ -167,12 +191,11 @@ public class TaskList {
         }
     }
 
-
     /**
-     * Searches the task descriptions for the provided keyword.
+     * Search tasks by keyword and return matching map.
      *
-     * @param keyword substring to search for.
-     * @return a map of matching tasks keyed by their ids.
+     * @param keyword substring to search for
+     * @return map of matching tasks keyed by id
      */
     public HashMap<Integer, Task> searchKeyword(String keyword) {
         HashMap<Integer, Task> searchedTaskList = new HashMap<>();
@@ -186,34 +209,23 @@ public class TaskList {
     }
 
     /**
-     * Returns a formatted string with search results (no printing).
+     * Return raw search results text.
      *
-     * @param keyword substring to search for.
-     * @return formatted search results.
+     * @param keyword search string
+     * @return raw search results (no borders)
      */
     public String displaySearchResultsString(String keyword) {
         HashMap<Integer, Task> searchedTaskList = searchKeyword(keyword);
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.BORDER).append("\n");
         if (!searchedTaskList.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
             sb.append("These are the most relevant tasks\n");
             for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
                 sb.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
             }
+            return sb.toString();
         } else {
-            sb.append("No relevant tasks found!\n");
+            return "No relevant tasks found!\n";
         }
-        sb.append(Ui.BORDER);
-        return sb.toString();
-    }
-
-    /**
-     * Displays search results to standard output.
-     *
-     * @param keyword substring to search for.
-     */
-    public void displaySearchResults(String keyword) {
-        System.out.println(displaySearchResultsString(keyword));
     }
 
     /**
@@ -235,7 +247,6 @@ public class TaskList {
             return;
         }
         this.taskList = map;
-        // update counter to be one greater than the current max key
         int max = 0;
         for (Integer k : map.keySet()) {
             if (k != null && k > max) {
@@ -243,6 +254,9 @@ public class TaskList {
             }
         }
         this.counter = max + 1;
+        if (this.storage != null) {
+            this.storage.save(this.taskList);
+        }
     }
 
 }

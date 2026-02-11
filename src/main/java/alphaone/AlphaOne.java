@@ -1,8 +1,6 @@
 package alphaone;
 
-import java.util.HashMap;
-
-import alphaone.model.Task;
+import alphaone.model.ContactList;
 import alphaone.model.TaskList;
 import alphaone.storage.Storage;
 import alphaone.ui.Ui;
@@ -10,13 +8,11 @@ import alphaone.ui.Ui;
 /**
  * AlphaOne is the main application class that coordinates user input, parsing,
  * task management and persistence.
- * <p>
- * It holds the application's {@code TaskList} and {@code Storage} instances and
- * contains the interactive loop implemented in {@link #run()}.
  */
 public class AlphaOne {
-    private final TaskList taskList;
+    private TaskList taskList;
     private final Storage storage;
+    private ContactList contactList;
     private final CommandProcessor commandProcessor;
 
     /**
@@ -37,7 +33,7 @@ public class AlphaOne {
      * DELETE — remove a task by index.
      * FIND — search tasks by keyword.</p>
      */
-    public enum CommandType { BYE, LIST, UNMARK, MARK, DELETE, FIND }
+    public enum CommandType { CONTACT_ADD, CONTACT_DELETE, BYE, LIST, UNMARK, MARK, DELETE, FIND }
     /**
      * Creates a new AlphaOne application instance.
      *
@@ -48,30 +44,21 @@ public class AlphaOne {
      */
     public AlphaOne() {
         this.storage = new Storage();
-        // taskList will initialize its own storage if required
-        this.taskList = new TaskList();
-        // Load persisted tasks immediately so GUI can display them without calling run().
-        HashMap<Integer, Task> loaded = storage.load();
-        if (!loaded.isEmpty()) {
-            this.taskList.setInternalMap(loaded);
-        }
+        // ensure TaskList and ContactList use the same Storage instance
+        this.contactList = new ContactList(this.storage);
+        this.taskList = new TaskList(this.storage);
         // create the processor after loading so it has immediate access to tasks
-        this.commandProcessor = new CommandProcessor(this.taskList, this.storage);
+        this.commandProcessor = new CommandProcessor(this.taskList, this.storage, this.contactList);
     }
 
     /**
-     * Returns the standard startup message that the CLI prints. GUI can use this
-     * to show the same welcome content.
-     *
-     * @return a string containing logo, borders and welcome text.
+     * Return the raw startup message (no borders). Ui will add presentation.
      */
     public String getStartupMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append(Ui.printLogo()).append("\n");
-        sb.append(Ui.BORDER).append("\n");
         sb.append("Hello! I am AlphaOne, your chatbot companion!\n");
         sb.append("Tell me what you would like to do!\n");
-        sb.append(Ui.BORDER);
         return sb.toString();
     }
     /**
@@ -98,12 +85,12 @@ public class AlphaOne {
      * share the same command processing.
      */
     public void run() {
-        System.out.println(getStartupMessage());
+        Ui.print(getStartupMessage());
 
         while (true) {
             String input = Ui.readLine();
             String response = getResponse(input);
-            System.out.println(response);
+            Ui.print(response);
             if (commandProcessor.isExit()) {
                 break;
             }
