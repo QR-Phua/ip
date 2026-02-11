@@ -13,6 +13,7 @@ import alphaone.model.ContactList;
 import alphaone.model.TaskList;
 import alphaone.parser.Parser;
 import alphaone.storage.Storage;
+import alphaone.ui.Ui;
 
 /**
  * Encapsulates parsing and execution of textual commands so CLI and GUI can
@@ -48,16 +49,15 @@ public class CommandProcessor {
     }
 
     /**
-     * Process a textual user input and return the response string.
+     * Process a textual user input. This method will print responses via Ui.
      *
      * @param input user input line
-     * @return response text to display
      */
-    public String process(String input) {
+    public void process(String input) {
         String[] commands = Parser.splitInput(input);
         String cmd = commands.length > 0 ? commands[0].toLowerCase() : "";
         try {
-            return switch (cmd) {
+            switch (cmd) {
             case "contact" -> handleContact(commands);
             case "bye" -> handleBye(commands);
             case "list" -> handleList(commands);
@@ -67,27 +67,23 @@ public class CommandProcessor {
             case "deadline" -> handleDeadline(commands);
             case "event" -> handleEvent(commands);
             default -> throw new InvalidCommandException();
-            };
+            }
         } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exe) {
-            return exe.getMessage();
+            Ui.print(exe.getMessage());
         }
     }
 
-    private String handleContact(String[] commands) throws InvalidCommandException {
+    private void handleContact(String[] commands) throws InvalidCommandException {
         if (commands.length < 2) {
             throw new InvalidCommandException();
         }
         String action = commands[1].toLowerCase();
         switch (action) {
         case "add":
-            // gather the remaining tokens as arguments (name and phone)
             ArrayList<String> arguments = new ArrayList<>(Arrays.asList(commands));
-            // remove "contact" and "add"
             arguments.remove(0);
             arguments.remove(0);
-            // check expected arg count (name + phone)
             commandLengthChecker(arguments.size(), AlphaOne.CommandType.CONTACT_ADD);
-            // allow multi-word names: phone is last token, name is everything before
             String phone = arguments.get(arguments.size() - 1);
             String name;
             if (arguments.size() == 2) {
@@ -101,7 +97,8 @@ public class CommandProcessor {
             contactArgs.add(phone);
             Contact newContact = new Contact(contactArgs);
             contactList.addContact(newContact);
-            return "New contact added:\n" + String.format("%s (%s)", newContact.getName(), phone);
+            Ui.print("New contact added:\n" + String.format("%s (%s)", newContact.getName(), phone));
+            return;
         case "remove":
             ArrayList<String> removeArgs = new ArrayList<>(Arrays.asList(commands));
             removeArgs.remove(0);
@@ -110,11 +107,14 @@ public class CommandProcessor {
             String targetName = String.join(" ", removeArgs);
             Contact removed = contactList.removeContactByName(targetName);
             if (removed == null) {
-                return "No contact found with that name.";
+                Ui.print("No contact found with that name.");
+                return;
             }
-            return "Contact removed:\n" + String.format("%s (%s)", removed.getName(), removed.getPhone());
+            Ui.print("Contact removed:\n" + String.format("%s (%s)", removed.getName(), removed.getPhone()));
+            return;
         case "list":
-            return contactList.getContactsString();
+            Ui.print(contactList.getContactsString());
+            return;
         default:
             throw new InvalidCommandException();
         }
@@ -122,22 +122,22 @@ public class CommandProcessor {
 
     // ---------- Command handlers (small, focused, private) ----------
 
-    private String handleBye(String[] commands) throws InvalidCommandException {
+    private void handleBye(String[] commands) throws InvalidCommandException {
         commandLengthChecker(commands.length, AlphaOne.CommandType.BYE);
         storage.save(taskList.getInternalMap());
         exit = true;
-        return "Thank you for using AlphaOne! ";
+        Ui.print("Thank you for using AlphaOne! ");
     }
 
-    private String handleList(String[] commands) throws InvalidCommandException {
+    private void handleList(String[] commands) throws InvalidCommandException {
         commandLengthChecker(commands.length, AlphaOne.CommandType.LIST);
-        return taskList.getTasksString();
+        taskList.getTasks();
     }
 
     /**
      * Handles mark/unmark/delete which share index parsing and similar error handling.
      */
-    private String handleMutate(String[] commands, String cmd) throws InvalidCommandException {
+    private void handleMutate(String[] commands, String cmd) throws InvalidCommandException {
         AlphaOne.CommandType type = switch (cmd) {
         case "mark" -> AlphaOne.CommandType.MARK;
         case "unmark" -> AlphaOne.CommandType.UNMARK;
@@ -147,49 +147,49 @@ public class CommandProcessor {
         try {
             int taskNum = parseTaskIndex(commands[1]);
             taskList.taskExistenceChecker(taskNum);
-            return switch (cmd) {
-            case "mark" -> taskList.markDoneString(taskNum);
-            case "unmark" -> taskList.unmarkDoneString(taskNum);
-            default -> taskList.deleteTaskString(taskNum);
-            };
+            switch (cmd) {
+            case "mark" -> Ui.print(taskList.markDoneString(taskNum));
+            case "unmark" -> Ui.print(taskList.unmarkDoneString(taskNum));
+            default -> Ui.print(taskList.deleteTaskString(taskNum));
+            }
         } catch (InvalidTaskItemException itie) {
-            return itie.getMessage();
+            Ui.print(itie.getMessage());
         } catch (Exception e) {
-            return "Invalid task number!";
+            Ui.print("Invalid task number!");
         }
     }
 
-    private String handleFind(String[] commands) throws InvalidCommandException {
+    private void handleFind(String[] commands) throws InvalidCommandException {
         commandLengthChecker(commands.length, AlphaOne.CommandType.FIND);
         String keyword = Parser.joinFromIndex(commands, 1);
         if (keyword.isEmpty()) {
             throw new InvalidCommandException(AlphaOne.CommandType.FIND);
         }
-        return taskList.displaySearchResultsString(keyword);
+        Ui.print(taskList.displaySearchResultsString(keyword));
     }
 
-    private String handleTodo(String[] commands) throws IncompleteDetailsException {
+    private void handleTodo(String[] commands) throws IncompleteDetailsException {
         if (commands.length < 2) {
             throw new IncompleteDetailsException(AlphaOne.TaskType.TODO);
         }
-        return taskList.addTaskString(todoPrep(commands), AlphaOne.TaskType.TODO);
+        Ui.print(taskList.addTaskString(todoPrep(commands), AlphaOne.TaskType.TODO));
     }
 
-    private String handleDeadline(String[] commands)
+    private void handleDeadline(String[] commands)
             throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         if (commands.length < 2) {
             throw new InvalidCommandException(AlphaOne.TaskType.DEADLINE);
         }
         ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, AlphaOne.TaskType.DEADLINE);
-        return taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.DEADLINE,
-                tidiedDescription.get(1));
+        Ui.print(taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.DEADLINE,
+                tidiedDescription.get(1)));
     }
 
-    private String handleEvent(String[] commands)
+    private void handleEvent(String[] commands)
             throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, AlphaOne.TaskType.EVENT);
-        return taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.EVENT,
-                tidiedDescription.get(1), tidiedDescription.get(2));
+        Ui.print(taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.EVENT,
+                tidiedDescription.get(1), tidiedDescription.get(2)));
     }
 
     // ---------- small helpers ----------

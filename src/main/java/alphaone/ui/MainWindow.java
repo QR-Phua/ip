@@ -1,5 +1,7 @@
 package alphaone.ui;
 
+import java.util.function.Consumer;
+
 import alphaone.AlphaOne;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -9,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+
 /**
  * Controller for the main GUI.
  */
@@ -35,12 +38,19 @@ public class MainWindow extends AnchorPane {
     /** Injects the Duke instance */
     public void setAlphaOne(AlphaOne bot) {
         this.alphaOne = bot;
+        // register Ui consumer so Ui.print(...) adds a dialog in the GUI; consumer expects raw text
+        Consumer<String> guiConsumer = (s) -> Platform.runLater(() -> {
+            dialogContainer.getChildren().addAll(
+                    DialogBox.getDukeDialog(s, dukeImage)
+            );
+        });
+        Ui.setOutputConsumer(guiConsumer, true);
+
         // Show same startup message as the CLI; tasks are already loaded by AlphaOne constructor
         String startup = alphaOne.getStartupMessage();
         if (startup != null && !startup.isEmpty()) {
-            dialogContainer.getChildren().addAll(
-                    DialogBox.getDukeDialog(startup, dukeImage)
-            );
+            // Use Ui.print so the registered consumer will display it
+            Ui.print(startup);
         }
     }
 
@@ -51,11 +61,10 @@ public class MainWindow extends AnchorPane {
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
-        String response = alphaOne.getResponse(input);
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getDukeDialog(response, dukeImage)
+                DialogBox.getUserDialog(input, userImage)
         );
+        alphaOne.processInput(input);
         userInput.clear();
 
         // If the command triggered exit, close the JavaFX application window

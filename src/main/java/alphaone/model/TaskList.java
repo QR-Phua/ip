@@ -56,8 +56,12 @@ public class TaskList {
                 Task currentTask = entry.getValue();
                 sb.append(String.format("%d. %s\n", entry.getKey(), currentTask));
             }
+            // remove trailing newline if present
+            if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
         } else {
-            sb.append("Your task list is currently empty!\n");
+            sb.append("Your task list is currently empty!");
         }
         return sb.toString();
     }
@@ -222,9 +226,14 @@ public class TaskList {
             for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
                 sb.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
             }
+            // remove trailing newline if present
+            int len = sb.length();
+            if (len > 0 && sb.charAt(len - 1) == '\n') {
+                sb.deleteCharAt(len - 1);
+            }
             return sb.toString();
         } else {
-            return "No relevant tasks found!\n";
+            return "No relevant tasks found!";
         }
     }
 

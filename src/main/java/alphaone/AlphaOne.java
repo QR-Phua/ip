@@ -69,15 +69,11 @@ public class AlphaOne {
     }
 
     /**
-     * Process a line of input and return a textual response. This centralised
-     * method allows both the CLI and GUI to reuse the same command logic.
-     *
-     * @param input user input string
-     * @return textual response to display to the user
+     * Delegate input to the processor (void). The processor will call Ui.print(...)
+     * to present responses.
      */
-    public String getResponse(String input) {
-        // delegate parsing & execution to the CommandProcessor
-        return commandProcessor.process(input);
+    public void processInput(String input) {
+        commandProcessor.process(input);
     }
 
     /**
@@ -89,8 +85,7 @@ public class AlphaOne {
 
         while (true) {
             String input = Ui.readLine();
-            String response = getResponse(input);
-            Ui.print(response);
+            processInput(input);
             if (commandProcessor.isExit()) {
                 break;
             }
