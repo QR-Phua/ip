@@ -1,7 +1,6 @@
 package alphaone.exception;
 
 import alphaone.AlphaOne;
-import alphaone.ui.Ui;
 
 /**
  * Signals that a user command was invalid or malformed.
@@ -14,7 +13,7 @@ public class InvalidCommandException extends Exception {
      * Creates a generic invalid command exception with a default message.
      */
     public InvalidCommandException() {
-        super(Ui.BORDER + "\n" + "Invalid command! Please try again." + "\n" + Ui.BORDER);
+        super("Invalid command! Please try again.");
         this.taskType = null;
         this.commandType = null;
     }
@@ -46,16 +45,16 @@ public class InvalidCommandException extends Exception {
         if (taskType != null) {
             switch (taskType) {
             case TODO -> {
-                return Ui.BORDER + "\n" + "Invalid TODO command! Please try again.\n"
-                        + "Example: todo [task description]" + "\n" + Ui.BORDER;
+                return "Invalid TODO command! Please try again.\n"
+                        + "Example: todo [task description]";
             }
             case DEADLINE -> {
-                return Ui.BORDER + "\n" + "Invalid DEADLINE command! Please try again.\n"
-                        + "Example: deadline [task description] /by [task due date]" + "\n" + Ui.BORDER;
+                return "Invalid DEADLINE command! Please try again.\n"
+                        + "Example: deadline [task description] /by [task due date]";
             }
             case EVENT -> {
-                return Ui.BORDER + "\n" + "Invalid EVENT command! Please try again.\n"
-                        + "Example: event [event description] /from [date time] /to [date time]" + "\n" + Ui.BORDER;
+                return "Invalid EVENT command! Please try again.\n"
+                        + "Example: event [event description] /from [date time] /to [date time]";
             }
             default -> {
                 return super.getMessage();
@@ -64,27 +63,28 @@ public class InvalidCommandException extends Exception {
         } else if (commandType != null) {
             switch (commandType) {
             case MARK -> {
-                return Ui.BORDER + "\n" + "Invalid MARK command! Please try again.\n"
-                        + "Example: mark [task number]" + "\n" + Ui.BORDER;
+                return "Invalid MARK command! Please try again.\n"
+                        + "Example: mark [task number]";
             }
             case UNMARK -> {
-                return Ui.BORDER + "\n" + "Invalid UNMARK command! Please try again.\n"
-                        + "Example: unmark [task number]" + "\n" + Ui.BORDER;
+                return "Invalid UNMARK command! Please try again.\n"
+                        + "Example: unmark [task number]";
             }
             case DELETE -> {
-                return Ui.BORDER + "\n" + "Invalid DELETE command! Please try again.\n"
-                        + "Example: delete [task number]" + "\n" + Ui.BORDER;
+                return "Invalid DELETE command! Please try again.\n"
+                        + "Example: delete [task number]";
             }
             case BYE -> {
-                String msg = "Invalid BYE command! No other parameters required." + "\n" + "Example: bye";
-                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
+                return "Invalid BYE command! No other parameters required.\n"
+                        + "Example: bye";
             }
             case LIST -> {
-                String msg = "Invalid LIST command! No other parameters required." + "\n" + "Example: list";
-                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
-            } case FIND -> {
-                String msg = "Invalid FIND command! Please enter keyword(s)" + "\n" + "Example: find assignment";
-                return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
+                return "Invalid LIST command! No other parameters required.\n"
+                        + "Example: list";
+            }
+            case FIND -> {
+                return "Invalid FIND command! Please enter keyword(s)\n"
+                        + "Example: find assignment";
             }
             default -> {
                 return super.getMessage();

@@ -8,12 +8,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import alphaone.model.Contact;
 import alphaone.model.Deadline;
 import alphaone.model.Event;
 import alphaone.model.Task;
@@ -21,14 +23,13 @@ import alphaone.model.ToDo;
 import alphaone.ui.Ui;
 
 /**
- * Handles persistence for the application by reading/writing tasks to a text file.
- *
- * The Storage class reads a simple line-based serialization and reconstructs
- * task objects. It is robust to malformed lines and will skip invalid entries.
+ * Handles persistence for the application by reading/writing tasks and contacts
+ * to text files.
  */
 public class Storage {
     private static final Logger LOGGER = Logger.getLogger(Storage.class.getName());
     private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
+    private final Path contactStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone_contacts.txt");
 
     public Storage() {
     }
@@ -42,7 +43,7 @@ public class Storage {
         if (useLogger()) {
             LOGGER.log(Level.WARNING, msg);
         } else {
-            System.out.println(msg);
+            Ui.print(msg);
         }
     }
 
@@ -50,7 +51,7 @@ public class Storage {
         if (useLogger()) {
             LOGGER.log(Level.SEVERE, msg);
         } else {
-            System.out.println(msg);
+            Ui.print(msg);
         }
     }
 
@@ -129,7 +130,7 @@ public class Storage {
                 }
             }
         } catch (IOException ioe) {
-            severe(Ui.BORDER + "\nError reading stored file, starting fresh\n" + Ui.BORDER);
+            severe("Error reading stored file, starting fresh");
         }
         return rebuiltTaskList;
     }
@@ -155,7 +156,80 @@ public class Storage {
                 }
             }
         } catch (IOException e) {
-            severe(Ui.BORDER + "\nError saving tasklist\n" + Ui.BORDER);
+            severe("Error saving tasklist");
+        }
+    }
+
+    /**
+     * Load stored contacts from the contact storage file.
+     *
+     * Each contact is expected as a single line using the same '!@!' separator
+     * in the format: name!@!phone
+     *
+     * @return an ArrayList of Contact instances (empty if none saved)
+     */
+    public ArrayList<Contact> loadContacts() {
+        ArrayList<Contact> contacts = new ArrayList<>();
+        try {
+            Path parent = contactStoragePath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            if (!Files.exists(contactStoragePath)) {
+                Files.createFile(contactStoragePath);
+                return contacts;
+            }
+            try (BufferedReader br = Files.newBufferedReader(contactStoragePath, StandardCharsets.UTF_8)) {
+                String nextline;
+                while ((nextline = br.readLine()) != null) {
+                    if (nextline.isBlank()) {
+                        continue;
+                    }
+                    String[] parts = nextline.split("!@!");
+                    if (parts.length < 2) {
+                        warn("Warning: skipping malformed contact line: '" + nextline + "'");
+                        continue;
+                    }
+                    String name = parts[0];
+                    String phone = parts[1];
+                    try {
+                        ArrayList<String> args = new ArrayList<>();
+                        args.add(name);
+                        args.add(phone);
+                        contacts.add(new Contact(args));
+                    } catch (Exception e) {
+                        warn("Warning: failed to rebuild contact from line: '" + nextline + "' -> " + e.getMessage());
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            severe("Error reading contacts file, starting fresh");
+        }
+        return contacts;
+    }
+
+    /**
+     * Save contacts to the contacts file, one per line (name!@!phone)
+     *
+     * @param contacts list of contacts to persist
+     */
+    public void saveContacts(ArrayList<Contact> contacts) {
+        try {
+            Path parent = contactStoragePath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            if (!Files.exists(contactStoragePath)) {
+                Files.createFile(contactStoragePath);
+            }
+            try (BufferedWriter bw = Files.newBufferedWriter(contactStoragePath, StandardCharsets.UTF_8)) {
+                for (Contact c : contacts) {
+                    bw.write(c.serialiseContact());
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            severe("Error saving contacts");
         }
     }
 }

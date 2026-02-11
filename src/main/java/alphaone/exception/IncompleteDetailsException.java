@@ -1,7 +1,6 @@
 package alphaone.exception;
 
 import alphaone.AlphaOne;
-import alphaone.ui.Ui;
 
 /**
  * Signals that a command required additional details (e.g. /by, /from, /to) that were missing.
@@ -23,25 +22,25 @@ public class IncompleteDetailsException extends Exception {
     public String getMessage() {
         switch (taskType) {
         case TODO -> {
-            String msg = "Incomplete details to create task!" + "\n"
-                    + "Please add in what you would like to do?" + "\n"
+            String msg = "Incomplete details to create task!\n"
+                    + "Please add in what you would like to do?\n"
                     + "Example: todo cook a feast";
-            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
+            return msg;
         }
         case DEADLINE -> {
-            String msg = "Incomplete details to create task!" + "\n"
-                    + "Please add in what you would like to do followed with /by to set the deadline." + "\n"
+            String msg = "Incomplete details to create task!\n"
+                    + "Please add in what you would like to do followed with /by to set the deadline.\n"
                     + "Example: deadline write report /by tomorrow evening";
-            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
+            return msg;
         }
         case EVENT -> {
-            String msg = "Incomplete details to create task!" + "\n"
-                    + "Please add in what you would like to do followed with /from and /to to set the duration?"
-                    + "\n" + "Example: event attend wedding on saturday /from 12pm /to 6pm";
-            return Ui.BORDER + "\n" + msg + "\n" + Ui.BORDER;
+            String msg = "Incomplete details to create task!\n"
+                    + "Please add in what you would like to do followed with /from and /to to set the duration?\n"
+                    + "Example: event attend wedding on saturday /from 12pm /to 6pm";
+            return msg;
         }
         default -> {
-            return Ui.BORDER + "\n" + "Incomplete details to create task!" + "\n" + Ui.BORDER;
+            return "Incomplete details to create task!";
         }
         }
     }
