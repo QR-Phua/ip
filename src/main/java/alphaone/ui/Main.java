@@ -1,6 +1,8 @@
 package alphaone.ui;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import alphaone.core.AlphaOne;
 import javafx.application.Application;
@@ -22,13 +24,17 @@ import javafx.stage.Stage;
  * JavaFX Application entry point for AlphaOne.
  */
 public class Main extends Application {
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final double DEFAULT_FONT_SIZE = 14;
+    private static final double MIN_WINDOW_HEIGHT = 480;
+    private static final double MIN_WINDOW_WIDTH = 520;
 
     private final AlphaOne alphaOne = new AlphaOne();
 
     @Override
     public void start(Stage stage) {
         // Load bundled SF Pro font so it works identically on all OSes and inside the JAR
-        Font.loadFont(Main.class.getResourceAsStream("/fonts/SF-Pro.ttf"), 14);
+        Font.loadFont(Main.class.getResourceAsStream("/fonts/SF-Pro.ttf"), DEFAULT_FONT_SIZE);
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
@@ -50,12 +56,12 @@ public class Main extends Application {
             Scene scene = new Scene(ap);
             stage.setScene(scene);
             stage.setTitle("AlphaOne");
-            stage.setMinHeight(480);
-            stage.setMinWidth(520);
+            stage.setMinHeight(MIN_WINDOW_HEIGHT);
+            stage.setMinWidth(MIN_WINDOW_WIDTH);
             fxmlLoader.<MainWindow>getController().setAlphaOne(alphaOne);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load MainWindow FXML", e);
         }
     }
 }

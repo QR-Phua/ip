@@ -29,8 +29,10 @@ import alphaone.util.Constants;
  */
 public class Storage {
     private static final Logger LOGGER = Logger.getLogger(Storage.class.getName());
-    private final Path fileStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
-    private final Path contactStoragePath = Paths.get(System.getProperty("user.dir"), "data", "alphaone_contacts.txt");
+    private static final Path FILE_STORAGE_PATH =
+            Paths.get(System.getProperty("user.dir"), "data", "alphaone.txt");
+    private static final Path CONTACT_STORAGE_PATH =
+            Paths.get(System.getProperty("user.dir"), "data", "alphaone_contacts.txt");
 
     /**
      * Creates a Storage instance using the default file paths under the current working directory.
@@ -59,7 +61,7 @@ public class Storage {
         }
     }
 
-    /* ====== Public orchestration methods (small, single-level) ====== */
+    // ====== Public orchestration methods (small, single-level) ======
 
     /**
      * Loads tasks from the storage file and rebuilds an in-memory task map.
@@ -69,8 +71,8 @@ public class Storage {
      */
     public HashMap<Integer, Task> load() {
         try {
-            ensureParentAndFileExists(fileStoragePath);
-            List<String> lines = readNonBlankLines(fileStoragePath);
+            ensureParentAndFileExists(FILE_STORAGE_PATH);
+            List<String> lines = readNonBlankLines(FILE_STORAGE_PATH);
             return buildTaskMapFromLines(lines);
         } catch (IOException ioe) {
             logOrPrintError("Error reading stored file, starting fresh");
@@ -81,16 +83,16 @@ public class Storage {
     /**
      * Persists the provided task map to the storage file, replacing its contents.
      *
-     * @param taskList the task map to persist; keys and order are retained.
+     * @param taskMap the task map to persist; keys and order are retained.
      */
-    public void save(HashMap<Integer, Task> taskList) {
+    public void save(HashMap<Integer, Task> taskMap) {
         try {
-            ensureParentAndFileExists(fileStoragePath);
+            ensureParentAndFileExists(FILE_STORAGE_PATH);
             List<String> lines = new ArrayList<>();
-            for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+            for (Map.Entry<Integer, Task> entry : taskMap.entrySet()) {
                 lines.add(entry.getValue().serialiseTask());
             }
-            writeLines(fileStoragePath, lines);
+            writeLines(FILE_STORAGE_PATH, lines);
         } catch (IOException e) {
             logOrPrintError("Error saving tasklist");
         }
@@ -99,15 +101,15 @@ public class Storage {
     /**
      * Loads stored contacts from the contact storage file.
      *
-     * Each contact is expected as a single line using the same '!@!' separator
+     * <p>Each contact is expected as a single line using the same '!@!' separator
      * in the format: name!@!phone
      *
      * @return an ArrayList of Contact instances (empty if none saved)
      */
     public ArrayList<Contact> loadContacts() {
         try {
-            ensureParentAndFileExists(contactStoragePath);
-            List<String> lines = readNonBlankLines(contactStoragePath);
+            ensureParentAndFileExists(CONTACT_STORAGE_PATH);
+            List<String> lines = readNonBlankLines(CONTACT_STORAGE_PATH);
             return buildContactsFromLines(lines);
         } catch (IOException ioe) {
             logOrPrintError("Error reading contacts file, starting fresh");
@@ -122,18 +124,18 @@ public class Storage {
      */
     public void saveContacts(ArrayList<Contact> contacts) {
         try {
-            ensureParentAndFileExists(contactStoragePath);
+            ensureParentAndFileExists(CONTACT_STORAGE_PATH);
             List<String> lines = new ArrayList<>();
             for (Contact contact : contacts) {
                 lines.add(contact.serialiseContact());
             }
-            writeLines(contactStoragePath, lines);
+            writeLines(CONTACT_STORAGE_PATH, lines);
         } catch (IOException e) {
             logOrPrintError("Error saving contacts");
         }
     }
 
-    /* ====== Low-level helpers (single responsibility / single abstraction level) ====== */
+    // ====== Low-level helpers (single responsibility / single abstraction level) ======
 
     private void ensureParentAndFileExists(Path path) throws IOException {
         Path parent = path.getParent();
@@ -172,18 +174,18 @@ public class Storage {
 
     // Build a task map from raw storage lines. Handles per-line parse errors.
     private HashMap<Integer, Task> buildTaskMapFromLines(List<String> lines) {
-        HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
+        HashMap<Integer, Task> taskMap = new HashMap<>();
         int counter = 1;
         for (String line : lines) {
             try {
                 Task task = parseTaskLine(line);
-                rebuiltTaskList.put(counter, task);
+                taskMap.put(counter, task);
                 counter++;
             } catch (IllegalArgumentException e) {
                 logOrPrintWarning("Warning: " + e.getMessage());
             }
         }
-        return rebuiltTaskList;
+        return taskMap;
     }
 
     // Build a contact list from raw storage lines. Handles per-line parse errors.

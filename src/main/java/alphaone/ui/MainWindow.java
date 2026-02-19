@@ -9,7 +9,6 @@ import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -22,12 +21,16 @@ import javafx.util.Duration;
 public class MainWindow extends AnchorPane {
     // Delay before bot response appears — feels natural, like the bot is thinking
     private static final Duration BOT_RESPONSE_DELAY = Duration.millis(600);
+    // Threshold for vvalue considered "at bottom" — used to re-enable auto-scroll
+    private static final double SCROLL_AT_BOTTOM_THRESHOLD = 0.99;
+    // Scroll speed multiplier applied to trackpad delta
+    private static final double SCROLL_SPEED_MULTIPLIER = 1.5;
+    // Duration of the animated scroll-to-bottom transition
+    private static final Duration SCROLL_ANIMATION_DURATION = Duration.millis(250);
 
     @FXML private ScrollPane scrollPane;
     @FXML private VBox dialogContainer;
     @FXML private TextField userInput;
-    @FXML private Button sendButton;
-
 
     private AlphaOne alphaOne;
 
@@ -39,7 +42,7 @@ public class MainWindow extends AnchorPane {
      * Initialises the scroll pane with gesture scrolling and auto-scroll behaviour.
      */
     @FXML
-    public void initialize() {
+    private void initialize() {
         // Smooth animated auto-scroll when content height grows
         dialogContainer.heightProperty().addListener((obs, oldH, newH) -> {
             if (autoScroll) {
@@ -48,7 +51,8 @@ public class MainWindow extends AnchorPane {
         });
 
         // Re-enable auto-scroll when user manually scrolls back to the bottom
-        scrollPane.vvalueProperty().addListener((obs, oldV, newV) -> autoScroll = newV.doubleValue() >= 0.99);
+        scrollPane.vvalueProperty().addListener((obs, oldV, newV) ->
+                autoScroll = newV.doubleValue() >= SCROLL_AT_BOTTOM_THRESHOLD);
 
         // Trackpad / mouse-wheel gesture scrolling
         scrollPane.setOnScroll(e -> {
@@ -57,7 +61,7 @@ public class MainWindow extends AnchorPane {
             if (contentH <= viewportH) {
                 return;
             }
-            double shift = (e.getDeltaY() / contentH) * -1.5;
+            double shift = (e.getDeltaY() / contentH) * -SCROLL_SPEED_MULTIPLIER;
             double next = Math.min(1.0, Math.max(0.0, scrollPane.getVvalue() + shift));
             scrollPane.setVvalue(next);
             e.consume();
@@ -65,14 +69,14 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Smoothly animates the scroll pane to the bottom over 250ms.
+     * Smoothly animates the scroll pane to the bottom using {@link #SCROLL_ANIMATION_DURATION}.
      */
     private void smoothScrollToBottom() {
         if (scrollTimeline != null) {
             scrollTimeline.stop();
         }
         scrollTimeline = new Timeline(
-            new KeyFrame(Duration.millis(250),
+            new KeyFrame(SCROLL_ANIMATION_DURATION,
                 new KeyValue(scrollPane.vvalueProperty(), 1.0))
         );
         scrollTimeline.play();

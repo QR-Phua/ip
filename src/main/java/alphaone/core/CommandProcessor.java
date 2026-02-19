@@ -22,13 +22,11 @@ import alphaone.ui.Ui;
  * share the same logic.
  */
 public class CommandProcessor {
-    private static final int SINGLE_WORD_COMMAND_LENGTH = 1;
-    private static final int TWO_WORD_COMMAND_LENGTH = 2;
-
-    private final TaskList taskList;
-    private final Storage storage;
-    private final ContactList contactList;
-    private boolean isExitRequested = false;
+    private static final int EXACT_ONE_TOKEN = 1;
+    private static final int EXACT_TWO_TOKENS = 2;
+    // Minimum argument counts after stripping the command prefix tokens
+    private static final int MIN_CONTACT_ADD_ARGS = 2;
+    private static final int MIN_CONTACT_DELETE_ARGS = 1;
 
     // Small functional interface for handlers that may throw the checked exceptions
     private interface CommandHandler {
@@ -36,10 +34,15 @@ public class CommandProcessor {
                 throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException;
     }
 
+    private final TaskList taskList;
+    private final Storage storage;
+    private final ContactList contactList;
+    private boolean isExitRequested = false;
+
     private final Map<String, CommandHandler> handlers = new HashMap<>();
 
     /**
-     * Create a new CommandProcessor.
+     * Creates a new CommandProcessor.
      *
      * @param taskList    the application's TaskList
      * @param storage     the Storage used to persist tasks
@@ -168,7 +171,8 @@ public class CommandProcessor {
         AlphaOne.CommandType commandType = switch (commandWord) {
         case "mark" -> AlphaOne.CommandType.MARK;
         case "unmark" -> AlphaOne.CommandType.UNMARK;
-        default -> AlphaOne.CommandType.DELETE;
+        case "delete" -> AlphaOne.CommandType.DELETE;
+        default -> throw new InvalidCommandException();
         };
         validateCommandLength(tokens.length, commandType);
         try {
@@ -177,10 +181,13 @@ public class CommandProcessor {
             switch (commandWord) {
             case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
             case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
-            default -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
+            case "delete" -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
+            default -> throw new InvalidCommandException();
             }
         } catch (InvalidTaskItemException invalidTaskItemException) {
             Ui.print(invalidTaskItemException.getMessage());
+        } catch (InvalidCommandException invalidCommandException) {
+            throw invalidCommandException;
         } catch (Exception exception) {
             Ui.print("Invalid task number!");
         }
@@ -221,20 +228,44 @@ public class CommandProcessor {
     // ---------- Small helpers ----------
 
     /**
-     * Validates that the actual token count matches what the given command type expects.
-     * Throws InvalidCommandException with a descriptive message if they do not match.
+     * Validates that the actual token count satisfies the requirements of the given command type.
+     * Commands with a fixed arity check for an exact match; contact commands check for a minimum.
+     * Throws InvalidCommandException with a descriptive message if the check fails.
      */
     private void validateCommandLength(int actual, AlphaOne.CommandType type) throws InvalidCommandException {
-        int expectedLength = switch (type) {
-        case BYE, LIST, CONTACT_DELETE -> SINGLE_WORD_COMMAND_LENGTH;
-        case MARK, UNMARK, DELETE, FIND, CONTACT_ADD -> TWO_WORD_COMMAND_LENGTH;
-        default -> throw new InvalidCommandException();
-        };
-        if (expectedLength != actual) {
-            throw new InvalidCommandException(type);
+        switch (type) {
+        case BYE, LIST -> {
+            if (actual != EXACT_ONE_TOKEN) {
+                throw new InvalidCommandException(type);
+            }
+        }
+        case MARK, UNMARK, DELETE, FIND -> {
+            if (actual != EXACT_TWO_TOKENS) {
+                throw new InvalidCommandException(type);
+            }
+        }
+        case CONTACT_ADD -> {
+            // Minimum two tokens after stripping "contact add": at least one name word + phone
+            if (actual < MIN_CONTACT_ADD_ARGS) {
+                throw new InvalidCommandException(type);
+            }
+        }
+        case CONTACT_DELETE -> {
+            // Minimum one token after stripping "contact remove": at least one name word
+            if (actual < MIN_CONTACT_DELETE_ARGS) {
+                throw new InvalidCommandException(type);
+            }
+        }
+        default -> throw new InvalidCommandException(type);
         }
     }
 
+    /**
+     * Joins all tokens after the command word into the todo description string.
+     *
+     * @param tokens the raw token array, where index 0 is the command word.
+     * @return the description text joined from index 1 onward.
+     */
     private String extractTodoDescription(String[] tokens) {
         List<String> tokenList = new ArrayList<>(Arrays.asList(tokens));
         tokenList.remove(0);

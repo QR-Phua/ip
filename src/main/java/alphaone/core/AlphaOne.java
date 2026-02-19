@@ -10,11 +10,6 @@ import alphaone.ui.Ui;
  * task management and persistence.
  */
 public class AlphaOne {
-    private final TaskList taskList;
-    private final Storage storage;
-    private final ContactList contactList;
-    private final CommandProcessor commandProcessor;
-
     /**
      * Types of tasks supported by the application.
      *
@@ -35,6 +30,11 @@ public class AlphaOne {
      * FIND — search tasks by keyword.</p>
      */
     public enum CommandType { CONTACT_ADD, CONTACT_DELETE, BYE, LIST, UNMARK, MARK, DELETE, FIND }
+
+    private final TaskList taskList;
+    private final Storage storage;
+    private final ContactList contactList;
+    private final CommandProcessor commandProcessor;
 
     /**
      * Creates a new AlphaOne application instance.
@@ -106,4 +106,3 @@ public class AlphaOne {
         new AlphaOne().run();
     }
 }
-

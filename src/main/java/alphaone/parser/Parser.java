@@ -17,7 +17,7 @@ import alphaone.util.Constants;
 /**
  * Utility class that provides parsing helpers for command-line input.
  *
- * The Parser contains small stateless helpers to split input tokens, join tokens
+ * <p>The Parser contains small stateless helpers to split input tokens, join tokens
  * from an index, validate date/time inputs and extract task descriptions and
  * timings for deadline and event tasks.
  */
@@ -49,7 +49,7 @@ public class Parser {
     /**
      * Extracts and validates description and date/time parts for deadline and event commands.
      *
-     * For DEADLINE: expects input tokens to contain a "/by" marker. Returns [description, deadline].
+     * <p>For DEADLINE: expects input tokens to contain a "/by" marker. Returns [description, deadline].
      * For EVENT: expects input tokens to contain "/from" and "/to" markers. Returns [description, from, to].
      *
      * @param commands raw token array from user input (including the command word at index 0).
@@ -103,25 +103,35 @@ public class Parser {
      * @throws InvalidDateTimeException if {@code input} cannot be parsed for the given type.
      */
     public static void validateDateTime(String input, AlphaOne.TaskType type) throws InvalidDateTimeException {
-        if (type.equals(AlphaOne.TaskType.DEADLINE)) {
+        switch (type) {
+        case DEADLINE -> {
             try {
                 LocalDate.parse(input);
             } catch (DateTimeParseException e) {
                 throw new InvalidDateTimeException(type);
             }
-        } else {
+        }
+        case EVENT -> {
             try {
                 LocalDateTime.parse(input, DateTimeFormatter.ofPattern(Constants.INPUT_DATETIME_PATTERN));
             } catch (DateTimeParseException e) {
                 throw new InvalidDateTimeException(type);
             }
         }
+        default -> throw new InvalidDateTimeException(type);
+        }
     }
 
     /**
      * Extracts the text between {@code fromIndex} (inclusive) and {@code toIndex} (exclusive)
-     * from {@code tokens}, joining with spaces. Throws {@link IncompleteDetailsException} if
-     * the resulting segment is empty.
+     * from {@code tokens}, joining with spaces.
+     *
+     * @param tokens    the token list to slice.
+     * @param fromIndex the start index (inclusive).
+     * @param toIndex   the end index (exclusive).
+     * @param taskType  the task type, used to construct the exception message.
+     * @return the joined segment string.
+     * @throws IncompleteDetailsException if the resulting segment is empty.
      */
     private static String extractSegment(List<String> tokens, int fromIndex, int toIndex,
             AlphaOne.TaskType taskType) throws IncompleteDetailsException {

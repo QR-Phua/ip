@@ -3,6 +3,7 @@ package alphaone.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import alphaone.core.AlphaOne;
 import alphaone.exception.InvalidTaskItemException;
 import alphaone.storage.Storage;
 import alphaone.ui.Ui;
@@ -76,7 +77,7 @@ public class TaskList {
      * @param params optional extra params
      * @return confirmation message
      */
-    public String buildAddTaskMessage(String input, alphaone.core.AlphaOne.TaskType type, String... params) {
+    public String buildAddTaskMessage(String input, AlphaOne.TaskType type, String... params) {
         Task newTask;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
@@ -101,7 +102,7 @@ public class TaskList {
      * @param type   task type
      * @param params optional params
      */
-    public void addTask(String input, alphaone.core.AlphaOne.TaskType type, String... params) {
+    public void addTask(String input, AlphaOne.TaskType type, String... params) {
         Ui.print(buildAddTaskMessage(input, type, params));
     }
 
@@ -184,7 +185,7 @@ public class TaskList {
      * @throws InvalidTaskItemException if the id does not exist.
      */
     public void verifyTaskExists(int taskNumber) throws InvalidTaskItemException {
-        if (tasks.getOrDefault(taskNumber, null) == null) {
+        if (!tasks.containsKey(taskNumber)) {
             throw new InvalidTaskItemException();
         }
     }
