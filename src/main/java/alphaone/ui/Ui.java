@@ -96,11 +96,4 @@ public class Ui {
         }
     }
 
-    /**
-     * Delivers a message exactly as-is (no additional borders). Use for low-level
-     * diagnostic messages where borders are not desired.
-     */
-    public static void emit(String msg) {
-        outputConsumer.accept(msg);
-    }
 }

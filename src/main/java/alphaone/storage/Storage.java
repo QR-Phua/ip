@@ -172,18 +172,18 @@ public class Storage {
 
     // Build a task map from raw storage lines. Handles per-line parse errors.
     private HashMap<Integer, Task> buildTaskMapFromLines(List<String> lines) {
-        HashMap<Integer, Task> rebuiltTaskList = new HashMap<>();
+        HashMap<Integer, Task> taskMap = new HashMap<>();
         int counter = 1;
         for (String line : lines) {
             try {
                 Task task = parseTaskLine(line);
-                rebuiltTaskList.put(counter, task);
+                taskMap.put(counter, task);
                 counter++;
             } catch (IllegalArgumentException e) {
                 logOrPrintWarning("Warning: " + e.getMessage());
             }
         }
-        return rebuiltTaskList;
+        return taskMap;
     }
 
     // Build a contact list from raw storage lines. Handles per-line parse errors.

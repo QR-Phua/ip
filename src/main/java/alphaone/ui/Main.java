@@ -1,6 +1,8 @@
 package alphaone.ui;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import alphaone.core.AlphaOne;
 import javafx.application.Application;
@@ -23,6 +25,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     private final AlphaOne alphaOne = new AlphaOne();
 
     @Override
@@ -55,7 +58,7 @@ public class Main extends Application {
             fxmlLoader.<MainWindow>getController().setAlphaOne(alphaOne);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load FXML", e);
         }
     }
 }
