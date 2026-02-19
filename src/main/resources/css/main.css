@@ -1,47 +1,124 @@
+/* ============================================================
+   main.css  —  AlphaOne Chatbot  · Modern Glass Morphism
+   Font: SF Pro (bundled in /fonts/SF-Pro.ttf, loaded in Main.java)
+   ============================================================ */
+
+/* ── Root — warm peach → soft lavender gradient ──────────────── */
 .root {
-    main-color: rgb(237, 255, 242);       /* Create a looked-up color called "main-color" within root. */
-    -fx-background-color: main-color;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%,
+        #FFF6E6 0%, #FFE4C8 20%, #FFD0B8 40%,
+        #F9C0C0 60%, #E8BCDA 80%, #D4B8F0 100%);
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-smoothing-type: lcd;
 }
 
-.text-field {
-    -fx-background-color: #d9ffe2;
-    -fx-font: 20px "Arial";
+/* ── Header — ultra-thin frosted glass strip ─────────────────── */
+#headerBar {
+    -fx-background-color: rgba(255, 255, 255, 0.35);
+    -fx-effect: dropshadow(gaussian, rgba(180, 150, 210, 0.18), 10, 0, 0, 2);
+    -fx-border-color: rgba(220, 195, 250, 0.40);
+    -fx-border-width: 0 0 1 0;
 }
 
-.button {
-    -fx-background-color: mediumspringgreen;
-    -fx-font: italic bold 16px "Arial";
+#headerLabel {
+    -fx-text-fill: #2d1f45;
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
 }
 
-.button:hover {
-    -fx-background-color:cyan;
-    -fx-font-size: 18px;
-}
-
-.button:pressed {
-    -fx-background-color:orange;
-    -fx-font-size: 20px;
-}
-
+/* ── Scroll area ─────────────────────────────────────────────── */
 .scroll-pane,
 .scroll-pane .viewport {
     -fx-background-color: transparent;
+    -fx-background: transparent;
 }
 
+/* Scrollbar track — invisible background */
 .scroll-bar {
-    -fx-font-size: 10px;  /* Change width of scroll bar. */
-    -fx-background-color: main-color;
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
 }
 
+/* Modern slim pill thumb */
 .scroll-bar .thumb {
-    -fx-background-color: #ff9cb4;
-    -fx-background-radius: 1em;
+    -fx-background-color: rgba(160, 130, 200, 0.45);
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
 }
 
-/* Hides the increment and decrement buttons. */
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(140, 105, 185, 0.70);
+}
+
+.scroll-bar .track {
+    -fx-background-color: rgba(200, 185, 225, 0.12);
+    -fx-background-radius: 6px;
+}
+
+/* Hide the arrow buttons */
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button {
     -fx-pref-height: 0;
+    -fx-pref-width: 0;
     -fx-opacity: 0;
 }
 
+/* ── Input bar — thin frosted glass shelf ────────────────────── */
+#inputBar {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 18 18 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(180, 150, 210, 0.10), 10, 0, 0, -2);
+    -fx-border-color: rgba(220, 195, 250, 0.22);
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Input text field */
+.text-field {
+    -fx-background-color: rgba(255, 255, 255, 0.28);
+    -fx-text-fill: #2d1f45;
+    -fx-prompt-text-fill: rgba(160, 135, 190, 0.65);
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-radius: 18px;
+    -fx-border-radius: 18px;
+    -fx-border-color: rgba(210, 180, 245, 0.35);
+    -fx-border-width: 1px;
+    -fx-padding: 8 14 8 14;
+}
+
+.text-field:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.55);
+    -fx-border-color: rgba(195, 150, 240, 0.75);
+    -fx-effect: dropshadow(gaussian, rgba(195, 150, 240, 0.28), 8, 0.2, 0, 0);
+}
+
+/* Send button — solid deep violet, high contrast */
+.button {
+    -fx-background-color: rgba(110, 80, 180, 0.82);
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 18px;
+    -fx-border-radius: 18px;
+    -fx-border-color: rgba(130, 100, 210, 0.60);
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-padding: 8 18 8 18;
+    -fx-effect: dropshadow(gaussian, rgba(80, 50, 150, 0.40), 8, 0.2, 0, 2);
+}
+
+.button:hover {
+    -fx-background-color: rgba(125, 95, 200, 0.92);
+    -fx-effect: dropshadow(gaussian, rgba(80, 50, 150, 0.60), 12, 0.3, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.button:pressed {
+    -fx-background-color: rgba(90, 60, 155, 0.95);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: none;
+}

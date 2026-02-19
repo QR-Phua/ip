@@ -16,3 +16,7 @@ Prerequisites: JDK 17, update Intellij to the most recent version.
 1. After that, locate the `src/main/java/AlphaOne.java` file, right-click it, and choose `Run AlphaOne.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, the chatbot should work start up correctly.
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Acknowledgements
+This project utilises Github Copilot for detecting, maintaining and refactoring code to coding standards and coding quality.
+Specifically, Claude Sonnet 4.6 was used to compare versions of current code with coding quality and standards criteria to generate recommendations.

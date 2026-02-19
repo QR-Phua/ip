@@ -1,6 +1,6 @@
 package alphaone.exception;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
 
 /**
  * Signals that a provided date/time string is invalid for the expected task type.

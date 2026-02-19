@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
 import alphaone.exception.IncompleteDetailsException;
 import alphaone.exception.InvalidCommandException;
 import alphaone.exception.InvalidDateTimeException;

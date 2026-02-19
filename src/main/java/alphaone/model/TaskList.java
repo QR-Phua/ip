@@ -76,7 +76,7 @@ public class TaskList {
      * @param params optional extra params
      * @return confirmation message
      */
-    public String buildAddTaskMessage(String input, alphaone.AlphaOne.TaskType type, String... params) {
+    public String buildAddTaskMessage(String input, alphaone.core.AlphaOne.TaskType type, String... params) {
         Task newTask;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
@@ -101,7 +101,7 @@ public class TaskList {
      * @param type   task type
      * @param params optional params
      */
-    public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
+    public void addTask(String input, alphaone.core.AlphaOne.TaskType type, String... params) {
         Ui.print(buildAddTaskMessage(input, type, params));
     }
 

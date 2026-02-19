@@ -1,6 +1,6 @@
 package alphaone.exception;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
 
 /**
  * Signals that a command required additional details (e.g. /by, /from, /to) that were missing.

@@ -1,25 +1,36 @@
+/* ============================================================
+   dialog-box.css  —  Chat Bubbles · Modern Glass Morphism
+   Font: SF Pro (bundled, loaded in Main.java)
+   ============================================================ */
+
+/* ── User bubble — right-aligned, neutral warm-white glass ───── */
 .label {
-    -fx-background-color: linear-gradient(to bottom right, #00ffbf, #00ddff);
-    -fx-border-color: #d55e00 #009e73 #cc79a7 #0072b2;
-    -fx-border-width: 2px;
-    -fx-background-radius: 1em 1em 0 1em;
-    -fx-border-radius: 1em 1em 0 1em;
+    -fx-background-color: rgba(240, 232, 255, 0.68);
+    -fx-text-fill: #1e1535;
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-background-radius: 16 16 4 16;
+    -fx-border-radius:     16 16 4 16;
+    -fx-border-color: rgba(190, 165, 235, 0.50);
+    -fx-border-width: 1px;
+    -fx-padding: 8 12 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(140, 110, 190, 0.20), 8, 0.1, 0, 2);
+    -fx-wrap-text: true;
 }
 
+/* ── Bot bubble — left-aligned, frosted white glass ──────────── */
 .reply-label {
-    -fx-background-radius: 1em 1em 1em 0;
-    -fx-border-radius: 1em 1em 1em 0;
+    -fx-background-color: rgba(255, 255, 255, 0.52);
+    -fx-text-fill: #1e1535;
+    -fx-font-family: "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: 400;
+    -fx-background-radius: 16 16 16 4;
+    -fx-border-radius:     16 16 16 4;
+    -fx-border-color: rgba(210, 185, 245, 0.45);
+    -fx-border-width: 1px;
+    -fx-padding: 8 12 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(160, 130, 205, 0.18), 8, 0, 0, 2);
+    -fx-wrap-text: true;
 }
-
-#displayPicture {
-    /* Shadow effect on image. */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 5, 5);
-
-    /* Change size of image. */
-    -fx-scale-x: 1;
-    -fx-scale-y: 1;
-
-    /* Rotate image clockwise by degrees. */
-    -fx-rotate: 0;
-}
-

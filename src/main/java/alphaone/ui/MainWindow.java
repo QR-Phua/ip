@@ -2,60 +2,104 @@ package alphaone.ui;
 
 import java.util.function.Consumer;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Controller for the main GUI.
  */
 public class MainWindow extends AnchorPane {
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private VBox dialogContainer;
-    @FXML
-    private TextField userInput;
-    @FXML
-    private Button sendButton;
+    // Delay before bot response appears — feels natural, like the bot is thinking
+    private static final Duration BOT_RESPONSE_DELAY = Duration.millis(600);
+
+    @FXML private ScrollPane scrollPane;
+    @FXML private VBox dialogContainer;
+    @FXML private TextField userInput;
+    @FXML private Button sendButton;
+
 
     private AlphaOne alphaOne;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
+    // Track whether to auto-scroll on new user-side content
+    private boolean autoScroll = true;
+    private Timeline scrollTimeline;
 
+    /**
+     * Initialises the scroll pane with gesture scrolling and auto-scroll behaviour.
+     */
     @FXML
     public void initialize() {
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-    }
+        // Smooth animated auto-scroll when content height grows
+        dialogContainer.heightProperty().addListener((obs, oldH, newH) -> {
+            if (autoScroll) {
+                smoothScrollToBottom();
+            }
+        });
 
-    /** Injects the AlphaOne instance and registers the GUI output consumer. */
-    public void setAlphaOne(AlphaOne bot) {
-        this.alphaOne = bot;
-        Ui.setOutputConsumer(createGuiConsumer(), true);
+        // Re-enable auto-scroll when user manually scrolls back to the bottom
+        scrollPane.vvalueProperty().addListener((obs, oldV, newV) -> autoScroll = newV.doubleValue() >= 0.99);
 
-        String startup = alphaOne.getStartupMessage();
-        if (startup != null && !startup.isEmpty()) {
-            Ui.print(startup);
-        }
+        // Trackpad / mouse-wheel gesture scrolling
+        scrollPane.setOnScroll(e -> {
+            double viewportH = scrollPane.getViewportBounds().getHeight();
+            double contentH = dialogContainer.getBoundsInLocal().getHeight();
+            if (contentH <= viewportH) {
+                return;
+            }
+            double shift = (e.getDeltaY() / contentH) * -1.5;
+            double next = Math.min(1.0, Math.max(0.0, scrollPane.getVvalue() + shift));
+            scrollPane.setVvalue(next);
+            e.consume();
+        });
     }
 
     /**
-     * Creates two dialog boxes, one echoing user input and the other containing the bot's reply,
-     * then appends them to the dialog container. Clears the user input after processing.
+     * Smoothly animates the scroll pane to the bottom over 250ms.
+     */
+    private void smoothScrollToBottom() {
+        if (scrollTimeline != null) {
+            scrollTimeline.stop();
+        }
+        scrollTimeline = new Timeline(
+            new KeyFrame(Duration.millis(250),
+                new KeyValue(scrollPane.vvalueProperty(), 1.0))
+        );
+        scrollTimeline.play();
+    }
+
+    /**
+     * Injects the AlphaOne instance and shows a clean GUI greeting (no ASCII logo).
+     */
+    public void setAlphaOne(AlphaOne bot) {
+        this.alphaOne = bot;
+        Ui.setOutputConsumer(createGuiConsumer(), true);
+        Ui.print(bot.getGuiGreeting());
+    }
+
+    /**
+     * Handles user input: adds user bubble, processes command, clears field.
      */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage)
-        );
+        if (input.isBlank()) {
+            return;
+        }
+        autoScroll = true;
+        dialogContainer.getChildren().add(DialogBox.getUserDialog(input));
+        // Explicitly scroll so the user always sees their sent message
+        smoothScrollToBottom();
         alphaOne.handleInput(input);
         userInput.clear();
 
@@ -64,9 +108,20 @@ public class MainWindow extends AnchorPane {
         }
     }
 
-    /** Creates the output consumer that appends bot responses to the dialog container. */
+    /**
+     * Creates the output consumer that appends bot responses after a short delay,
+     * then always scrolls the view to the newest message.
+     */
     private Consumer<String> createGuiConsumer() {
-        return message -> Platform.runLater(() ->
-                dialogContainer.getChildren().addAll(DialogBox.getBotDialog(message, botImage)));
+        return message -> Platform.runLater(() -> {
+            PauseTransition delay = new PauseTransition(BOT_RESPONSE_DELAY);
+            delay.setOnFinished(event -> {
+                // Always scroll to the bot reply — user should never miss a response
+                autoScroll = true;
+                dialogContainer.getChildren().add(DialogBox.getBotDialog(message));
+                smoothScrollToBottom();
+            });
+            delay.play();
+        });
     }
 }

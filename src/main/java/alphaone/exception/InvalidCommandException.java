@@ -1,6 +1,6 @@
 package alphaone.exception;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
 
 /**
  * Signals that a user command was invalid or malformed.

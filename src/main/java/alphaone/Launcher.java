@@ -1,5 +1,6 @@
 package alphaone;
 
+import alphaone.ui.Main;
 import javafx.application.Application;
 
 /**

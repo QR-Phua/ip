@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import alphaone.AlphaOne;
+import alphaone.core.AlphaOne;
 import alphaone.exception.IncompleteDetailsException;
 import alphaone.exception.InvalidCommandException;
 import alphaone.exception.InvalidDateTimeException;
