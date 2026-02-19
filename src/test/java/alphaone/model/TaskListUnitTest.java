@@ -1,6 +1,7 @@
 package alphaone.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,18 +14,18 @@ import alphaone.exception.InvalidTaskItemException;
 public class TaskListUnitTest {
 
     @Test
-    public void addAndRetrieveInternalMap() {
+    public void addTask_validTodo_addedToInternalMap() {
         TaskList tl = new TaskList();
         tl.addTask("a task", alphaone.AlphaOne.TaskType.TODO);
         HashMap<Integer, Task> map = tl.getInternalMap();
         assertEquals(1, map.size());
-        assertTrue(map.get(1) instanceof ToDo);
+        assertInstanceOf(ToDo.class, map.get(1));
     }
 
     @Test
-    public void taskExistenceChecker_throwsOnMissing() {
+    public void verifyTaskExists_throwsOnMissing() {
         TaskList tl = new TaskList();
-        assertThrows(InvalidTaskItemException.class, () -> tl.taskExistenceChecker(5));
+        assertThrows(InvalidTaskItemException.class, () -> tl.verifyTaskExists(5));
     }
 
     @Test
@@ -38,7 +39,7 @@ public class TaskListUnitTest {
     }
 
     @Test
-    public void setInternalMap_updatesCounter() {
+    public void setInternalMap_mapWithHighKey_counterUpdated() {
         TaskList tl = new TaskList();
         HashMap<Integer, Task> newMap = new HashMap<>();
         newMap.put(5, new ToDo("five"));

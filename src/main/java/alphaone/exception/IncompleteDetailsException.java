@@ -22,22 +22,19 @@ public class IncompleteDetailsException extends Exception {
     public String getMessage() {
         switch (taskType) {
         case TODO -> {
-            String msg = "Incomplete details to create task!\n"
+            return "Incomplete details to create task!\n"
                     + "Please add in what you would like to do?\n"
                     + "Example: todo cook a feast";
-            return msg;
         }
         case DEADLINE -> {
-            String msg = "Incomplete details to create task!\n"
+            return "Incomplete details to create task!\n"
                     + "Please add in what you would like to do followed with /by to set the deadline.\n"
-                    + "Example: deadline write report /by tomorrow evening";
-            return msg;
+                    + "Example: deadline write report /by 2025-02-19";
         }
         case EVENT -> {
-            String msg = "Incomplete details to create task!\n"
+            return "Incomplete details to create task!\n"
                     + "Please add in what you would like to do followed with /from and /to to set the duration?\n"
-                    + "Example: event attend wedding on saturday /from 12pm /to 6pm";
-            return msg;
+                    + "Example: event attend wedding on saturday /from 2026-02-19 1430 /to 2026-02-20 1430";
         }
         default -> {
             return "Incomplete details to create task!";

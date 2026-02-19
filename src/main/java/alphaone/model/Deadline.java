@@ -4,35 +4,37 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import alphaone.util.Constants;
+
 /**
  * Task that has an associated deadline date.
  */
 public class Deadline extends Task {
-    private final LocalDate deadline;
-    private final DateTimeFormatter stringDateTimeFormatter = DateTimeFormatter
+    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter
             .ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
+    private final LocalDate deadlineDate;
 
     /**
      * Creates a Deadline with a description and a date string.
      *
-     * @param description task description.
-     * @param deadline date string in ISO format (YYYY-MM-DD).
+     * @param description  task description.
+     * @param deadlineDate date string in ISO format (YYYY-MM-DD).
      */
-    public Deadline(String description, String deadline) {
+    public Deadline(String description, String deadlineDate) {
         super(description);
-        this.deadline = LocalDate.parse(deadline);
+        this.deadlineDate = LocalDate.parse(deadlineDate);
     }
 
     /**
      * Creates a Deadline from stored state.
      *
-     * @param wasDone whether task was previously completed.
-     * @param description the stored description.
-     * @param deadline the stored date string.
+     * @param wasDone      whether task was previously completed.
+     * @param description  the stored description.
+     * @param deadlineDate the stored date string.
      */
-    public Deadline(boolean wasDone, String description, String deadline) {
+    public Deadline(boolean wasDone, String description, String deadlineDate) {
         super(description);
-        this.deadline = LocalDate.parse(deadline);
+        this.deadlineDate = LocalDate.parse(deadlineDate);
         if (wasDone) {
             this.markDone();
         }
@@ -41,10 +43,11 @@ public class Deadline extends Task {
     /**
      * Returns the short type identifier for Deadline.
      *
-     * @return the single-letter type code.
+     * @return "D"
      */
+    @Override
     public String getType() {
-        return ("D");
+        return "D";
     }
 
     /**
@@ -52,18 +55,21 @@ public class Deadline extends Task {
      *
      * @return the deadline date.
      */
-    public LocalDate getDeadline() {
-        return deadline;
+    public LocalDate getDeadlineDate() {
+        return deadlineDate;
     }
 
     @Override
     public String toString() {
         return String.format("[%s] [%s] %s (by: %s)", this.getType(),
-                this.getStatus(), super.getDescription(), deadline.format(stringDateTimeFormatter));
+                this.getStatusIcon(), super.getDescription(), deadlineDate.format(DISPLAY_DATE_FORMATTER));
     }
 
     @Override
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s!@!%s", this.getType(), this.isDone(), this.getDescription(), deadline);
+        return this.getType() + Constants.STORAGE_SEPARATOR
+                + this.isDone() + Constants.STORAGE_SEPARATOR
+                + this.getDescription() + Constants.STORAGE_SEPARATOR
+                + deadlineDate;
     }
 }

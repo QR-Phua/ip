@@ -2,7 +2,9 @@ package alphaone;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import alphaone.exception.IncompleteDetailsException;
 import alphaone.exception.InvalidCommandException;
@@ -20,23 +22,44 @@ import alphaone.ui.Ui;
  * share the same logic.
  */
 public class CommandProcessor {
-    private final TaskList taskList;
+    private static final int SINGLE_WORD_COMMAND_LENGTH = 1;
+    private static final int TWO_WORD_COMMAND_LENGTH = 2;
 
+    private final TaskList taskList;
     private final Storage storage;
     private final ContactList contactList;
-    private boolean exit = false;
+    private boolean isExitRequested = false;
+
+    // Small functional interface for handlers that may throw the checked exceptions
+    private interface CommandHandler {
+        void handle(String[] tokens, String commandWord)
+                throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException;
+    }
+
+    private final Map<String, CommandHandler> handlers = new HashMap<>();
 
     /**
      * Create a new CommandProcessor.
      *
-     * @param taskList the application's TaskList
-     * @param storage  the Storage used to persist tasks
+     * @param taskList    the application's TaskList
+     * @param storage     the Storage used to persist tasks
      * @param contactList the application's ContactList
      */
     public CommandProcessor(TaskList taskList, Storage storage, ContactList contactList) {
         this.taskList = taskList;
         this.storage = storage;
         this.contactList = contactList;
+
+        handlers.put("contact", (tokens, cmd) -> handleContact(tokens));
+        handlers.put("bye", (tokens, cmd) -> handleBye(tokens));
+        handlers.put("list", (tokens, cmd) -> handleList(tokens));
+        handlers.put("mark", (tokens, cmd) -> handleTaskModification(tokens, "mark"));
+        handlers.put("unmark", (tokens, cmd) -> handleTaskModification(tokens, "unmark"));
+        handlers.put("delete", (tokens, cmd) -> handleTaskModification(tokens, "delete"));
+        handlers.put("find", (tokens, cmd) -> handleFind(tokens));
+        handlers.put("todo", (tokens, cmd) -> handleTodo(tokens));
+        handlers.put("deadline", (tokens, cmd) -> handleDeadline(tokens));
+        handlers.put("event", (tokens, cmd) -> handleEvent(tokens));
     }
 
     /**
@@ -45,174 +68,176 @@ public class CommandProcessor {
      * @return true when the last processed command was exit
      */
     public boolean isExit() {
-        return exit;
+        return isExitRequested;
     }
 
     /**
-     * Process a textual user input. This method will print responses via Ui.
+     * Processes a textual user input and prints the response via Ui.
      *
      * @param input user input line
      */
     public void process(String input) {
-        String[] commands = Parser.splitInput(input);
-        String cmd = commands.length > 0 ? commands[0].toLowerCase() : "";
+        String[] tokens = Parser.splitInput(input);
+        String commandWord = tokens.length > 0 ? tokens[0].toLowerCase() : "";
         try {
-            switch (cmd) {
-            case "contact" -> handleContact(commands);
-            case "bye" -> handleBye(commands);
-            case "list" -> handleList(commands);
-            case "mark", "unmark", "delete" -> handleMutate(commands, cmd);
-            case "find" -> handleFind(commands);
-            case "todo" -> handleTodo(commands);
-            case "deadline" -> handleDeadline(commands);
-            case "event" -> handleEvent(commands);
-            default -> throw new InvalidCommandException();
-            }
-        } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exe) {
-            Ui.print(exe.getMessage());
+            dispatch(commandWord, tokens);
+        } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exception) {
+            Ui.print(exception.getMessage());
         }
     }
 
-    private void handleContact(String[] commands) throws InvalidCommandException {
-        if (commands.length < 2) {
+    // Dispatch using the handlers map; single-level orchestrator.
+    private void dispatch(String commandWord, String[] tokens)
+            throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
+        CommandHandler handler = handlers.get(commandWord);
+        if (handler == null) {
             throw new InvalidCommandException();
         }
-        String action = commands[1].toLowerCase();
+        handler.handle(tokens, commandWord);
+    }
+
+    // ---------- Contact handling ----------
+
+    private void handleContact(String[] tokens) throws InvalidCommandException {
+        if (tokens.length < 2) {
+            throw new InvalidCommandException();
+        }
+        String action = tokens[1].toLowerCase();
         switch (action) {
-        case "add":
-            ArrayList<String> arguments = new ArrayList<>(Arrays.asList(commands));
-            arguments.remove(0);
-            arguments.remove(0);
-            commandLengthChecker(arguments.size(), AlphaOne.CommandType.CONTACT_ADD);
-            String phone = arguments.get(arguments.size() - 1);
-            String name;
-            if (arguments.size() == 2) {
-                name = arguments.get(0);
-            } else {
-                List<String> nameParts = arguments.subList(0, arguments.size() - 1);
-                name = String.join(" ", nameParts);
-            }
-            ArrayList<String> contactArgs = new ArrayList<>();
-            contactArgs.add(name);
-            contactArgs.add(phone);
-            Contact newContact = new Contact(contactArgs);
-            contactList.addContact(newContact);
-            Ui.print("New contact added:\n" + String.format("%s (%s)", newContact.getName(), phone));
-            return;
-        case "remove":
-            ArrayList<String> removeArgs = new ArrayList<>(Arrays.asList(commands));
-            removeArgs.remove(0);
-            removeArgs.remove(0);
-            commandLengthChecker(removeArgs.size(), AlphaOne.CommandType.CONTACT_DELETE);
-            String targetName = String.join(" ", removeArgs);
-            Contact removed = contactList.removeContactByName(targetName);
-            if (removed == null) {
-                Ui.print("No contact found with that name.");
-                return;
-            }
-            Ui.print("Contact removed:\n" + String.format("%s (%s)", removed.getName(), removed.getPhone()));
-            return;
-        case "list":
-            Ui.print(contactList.getContactsString());
-            return;
-        default:
-            throw new InvalidCommandException();
+        case "add" -> handleContactAdd(tokens);
+        case "remove" -> handleContactRemove(tokens);
+        case "list" -> handleContactList();
+        default -> throw new InvalidCommandException();
         }
     }
 
-    // ---------- Command handlers (small, focused, private) ----------
+    private void handleContactAdd(String[] tokens) throws InvalidCommandException {
+        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(tokens));
+        arguments.remove(0); // remove "contact"
+        arguments.remove(0); // remove "add"
+        validateCommandLength(arguments.size(), AlphaOne.CommandType.CONTACT_ADD);
+        String phone = arguments.get(arguments.size() - 1);
+        String name;
+        if (arguments.size() == 2) {
+            name = arguments.get(0);
+        } else {
+            List<String> nameParts = arguments.subList(0, arguments.size() - 1);
+            name = String.join(" ", nameParts);
+        }
+        Contact newContact = new Contact(name, phone);
+        contactList.addContact(newContact);
+        Ui.print("New contact added:\n" + String.format("%s (%s)", newContact.getName(), phone));
+    }
 
-    private void handleBye(String[] commands) throws InvalidCommandException {
-        commandLengthChecker(commands.length, AlphaOne.CommandType.BYE);
+    private void handleContactRemove(String[] tokens) throws InvalidCommandException {
+        ArrayList<String> removeArguments = new ArrayList<>(Arrays.asList(tokens));
+        removeArguments.remove(0); // remove "contact"
+        removeArguments.remove(0); // remove "remove"
+        validateCommandLength(removeArguments.size(), AlphaOne.CommandType.CONTACT_DELETE);
+        String targetName = String.join(" ", removeArguments);
+        Contact removedContact = contactList.removeContactByName(targetName);
+        if (removedContact == null) {
+            Ui.print("No contact found with that name.");
+            return;
+        }
+        Ui.print("Contact removed:\n" + String.format("%s (%s)", removedContact.getName(), removedContact.getPhone()));
+    }
+
+    private void handleContactList() {
+        Ui.print(contactList.formatContactsDisplay());
+    }
+
+    // ---------- Command handlers ----------
+
+    private void handleBye(String[] tokens) throws InvalidCommandException {
+        validateCommandLength(tokens.length, AlphaOne.CommandType.BYE);
         storage.save(taskList.getInternalMap());
-        exit = true;
+        isExitRequested = true;
         Ui.print("Thank you for using AlphaOne! ");
     }
 
-    private void handleList(String[] commands) throws InvalidCommandException {
-        commandLengthChecker(commands.length, AlphaOne.CommandType.LIST);
-        taskList.getTasks();
+    private void handleList(String[] tokens) throws InvalidCommandException {
+        validateCommandLength(tokens.length, AlphaOne.CommandType.LIST);
+        taskList.printTasks();
     }
 
     /**
-     * Handles mark/unmark/delete which share index parsing and similar error handling.
+     * Handles mark/unmark/delete which all require parsing a task index.
      */
-    private void handleMutate(String[] commands, String cmd) throws InvalidCommandException {
-        AlphaOne.CommandType type = switch (cmd) {
+    private void handleTaskModification(String[] tokens, String commandWord) throws InvalidCommandException {
+        AlphaOne.CommandType commandType = switch (commandWord) {
         case "mark" -> AlphaOne.CommandType.MARK;
         case "unmark" -> AlphaOne.CommandType.UNMARK;
         default -> AlphaOne.CommandType.DELETE;
         };
-        commandLengthChecker(commands.length, type);
+        validateCommandLength(tokens.length, commandType);
         try {
-            int taskNum = parseTaskIndex(commands[1]);
-            taskList.taskExistenceChecker(taskNum);
-            switch (cmd) {
-            case "mark" -> Ui.print(taskList.markDoneString(taskNum));
-            case "unmark" -> Ui.print(taskList.unmarkDoneString(taskNum));
-            default -> Ui.print(taskList.deleteTaskString(taskNum));
+            int taskNumber = Integer.parseInt(tokens[1]);
+            taskList.verifyTaskExists(taskNumber);
+            switch (commandWord) {
+            case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
+            case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
+            default -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
             }
-        } catch (InvalidTaskItemException itie) {
-            Ui.print(itie.getMessage());
-        } catch (Exception e) {
+        } catch (InvalidTaskItemException invalidTaskItemException) {
+            Ui.print(invalidTaskItemException.getMessage());
+        } catch (Exception exception) {
             Ui.print("Invalid task number!");
         }
     }
 
-    private void handleFind(String[] commands) throws InvalidCommandException {
-        commandLengthChecker(commands.length, AlphaOne.CommandType.FIND);
-        String keyword = Parser.joinFromIndex(commands, 1);
+    private void handleFind(String[] tokens) throws InvalidCommandException {
+        validateCommandLength(tokens.length, AlphaOne.CommandType.FIND);
+        String keyword = Parser.joinFromIndex(tokens, 1);
         if (keyword.isEmpty()) {
             throw new InvalidCommandException(AlphaOne.CommandType.FIND);
         }
-        Ui.print(taskList.displaySearchResultsString(keyword));
+        Ui.print(taskList.buildSearchResultsMessage(keyword));
     }
 
-    private void handleTodo(String[] commands) throws IncompleteDetailsException {
-        if (commands.length < 2) {
+    private void handleTodo(String[] tokens) throws IncompleteDetailsException {
+        if (tokens.length < 2) {
             throw new IncompleteDetailsException(AlphaOne.TaskType.TODO);
         }
-        Ui.print(taskList.addTaskString(todoPrep(commands), AlphaOne.TaskType.TODO));
+        Ui.print(taskList.buildAddTaskMessage(extractTodoDescription(tokens), AlphaOne.TaskType.TODO));
     }
 
-    private void handleDeadline(String[] commands)
+    private void handleDeadline(String[] tokens)
             throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
-        if (commands.length < 2) {
+        if (tokens.length < 2) {
             throw new InvalidCommandException(AlphaOne.TaskType.DEADLINE);
         }
-        ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, AlphaOne.TaskType.DEADLINE);
-        Ui.print(taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.DEADLINE,
-                tidiedDescription.get(1)));
+        ArrayList<String> parsedParts = Parser.parseTaskArguments(tokens, AlphaOne.TaskType.DEADLINE);
+        Ui.print(taskList.buildAddTaskMessage(parsedParts.get(0), AlphaOne.TaskType.DEADLINE, parsedParts.get(1)));
     }
 
-    private void handleEvent(String[] commands)
+    private void handleEvent(String[] tokens)
             throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
-        ArrayList<String> tidiedDescription = Parser.descriptionPrep(commands, AlphaOne.TaskType.EVENT);
-        Ui.print(taskList.addTaskString(tidiedDescription.get(0), AlphaOne.TaskType.EVENT,
-                tidiedDescription.get(1), tidiedDescription.get(2)));
+        ArrayList<String> parsedParts = Parser.parseTaskArguments(tokens, AlphaOne.TaskType.EVENT);
+        Ui.print(taskList.buildAddTaskMessage(parsedParts.get(0), AlphaOne.TaskType.EVENT,
+                parsedParts.get(1), parsedParts.get(2)));
     }
 
-    // ---------- small helpers ----------
+    // ---------- Small helpers ----------
 
-    private int parseTaskIndex(String token) {
-        return Integer.parseInt(token);
-    }
-
-    private void commandLengthChecker(int actual, AlphaOne.CommandType type) throws InvalidCommandException {
-        int expectedLength;
-        switch (type) {
-        case BYE, LIST, CONTACT_DELETE -> expectedLength = 1;
-        case MARK, UNMARK, DELETE, FIND, CONTACT_ADD -> expectedLength = 2;
+    /**
+     * Validates that the actual token count matches what the given command type expects.
+     * Throws InvalidCommandException with a descriptive message if they do not match.
+     */
+    private void validateCommandLength(int actual, AlphaOne.CommandType type) throws InvalidCommandException {
+        int expectedLength = switch (type) {
+        case BYE, LIST, CONTACT_DELETE -> SINGLE_WORD_COMMAND_LENGTH;
+        case MARK, UNMARK, DELETE, FIND, CONTACT_ADD -> TWO_WORD_COMMAND_LENGTH;
         default -> throw new InvalidCommandException();
-        }
+        };
         if (expectedLength != actual) {
             throw new InvalidCommandException(type);
         }
     }
 
-    private String todoPrep(String[] commands) {
-        List<String> stringList = new ArrayList<>(Arrays.asList(commands));
-        stringList.remove(0);
-        return String.join(" ", stringList);
+    private String extractTodoDescription(String[] tokens) {
+        List<String> tokenList = new ArrayList<>(Arrays.asList(tokens));
+        tokenList.remove(0);
+        return String.join(" ", tokenList);
     }
 }

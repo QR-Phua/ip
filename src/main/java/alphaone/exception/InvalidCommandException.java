@@ -50,11 +50,12 @@ public class InvalidCommandException extends Exception {
             }
             case DEADLINE -> {
                 return "Invalid DEADLINE command! Please try again.\n"
-                        + "Example: deadline [task description] /by [task due date]";
+                        + "Example: deadline [task description] /by [task due date (e.g., 2025-02-19)]";
             }
             case EVENT -> {
                 return "Invalid EVENT command! Please try again.\n"
-                        + "Example: event [event description] /from [date time] /to [date time]";
+                        + "Example: event [event description] /from [date time (e.g., 2026-02-19 1430)]"
+                        + " /to [date time (e.g., 2026-02-20 1430)]";
             }
             default -> {
                 return super.getMessage();

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 public class DeadlineTest {
 
     @Test
-    public void deadlineParsingAndFormatting() {
+    public void toString_deadline_containsDescriptionAndDate() {
         Deadline d = new Deadline("submit", "2026-01-31");
-        assertEquals(LocalDate.parse("2026-01-31"), d.getDeadline());
+        assertEquals(LocalDate.parse("2026-01-31"), d.getDeadlineDate());
         assertTrue(d.toString().contains("submit"));
         assertTrue(d.serialiseTask().contains("2026-01-31"));
     }

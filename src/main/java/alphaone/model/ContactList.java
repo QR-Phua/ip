@@ -8,7 +8,7 @@ import alphaone.storage.Storage;
  * Container for contact records used by the application.
  */
 public class ContactList {
-    private ArrayList<Contact> contacts;
+    private final ArrayList<Contact> contacts;
     private final Storage storage; // may be null for in-memory-only
 
     /**
@@ -51,35 +51,34 @@ public class ContactList {
      */
     public Contact removeContactByName(String name) {
         for (int i = 0; i < contacts.size(); i++) {
-            Contact c = contacts.get(i);
-            if (c.getName().equals(name)) {
+            Contact contact = contacts.get(i);
+            if (contact.getName().equalsIgnoreCase(name)) {
                 contacts.remove(i);
                 if (this.storage != null) {
                     this.storage.saveContacts(this.contacts);
                 }
-                return c;
+                return contact;
             }
         }
         return null;
     }
 
     /**
-     * Return a raw (unformatted) string containing saved contacts for display.
+     * Returns a formatted string containing saved contacts for display.
+     *
+     * @return formatted contacts text, or a message indicating no contacts are saved.
      */
-    public String getContactsString() {
-        StringBuilder sb = new StringBuilder();
+    public String formatContactsDisplay() {
+        StringBuilder result = new StringBuilder();
         if (contacts.isEmpty()) {
-            sb.append("You have no saved contacts.\n");
+            result.append("You have no saved contacts.\n");
         } else {
-            sb.append("Saved contacts:\n");
-            for (Contact c : contacts) {
-                sb.append(String.format("%s (%s)\n", c.getName(), c.getPhone()));
+            result.append("Saved contacts:\n");
+            for (Contact contact : contacts) {
+                result.append(String.format("%s (%s)\n", contact.getName(), contact.getPhone()));
             }
         }
-        return sb.toString();
+        return result.toString();
     }
 
-    public ArrayList<Contact> getInternalList() {
-        return this.contacts;
-    }
 }

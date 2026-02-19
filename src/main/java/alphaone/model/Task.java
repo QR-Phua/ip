@@ -1,11 +1,13 @@
 package alphaone.model;
 
+import alphaone.util.Constants;
+
 /**
  * Base class representing a generic task with a description and completion state.
  */
-public class Task {
+public abstract class Task {
     private final String description;
-    private boolean done;
+    private boolean isDone;
 
     /**
      * Creates a new Task with the given description and default not-done state.
@@ -14,7 +16,7 @@ public class Task {
      */
     public Task(String description) {
         this.description = description;
-        this.done = false;
+        this.isDone = false;
     }
 
     /**
@@ -32,44 +34,42 @@ public class Task {
      * @return true if the task is done, false otherwise.
      */
     public boolean isDone() {
-        return done;
+        return isDone;
     }
 
     /**
-     * Returns a one-character status symbol representing completion.
+     * Returns a one-character icon representing the completion state.
      *
      * @return "X" if done, otherwise a single space.
      */
-    public String getStatus() {
-        return (isDone() ? "X" : " ");
+    public String getStatusIcon() {
+        return isDone() ? "X" : " ";
     }
 
     /**
      * Marks this task as done.
      */
     public void markDone() {
-        this.done = true;
+        this.isDone = true;
     }
 
     /**
      * Marks this task as not done.
      */
     public void markNotDone() {
-        this.done = false;
+        this.isDone = false;
     }
 
     /**
-     * Returns a short type identifier for the task implementation.
+     * Returns the short single-letter type identifier for this task subclass.
      *
      * @return a single-letter type code.
      */
-    public String getType() {
-        return "Task";
-    }
+    public abstract String getType();
 
     @Override
     public String toString() {
-        return String.format("[%s] [%s] %s", this.getType(), this.getStatus(), this.getDescription());
+        return String.format("[%s] [%s] %s", this.getType(), this.getStatusIcon(), this.getDescription());
     }
 
     /**
@@ -78,7 +78,8 @@ public class Task {
      * @return a serialised representation of the task.
      */
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s", this.getType(), this.isDone(), this.getDescription());
+        return this.getType() + Constants.STORAGE_SEPARATOR
+                + this.isDone() + Constants.STORAGE_SEPARATOR
+                + this.getDescription();
     }
-
 }

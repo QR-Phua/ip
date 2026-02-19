@@ -28,35 +28,27 @@ public class MainWindow extends AnchorPane {
     private AlphaOne alphaOne;
 
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
+    private Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
-    /** Injects the Duke instance */
+    /** Injects the AlphaOne instance and registers the GUI output consumer. */
     public void setAlphaOne(AlphaOne bot) {
         this.alphaOne = bot;
-        // register Ui consumer so Ui.print(...) adds a dialog in the GUI; consumer expects raw text
-        Consumer<String> guiConsumer = (s) -> Platform.runLater(() -> {
-            dialogContainer.getChildren().addAll(
-                    DialogBox.getDukeDialog(s, dukeImage)
-            );
-        });
-        Ui.setOutputConsumer(guiConsumer, true);
+        Ui.setOutputConsumer(createGuiConsumer(), true);
 
-        // Show same startup message as the CLI; tasks are already loaded by AlphaOne constructor
         String startup = alphaOne.getStartupMessage();
         if (startup != null && !startup.isEmpty()) {
-            // Use Ui.print so the registered consumer will display it
             Ui.print(startup);
         }
     }
 
     /**
-     * Creates two dialog boxes, one echoing user input and the other containing Duke's reply and then appends them to
-     * the dialog container. Clears the user input after processing.
+     * Creates two dialog boxes, one echoing user input and the other containing the bot's reply,
+     * then appends them to the dialog container. Clears the user input after processing.
      */
     @FXML
     private void handleUserInput() {
@@ -64,12 +56,17 @@ public class MainWindow extends AnchorPane {
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage)
         );
-        alphaOne.processInput(input);
+        alphaOne.handleInput(input);
         userInput.clear();
 
-        // If the command triggered exit, close the JavaFX application window
         if (alphaOne.isExit()) {
             Platform.exit();
         }
+    }
+
+    /** Creates the output consumer that appends bot responses to the dialog container. */
+    private Consumer<String> createGuiConsumer() {
+        return message -> Platform.runLater(() ->
+                dialogContainer.getChildren().addAll(DialogBox.getBotDialog(message, botImage)));
     }
 }

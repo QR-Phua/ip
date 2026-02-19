@@ -9,11 +9,15 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +27,11 @@ import alphaone.model.ToDo;
 public class StorageTest {
 
     @Test
-    public void saveAndLoad_cycle() throws Exception {
-        Path tmp = Files.createTempDirectory("storage-test-");
+    public void saveAndLoad_validTasks_roundTripSucceeds() throws Exception {
+        Path tempDir = Files.createTempDirectory("storage-test-");
         String originalUserDir = System.getProperty("user.dir");
-        String originalAlpha = System.getProperty("alphaone.test");
-        System.setProperty("user.dir", tmp.toAbsolutePath().toString());
+        String originalAlphaProperty = System.getProperty("alphaone.test");
+        System.setProperty("user.dir", tempDir.toAbsolutePath().toString());
         System.setProperty("alphaone.test", "true");
         try {
             Storage storage = new Storage();
@@ -42,82 +46,111 @@ public class StorageTest {
             assertEquals("taskone", loaded.get(1).getDescription());
             assertEquals("tasktwo", loaded.get(2).getDescription());
         } finally {
-            if (originalAlpha == null) {
-                System.clearProperty("alphaone.test");
-            } else {
-                System.setProperty("alphaone.test", originalAlpha);
-            }
+            restoreAlphaProperty(originalAlphaProperty);
             System.setProperty("user.dir", originalUserDir);
-            // cleanup
             try {
-                Files.walk(tmp).sorted((a, b)->b.compareTo(a)).forEach(p->p.toFile().delete());
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
+                deleteRecursively(tempDir);
+            } catch (Exception cleanupException) {
+                Logger.getAnonymousLogger().warning(
+                        "Test cleanup failed: " + cleanupException.getMessage());
             }
         }
     }
 
     @Test
-    public void load_skipsMalformedLines_andLogsWarning() throws Exception {
-        Path tmp = Files.createTempDirectory("storage-test-logs-");
+    public void load_malformedLine_skipsLineAndLogsWarning() throws Exception {
+        Path tempDir = Files.createTempDirectory("storage-test-logs-");
         String originalUserDir = System.getProperty("user.dir");
-        String originalAlpha = System.getProperty("alphaone.test");
-        System.setProperty("user.dir", tmp.toAbsolutePath().toString());
-        // ensure logger mode so messages go to logger, but also capture System.out in case
+        String originalAlphaProperty = System.getProperty("alphaone.test");
+        System.setProperty("user.dir", tempDir.toAbsolutePath().toString());
         System.setProperty("alphaone.test", "true");
 
         Logger logger = Logger.getLogger(Storage.class.getName());
         TestLogHandler handler = new TestLogHandler();
-        Level oldLevel = logger.getLevel();
-        logger.addHandler(handler);
-        logger.setLevel(Level.ALL);
+        Level originalLogLevel = logger.getLevel();
+        attachLogHandler(logger, handler);
 
-        // capture stdout too
         PrintStream originalOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(baos));
+        ByteArrayOutputStream capturedOutput = startStdoutCapture();
 
         try {
-            Path dataDir = tmp.resolve("data");
+            Path dataDir = tempDir.resolve("data");
             Files.createDirectories(dataDir);
-            Path file = dataDir.resolve("alphaone.txt");
-            try (BufferedWriter bw = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-                bw.write("this is not serialized");
-                bw.newLine();
-                bw.write("t!@!true!@!alpha");
-                bw.newLine();
-            }
+            Path storageFile = dataDir.resolve("alphaone.txt");
+            writeTestStorageFile(storageFile);
 
             Storage storage = new Storage();
             HashMap<Integer, Task> loaded = storage.load();
-            // should have skipped malformed line and loaded the valid ToDo
             assertEquals(1, loaded.size());
             assertEquals("alpha", loaded.get(1).getDescription());
 
-            String stdout = baos.toString(StandardCharsets.UTF_8);
-            boolean logged = handler.messages.stream().anyMatch(m -> m.contains("skipping malformed storage line"));
-            boolean printed = stdout.contains("skipping malformed storage line");
-            assertTrue(logged || printed, "Expected warning to be logged or printed");
+            assertMalformedLineWarningWasEmitted(capturedOutput, handler);
         } finally {
-            logger.removeHandler(handler);
-            logger.setLevel(oldLevel);
-            if (originalAlpha == null) {
-                System.clearProperty("alphaone.test");
-            } else {
-                System.setProperty("alphaone.test", originalAlpha);
-            }
+            detachLogHandler(logger, handler, originalLogLevel);
+            restoreAlphaProperty(originalAlphaProperty);
             System.setProperty("user.dir", originalUserDir);
             System.setOut(originalOut);
             try {
-                Files.walk(tmp).sorted((a, b)->b.compareTo(a)).forEach(p->p.toFile().delete());
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
+                deleteRecursively(tempDir);
+            } catch (Exception cleanupException) {
+                Logger.getAnonymousLogger().warning(
+                        "Test cleanup failed: " + cleanupException.getMessage());
             }
         }
     }
 
+    private ByteArrayOutputStream startStdoutCapture() {
+        ByteArrayOutputStream capturedOutput = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(capturedOutput));
+        return capturedOutput;
+    }
+
+    private void attachLogHandler(Logger logger, TestLogHandler handler) {
+        logger.addHandler(handler);
+        logger.setLevel(Level.ALL);
+    }
+
+    private void detachLogHandler(Logger logger, TestLogHandler handler, Level originalLogLevel) {
+        logger.removeHandler(handler);
+        logger.setLevel(originalLogLevel);
+    }
+
+    private void restoreAlphaProperty(String originalAlphaProperty) {
+        if (originalAlphaProperty == null) {
+            System.clearProperty("alphaone.test");
+        } else {
+            System.setProperty("alphaone.test", originalAlphaProperty);
+        }
+    }
+
+    private void writeTestStorageFile(Path storageFile) throws Exception {
+        try (BufferedWriter writer = Files.newBufferedWriter(storageFile, StandardCharsets.UTF_8)) {
+            writer.write("this is not serialized");
+            writer.newLine();
+            writer.write("t!@!true!@!alpha");
+            writer.newLine();
+        }
+    }
+
+    private void assertMalformedLineWarningWasEmitted(ByteArrayOutputStream capturedOutput,
+            TestLogHandler handler) {
+        String stdout = capturedOutput.toString(StandardCharsets.UTF_8);
+        boolean warningWasLogged = handler.messages.stream()
+                .anyMatch(m -> m.contains("skipping malformed storage line"));
+        boolean warningWasPrinted = stdout.contains("skipping malformed storage line");
+        assertTrue(warningWasLogged || warningWasPrinted,
+                "Expected warning to be logged or printed");
+    }
+
+    private void deleteRecursively(Path tempDir) throws Exception {
+        try (Stream<Path> paths = Files.walk(tempDir)) {
+            // Delete return value intentionally ignored — best-effort test cleanup only.
+            paths.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+        }
+    }
+
     private static class TestLogHandler extends Handler {
-        private java.util.List<String> messages = new java.util.ArrayList<>();
+        private final List<String> messages = new ArrayList<>();
 
         @Override
         public void publish(LogRecord record) {

@@ -4,41 +4,43 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import alphaone.util.Constants;
+
 /**
  * Task representing an event with a start and end datetime.
  */
 public class Event extends Task {
-    private final LocalDateTime eventStart;
-    private final LocalDateTime eventEnd;
-    private final DateTimeFormatter stringDateTimeFormatter = DateTimeFormatter
-            .ofPattern("MMMM dd, yyyy h:mm a", Locale.ENGLISH);
+    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter
+            .ofPattern("MMMM dd, yyyy hh:mm a", Locale.ENGLISH);
+    private final LocalDateTime startDateTime;
+    private final LocalDateTime endDateTime;
 
     /**
-     * Create an Event from user input (parsing using yyyy-MM-dd HHmm).
+     * Creates an Event from user input (parses strings using yyyy-MM-dd HHmm format).
      *
-     * @param description event description.
-     * @param eventStart start datetime string in pattern yyyy-MM-dd HHmm.
-     * @param eventEnd end datetime string in pattern yyyy-MM-dd HHmm.
+     * @param description   event description.
+     * @param startDateTime start datetime string in pattern yyyy-MM-dd HHmm.
+     * @param endDateTime   end datetime string in pattern yyyy-MM-dd HHmm.
      */
-    public Event(String description, String eventStart, String eventEnd) {
+    public Event(String description, String startDateTime, String endDateTime) {
         super(description);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-        this.eventStart = LocalDateTime.parse(eventStart, formatter);
-        this.eventEnd = LocalDateTime.parse(eventEnd, formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.INPUT_DATETIME_PATTERN);
+        this.startDateTime = LocalDateTime.parse(startDateTime, formatter);
+        this.endDateTime = LocalDateTime.parse(endDateTime, formatter);
     }
 
     /**
      * Reconstruct an Event from stored state.
      *
-     * @param wasDone whether the event was previously marked done.
-     * @param description stored description.
-     * @param eventStart stored start datetime.
-     * @param eventEnd stored end datetime.
+     * @param wasDone       whether the event was previously marked done.
+     * @param description   stored description.
+     * @param startDateTime stored start datetime (ISO format).
+     * @param endDateTime   stored end datetime (ISO format).
      */
-    public Event(boolean wasDone, String description, String eventStart, String eventEnd) {
+    public Event(boolean wasDone, String description, String startDateTime, String endDateTime) {
         super(description);
-        this.eventStart = LocalDateTime.parse(eventStart);
-        this.eventEnd = LocalDateTime.parse(eventEnd);
+        this.startDateTime = LocalDateTime.parse(startDateTime);
+        this.endDateTime = LocalDateTime.parse(endDateTime);
         if (wasDone) {
             this.markDone();
         }
@@ -47,10 +49,11 @@ public class Event extends Task {
     /**
      * Returns the short type identifier for Event.
      *
-     * @return the single-letter type code.
+     * @return "E"
      */
+    @Override
     public String getType() {
-        return ("E");
+        return "E";
     }
 
     /**
@@ -58,8 +61,8 @@ public class Event extends Task {
      *
      * @return the event start as LocalDateTime.
      */
-    public LocalDateTime getEventStart() {
-        return eventStart;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
     /**
@@ -67,21 +70,24 @@ public class Event extends Task {
      *
      * @return the event end as LocalDateTime.
      */
-    public LocalDateTime getEventEnd() {
-        return eventEnd;
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
     }
 
     @Override
     public String toString() {
         return String.format("[%s] [%s] %s (from %s to %s)", this.getType(),
-                this.getStatus(), super.getDescription(), eventStart.format(stringDateTimeFormatter),
-                eventEnd.format(stringDateTimeFormatter));
+                this.getStatusIcon(), super.getDescription(),
+                startDateTime.format(DISPLAY_DATE_FORMATTER),
+                endDateTime.format(DISPLAY_DATE_FORMATTER));
     }
 
     @Override
     public String serialiseTask() {
-        return String.format("%s!@!%s!@!%s!@!%s!@!%s", this.getType(), this.isDone(),
-                this.getDescription(), eventStart, eventEnd);
+        return this.getType() + Constants.STORAGE_SEPARATOR
+                + this.isDone() + Constants.STORAGE_SEPARATOR
+                + this.getDescription() + Constants.STORAGE_SEPARATOR
+                + startDateTime + Constants.STORAGE_SEPARATOR
+                + endDateTime;
     }
-
 }

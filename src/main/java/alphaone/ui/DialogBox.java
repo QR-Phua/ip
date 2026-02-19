@@ -2,6 +2,8 @@ package alphaone.ui;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +21,8 @@ import javafx.scene.layout.HBox;
  * and a label containing text from the speaker.
  */
 public class DialogBox extends HBox {
+    private static final Logger LOGGER = Logger.getLogger(DialogBox.class.getName());
+
     @FXML
     private Label dialog;
     @FXML
@@ -31,7 +35,7 @@ public class DialogBox extends HBox {
             fxmlLoader.setRoot(this);
             fxmlLoader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load DialogBox FXML", e);
         }
 
         dialog.setText(text);
@@ -50,12 +54,26 @@ public class DialogBox extends HBox {
 
     }
 
+    /**
+     * Returns a dialog box configured to display a user message.
+     *
+     * @param text the message text.
+     * @param img  the user's avatar image.
+     * @return a DialogBox with user styling.
+     */
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
     }
 
-    public static DialogBox getDukeDialog(String text, Image img) {
-        var db = new DialogBox(text, img);
+    /**
+     * Returns a dialog box configured to display a bot response (image on the left).
+     *
+     * @param text the message text.
+     * @param img  the bot's avatar image.
+     * @return a flipped DialogBox with bot styling.
+     */
+    public static DialogBox getBotDialog(String text, Image img) {
+        DialogBox db = new DialogBox(text, img);
         db.flip();
         return db;
     }

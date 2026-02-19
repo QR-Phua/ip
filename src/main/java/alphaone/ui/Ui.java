@@ -1,5 +1,6 @@
 package alphaone.ui;
 
+import java.util.Scanner;
 import java.util.function.Consumer;
 
 /**
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 public class Ui {
     /** A reusable border string for UI sections. */
     public static final String BORDER = "+" + "\u2013".repeat(46) + "+";
-    private static final java.util.Scanner scanner = new java.util.Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
 
     // Pluggable output consumer (GUI can register to receive messages)
     private static Consumer<String> outputConsumer = (s) -> {
@@ -23,15 +24,15 @@ public class Ui {
 
     // Whether the registered consumer expects raw messages (true) or already-formatted (false)
     // When true, Ui.print will send raw message (no borders); when false it will wrap with BORDER.
-    private static boolean outputConsumerExpectsRaw = false;
+    private static boolean isOutputConsumerExpectingRaw = false;
 
     /** Read a single line from standard input. */
     public static String readLine() {
         return scanner.nextLine();
     }
 
-    /** Return the ASCII-art logo used at application startup. */
-    public static String printLogo() {
+    /** Returns the ASCII-art logo used at application startup. */
+    public static String getLogo() {
         return
                 """
                    _      _      _      _      _      _      _      _      _  \s
@@ -70,10 +71,10 @@ public class Ui {
     public static void setOutputConsumer(Consumer<String> consumer, boolean expectsRaw) {
         if (consumer == null) {
             outputConsumer = (s) -> System.out.println(s);
-            outputConsumerExpectsRaw = false;
+            isOutputConsumerExpectingRaw = false;
         } else {
             outputConsumer = consumer;
-            outputConsumerExpectsRaw = expectsRaw;
+            isOutputConsumerExpectingRaw = expectsRaw;
         }
     }
 
@@ -85,7 +86,7 @@ public class Ui {
      * @param msg the message to display (raw, without borders)
      */
     public static void print(String msg) {
-        if (outputConsumerExpectsRaw) {
+        if (isOutputConsumerExpectingRaw) {
             outputConsumer.accept(msg);
         } else {
             // remove leading/trailing whitespace (spaces, tabs, newlines) to avoid extra blank lines
@@ -96,10 +97,10 @@ public class Ui {
     }
 
     /**
-     * Print a message exactly as-is (no additional borders). Use for low-level
+     * Delivers a message exactly as-is (no additional borders). Use for low-level
      * diagnostic messages where borders are not desired.
      */
-    public static void printRaw(String msg) {
+    public static void emit(String msg) {
         outputConsumer.accept(msg);
     }
 }

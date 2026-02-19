@@ -15,7 +15,7 @@ import alphaone.exception.InvalidTaskItemException;
 public class TaskListTest {
 
     @Test
-    public void addAndRetrieveInternalMap() {
+    public void addTask_validTodo_addedToInternalMap() {
         TaskList tl = new TaskList();
         tl.addTask("a task", alphaone.AlphaOne.TaskType.TODO);
         HashMap<Integer, Task> map = tl.getInternalMap();
@@ -24,9 +24,9 @@ public class TaskListTest {
     }
 
     @Test
-    public void taskExistenceChecker_throwsOnMissing() {
+    public void verifyTaskExists_throwsOnMissing() {
         TaskList tl = new TaskList();
-        assertThrows(InvalidTaskItemException.class, () -> tl.taskExistenceChecker(5));
+        assertThrows(InvalidTaskItemException.class, () -> tl.verifyTaskExists(5));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TaskListTest {
     }
 
     @Test
-    public void markAndUnmarkBehavior() {
+    public void markAndUnmark_existingTask_isDoneChanges() {
         TaskList tl = new TaskList();
         tl.addTask("alpha", alphaone.AlphaOne.TaskType.TODO);
         tl.markDone(1);
@@ -61,7 +61,7 @@ public class TaskListTest {
     }
 
     @Test
-    public void deleteTaskRemovesEntry() {
+    public void deleteTask_existingTask_removedFromMap() {
         TaskList tl = new TaskList();
         tl.addTask("x", alphaone.AlphaOne.TaskType.TODO);
         tl.addTask("y", alphaone.AlphaOne.TaskType.TODO);

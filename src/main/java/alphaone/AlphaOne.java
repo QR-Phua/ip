@@ -10,9 +10,9 @@ import alphaone.ui.Ui;
  * task management and persistence.
  */
 public class AlphaOne {
-    private TaskList taskList;
+    private final TaskList taskList;
     private final Storage storage;
-    private ContactList contactList;
+    private final ContactList contactList;
     private final CommandProcessor commandProcessor;
 
     /**
@@ -23,6 +23,7 @@ public class AlphaOne {
      * EVENT — a task with a start and end time.</p>
      */
     public enum TaskType { TODO, DEADLINE, EVENT }
+
     /**
      * Command keywords recognized by the parser.
      *
@@ -34,6 +35,7 @@ public class AlphaOne {
      * FIND — search tasks by keyword.</p>
      */
     public enum CommandType { CONTACT_ADD, CONTACT_DELETE, BYE, LIST, UNMARK, MARK, DELETE, FIND }
+
     /**
      * Creates a new AlphaOne application instance.
      *
@@ -44,55 +46,48 @@ public class AlphaOne {
      */
     public AlphaOne() {
         this.storage = new Storage();
-        // ensure TaskList and ContactList use the same Storage instance
         this.contactList = new ContactList(this.storage);
         this.taskList = new TaskList(this.storage);
-        // create the processor after loading so it has immediate access to tasks
         this.commandProcessor = new CommandProcessor(this.taskList, this.storage, this.contactList);
     }
 
     /**
-     * Return the raw startup message (no borders). Ui will add presentation.
+     * Returns the raw startup message (no borders); the UI layer will add presentation.
      */
     public String getStartupMessage() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Ui.printLogo()).append("\n");
-        sb.append("Hello! I am AlphaOne, your chatbot companion!\n");
-        sb.append("Tell me what you would like to do!\n");
-        return sb.toString();
+        return Ui.getLogo() + "\n"
+                + "Hello! I am AlphaOne, your chatbot companion!\n"
+                + "Tell me what you would like to do!\n";
     }
     /**
      * Returns true if the last processed command was an exit command.
+     *
+     * @return true if the last command was a bye/exit command, false otherwise.
      */
     public boolean isExit() {
         return commandProcessor.isExit();
     }
 
     /**
-     * Delegate input to the processor (void). The processor will call Ui.print(...)
-     * to present responses.
+     * Delegates the given user input to the command processor for execution.
+     *
+     * @param input the raw user input line to process
      */
-    public void processInput(String input) {
+    public void handleInput(String input) {
         commandProcessor.process(input);
     }
 
     /**
-     * Start the interactive application loop (CLI). Uses getResponse so GUI and CLI
-     * share the same command processing.
+     * Starts the interactive application loop (CLI).
      */
     public void run() {
         Ui.print(getStartupMessage());
-
-        while (true) {
+        while (!commandProcessor.isExit()) {
             String input = Ui.readLine();
-            processInput(input);
-            if (commandProcessor.isExit()) {
-                break;
-            }
+            handleInput(input);
         }
     }
 
-    // standard entry point so `java AlphaOne` works
     /**
      * Program entry point that creates the application instance and runs it.
      *

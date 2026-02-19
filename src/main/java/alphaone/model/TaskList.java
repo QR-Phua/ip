@@ -3,6 +3,7 @@ package alphaone.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import alphaone.exception.InvalidTaskItemException;
 import alphaone.storage.Storage;
 import alphaone.ui.Ui;
 
@@ -10,16 +11,19 @@ import alphaone.ui.Ui;
  * In-memory container for Tasks with helper operations.
  */
 public class TaskList {
-    private HashMap<Integer, Task> taskList;
-    private int counter = 1;
-    private final Storage storage; // may be null for in-memory-only instances
+    private HashMap<Integer, Task> tasks;
+    private int nextTaskId = 1;
+    private final Storage storage;
 
+    /**
+     * Creates a TaskList without persistence (in-memory only).
+     */
     public TaskList() {
         this(null);
     }
 
     /**
-     * Create a TaskList that uses the provided Storage instance for persistence.
+     * Creates a TaskList that uses the provided Storage instance for persistence.
      * If storage is null the TaskList operates in-memory only.
      *
      * @param storage storage instance to load/save tasks, or null for no persistence
@@ -29,59 +33,50 @@ public class TaskList {
         if (this.storage != null) {
             HashMap<Integer, Task> loaded = this.storage.load();
             if (loaded != null && !loaded.isEmpty()) {
-                this.taskList = loaded;
-                int max = 0;
-                for (Integer k : loaded.keySet()) {
-                    if (k != null && k > max) {
-                        max = k;
-                    }
-                }
-                this.counter = max + 1;
+                this.tasks = loaded;
+                this.nextTaskId = calculateMaxKey(loaded) + 1;
                 return;
             }
         }
-        taskList = new HashMap<>();
+        tasks = new HashMap<>();
     }
 
     /**
-     * Returns a raw (unformatted) representation of current tasks. Ui will add borders.
+     * Returns a formatted string listing all current tasks for display.
      *
-     * @return raw formatted tasks text
+     * @return formatted tasks text
      */
-    public String getTasksString() {
-        StringBuilder sb = new StringBuilder();
-        if (!taskList.isEmpty()) {
-            sb.append("You have these tasks in your list:\n");
-            for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+    public String formatTasksDisplay() {
+        StringBuilder output = new StringBuilder();
+        if (!tasks.isEmpty()) {
+            output.append("You have these tasks in your list:\n");
+            for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
                 Task currentTask = entry.getValue();
-                sb.append(String.format("%d. %s\n", entry.getKey(), currentTask));
+                output.append(String.format("%d. %s\n", entry.getKey(), currentTask));
             }
-            // remove trailing newline if present
-            if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
-                sb.deleteCharAt(sb.length() - 1);
-            }
+            trimTrailingNewline(output);
         } else {
-            sb.append("Your task list is currently empty!");
+            output.append("Your task list is currently empty!");
         }
-        return sb.toString();
+        return output.toString();
     }
 
     /**
-     * Print the raw tasks string to the UI (Ui will add borders).
+     * Prints the tasks display to the UI.
      */
-    public void getTasks() {
-        Ui.print(getTasksString());
+    public void printTasks() {
+        Ui.print(formatTasksDisplay());
     }
 
     /**
-     * Add a task and return a raw confirmation message (no borders).
+     * Adds a task and returns a confirmation message.
      *
-     * @param input task text
-     * @param type task type
+     * @param input  task text
+     * @param type   task type
      * @param params optional extra params
-     * @return raw confirmation message
+     * @return confirmation message
      */
-    public String addTaskString(String input, alphaone.AlphaOne.TaskType type, String... params) {
+    public String buildAddTaskMessage(String input, alphaone.AlphaOne.TaskType type, String... params) {
         Task newTask;
         switch (type) {
         case TODO -> newTask = new ToDo(input);
@@ -91,147 +86,142 @@ public class TaskList {
             return "Invalid task type!";
         }
         }
-        taskList.put(counter, newTask);
-        counter++;
+        tasks.put(nextTaskId, newTask);
+        nextTaskId++;
         if (this.storage != null) {
-            this.storage.save(this.taskList);
+            this.storage.save(this.tasks);
         }
         return "New task added to your task list!\n" + newTask;
     }
 
     /**
-     * Legacy: add task and print confirmation.
+     * Adds a task and prints the confirmation.
      *
-     * @param input task text
-     * @param type task type
+     * @param input  task text
+     * @param type   task type
      * @param params optional params
      */
     public void addTask(String input, alphaone.AlphaOne.TaskType type, String... params) {
-        Ui.print(addTaskString(input, type, params));
+        Ui.print(buildAddTaskMessage(input, type, params));
     }
 
     /**
-     * Delete a task and return a raw confirmation (no borders).
+     * Deletes a task and returns a confirmation message.
      *
-     * @param taskNum id to delete
-     * @return raw deletion message
+     * @param taskId id of the task to delete
+     * @return deletion message
      */
-    public String deleteTaskString(int taskNum) {
-        Task deleteTask = taskList.get(taskNum);
-        taskList.remove(taskNum);
+    public String buildDeleteTaskMessage(int taskId) {
+        Task taskToDelete = tasks.get(taskId);
+        tasks.remove(taskId);
         if (this.storage != null) {
-            this.storage.save(this.taskList);
+            this.storage.save(this.tasks);
         }
-        return "The following task has been deleted!\n" + deleteTask;
+        return "The following task has been deleted!\n" + taskToDelete;
     }
 
     /**
-     * Legacy: delete and print.
+     * Deletes a task and prints the confirmation.
      *
-     * @param taskNum id to delete
+     * @param taskId id of the task to delete
      */
-    public void deleteTask(int taskNum) {
-        Ui.print(deleteTaskString(taskNum));
+    public void deleteTask(int taskId) {
+        Ui.print(buildDeleteTaskMessage(taskId));
     }
 
     /**
-     * Mark the task and return raw confirmation (no borders).
+     * Marks the task as done and returns a confirmation message.
      *
-     * @param taskNum id to mark
-     * @return raw message
+     * @param taskId id of the task to mark
+     * @return confirmation message
      */
-    public String markDoneString(int taskNum) {
-        Task markTask = taskList.get(taskNum);
-        markTask.markDone();
+    public String buildMarkDoneMessage(int taskId) {
+        Task taskToMark = tasks.get(taskId);
+        taskToMark.markDone();
         if (this.storage != null) {
-            this.storage.save(this.taskList);
+            this.storage.save(this.tasks);
         }
-        return "Task marked done successfully!\n" + markTask;
+        return "Task marked done successfully!\n" + taskToMark;
     }
 
     /**
-     * Legacy: mark and print.
+     * Marks a task as done and prints the confirmation.
      *
-     * @param taskNum id to mark
+     * @param taskId id of the task to mark
      */
-    public void markDone(int taskNum) {
-        Ui.print(markDoneString(taskNum));
+    public void markDone(int taskId) {
+        Ui.print(buildMarkDoneMessage(taskId));
     }
 
     /**
-     * Unmark the task and return raw confirmation (no borders).
+     * Unmarks the task and returns a confirmation message.
      *
-     * @param taskNum id to unmark
-     * @return raw message
+     * @param taskId id of the task to unmark
+     * @return confirmation message
      */
-    public String unmarkDoneString(int taskNum) {
-        Task unMarkTask = taskList.get(taskNum);
-        unMarkTask.markNotDone();
+    public String buildUnmarkDoneMessage(int taskId) {
+        Task taskToUnmark = tasks.get(taskId);
+        taskToUnmark.markNotDone();
         if (this.storage != null) {
-            this.storage.save(this.taskList);
+            this.storage.save(this.tasks);
         }
-        return "Task unmarked successfully!\n" + unMarkTask;
+        return "Task unmarked successfully!\n" + taskToUnmark;
     }
 
     /**
-     * Legacy: unmark and print.
+     * Unmarks a task and prints the confirmation.
      *
-     * @param taskNum id to unmark
+     * @param taskId id of the task to unmark
      */
-    public void unmarkDone(int taskNum) {
-        Ui.print(unmarkDoneString(taskNum));
+    public void unmarkDone(int taskId) {
+        Ui.print(buildUnmarkDoneMessage(taskId));
     }
 
     /**
-     * Verify that the specified task id exists in the list.
+     * Verifies that the specified task id exists in the list.
      *
-     * @param selectedTask the id to check.
-     * @throws alphaone.exception.InvalidTaskItemException if the id does not exist.
+     * @param taskNumber the id to check.
+     * @throws InvalidTaskItemException if the id does not exist.
      */
-    public void taskExistenceChecker(int selectedTask) throws alphaone.exception.InvalidTaskItemException {
-        Task searchTask = taskList.getOrDefault(selectedTask, null);
-        if (searchTask == null) {
-            throw new alphaone.exception.InvalidTaskItemException();
+    public void verifyTaskExists(int taskNumber) throws InvalidTaskItemException {
+        if (tasks.getOrDefault(taskNumber, null) == null) {
+            throw new InvalidTaskItemException();
         }
     }
 
     /**
-     * Search tasks by keyword and return matching map.
+     * Searches tasks by keyword and returns matching tasks keyed by id.
      *
      * @param keyword substring to search for
      * @return map of matching tasks keyed by id
      */
     public HashMap<Integer, Task> searchKeyword(String keyword) {
-        HashMap<Integer, Task> searchedTaskList = new HashMap<>();
-        for (Map.Entry<Integer, Task> entry : taskList.entrySet()) {
+        HashMap<Integer, Task> matchingTasks = new HashMap<>();
+        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
             Task currentTask = entry.getValue();
             if (currentTask.getDescription() != null && currentTask.getDescription().contains(keyword)) {
-                searchedTaskList.put(entry.getKey(), currentTask);
+                matchingTasks.put(entry.getKey(), currentTask);
             }
         }
-        return searchedTaskList;
+        return matchingTasks;
     }
 
     /**
-     * Return raw search results text.
+     * Returns search results text for display.
      *
      * @param keyword search string
-     * @return raw search results (no borders)
+     * @return formatted search results
      */
-    public String displaySearchResultsString(String keyword) {
-        HashMap<Integer, Task> searchedTaskList = searchKeyword(keyword);
-        if (!searchedTaskList.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("These are the most relevant tasks\n");
-            for (Map.Entry<Integer, Task> entry : searchedTaskList.entrySet()) {
-                sb.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
+    public String buildSearchResultsMessage(String keyword) {
+        HashMap<Integer, Task> matchingTasks = searchKeyword(keyword);
+        if (!matchingTasks.isEmpty()) {
+            StringBuilder output = new StringBuilder();
+            output.append("These are the most relevant tasks\n");
+            for (Map.Entry<Integer, Task> entry : matchingTasks.entrySet()) {
+                output.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
             }
-            // remove trailing newline if present
-            int len = sb.length();
-            if (len > 0 && sb.charAt(len - 1) == '\n') {
-                sb.deleteCharAt(len - 1);
-            }
-            return sb.toString();
+            trimTrailingNewline(output);
+            return output.toString();
         } else {
             return "No relevant tasks found!";
         }
@@ -243,7 +233,7 @@ public class TaskList {
      * @return internal task map.
      */
     public HashMap<Integer, Task> getInternalMap() {
-        return this.taskList;
+        return this.tasks;
     }
 
     /**
@@ -255,17 +245,28 @@ public class TaskList {
         if (map == null) {
             return;
         }
-        this.taskList = map;
-        int max = 0;
-        for (Integer k : map.keySet()) {
-            if (k != null && k > max) {
-                max = k;
-            }
-        }
-        this.counter = max + 1;
+        this.tasks = map;
+        this.nextTaskId = calculateMaxKey(map) + 1;
         if (this.storage != null) {
-            this.storage.save(this.taskList);
+            this.storage.save(this.tasks);
         }
     }
 
+    /** Returns the largest key in the given map, or 0 if the map is empty. */
+    private int calculateMaxKey(HashMap<Integer, Task> map) {
+        int max = 0;
+        for (Integer key : map.keySet()) {
+            if (key != null && key > max) {
+                max = key;
+            }
+        }
+        return max;
+    }
+
+    private void trimTrailingNewline(StringBuilder builder) {
+        int lastIndex = builder.length() - 1;
+        if (lastIndex >= 0 && builder.charAt(lastIndex) == '\n') {
+            builder.deleteCharAt(lastIndex);
+        }
+    }
 }

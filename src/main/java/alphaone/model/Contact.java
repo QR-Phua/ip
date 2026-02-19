@@ -1,22 +1,23 @@
 package alphaone.model;
 
-import java.util.ArrayList;
+import alphaone.util.Constants;
 
 /**
  * Simple data holder for a contact's name and phone number.
  */
 public class Contact {
-    private String name;
-    private String phone;
+    private final String name;
+    private final String phone;
 
     /**
-     * Create a Contact from an arguments list containing name then phone.
+     * Creates a Contact with the given name and phone number.
      *
-     * @param arguments an ArrayList where index 0 is the name and index 1 is the phone
+     * @param name  the contact's full name
+     * @param phone the contact's phone number
      */
-    public Contact(ArrayList<String> arguments) {
-        this.name = arguments.get(0);
-        this.phone = arguments.get(1);
+    public Contact(String name, String phone) {
+        this.name = name;
+        this.phone = phone;
     }
 
     /**
@@ -43,6 +44,6 @@ public class Contact {
      * @return serialised contact string
      */
     public String serialiseContact() {
-        return String.format("%s!@!%s", name, phone);
+        return name + Constants.STORAGE_SEPARATOR + phone;
     }
 }

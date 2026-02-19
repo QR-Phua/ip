@@ -9,12 +9,13 @@ import org.junit.jupiter.api.Test;
 public class TaskTest {
 
     @Test
-    public void taskMarkingAndStatus() {
-        Task t = new Task("read");
-        assertEquals(" ", t.getStatus());
+    public void markAndUnmark_validTask_statusChangesCorrectly() {
+        // Use a concrete subclass since Task is abstract
+        ToDo t = new ToDo("read");
+        assertEquals(" ", t.getStatusIcon());
         t.markDone();
         assertTrue(t.isDone());
-        assertEquals("X", t.getStatus());
+        assertEquals("X", t.getStatusIcon());
         t.markNotDone();
         assertFalse(t.isDone());
     }

@@ -12,18 +12,19 @@ import org.junit.jupiter.api.Test;
 public class TaskUnitTest {
 
     @Test
-    public void taskMarkingAndStatus() {
-        Task t = new Task("read");
-        assertEquals(" ", t.getStatus());
+    public void markAndUnmark_validTask_statusChangesCorrectly() {
+        // Use a concrete subclass since Task is abstract
+        ToDo t = new ToDo("read");
+        assertEquals(" ", t.getStatusIcon());
         t.markDone();
         assertTrue(t.isDone());
-        assertEquals("X", t.getStatus());
+        assertEquals("X", t.getStatusIcon());
         t.markNotDone();
         assertFalse(t.isDone());
     }
 
     @Test
-    public void todoToStringAndSerialise() {
+    public void toString_todo_containsDescription() {
         ToDo td = new ToDo("buy milk");
         String s = td.toString();
         assertTrue(s.contains("buy milk"));
@@ -31,18 +32,18 @@ public class TaskUnitTest {
     }
 
     @Test
-    public void deadlineParsingAndFormatting() {
+    public void toString_deadline_containsDescriptionAndDate() {
         Deadline d = new Deadline("submit", "2026-01-31");
-        assertEquals(LocalDate.parse("2026-01-31"), d.getDeadline());
+        assertEquals(LocalDate.parse("2026-01-31"), d.getDeadlineDate());
         assertTrue(d.toString().contains("submit"));
         assertTrue(d.serialiseTask().contains("2026-01-31"));
     }
 
     @Test
-    public void eventParsingAndFormatting() {
+    public void parseEvent_validDateTimes_parsedCorrectly() {
         Event e = new Event("party", "2026-01-01 0900", "2026-01-01 1700");
-        assertEquals(LocalDateTime.parse("2026-01-01T09:00"), e.getEventStart());
-        assertEquals(LocalDateTime.parse("2026-01-01T17:00"), e.getEventEnd());
+        assertEquals(LocalDateTime.parse("2026-01-01T09:00"), e.getStartDateTime());
+        assertEquals(LocalDateTime.parse("2026-01-01T17:00"), e.getEndDateTime());
         assertTrue(e.toString().contains("party"));
     }
 }

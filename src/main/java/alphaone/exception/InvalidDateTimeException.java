@@ -23,18 +23,15 @@ public class InvalidDateTimeException extends Exception {
     public String getMessage() {
         switch (taskType) {
         case DEADLINE -> {
-            String msg = "Datetime information provided is invalid!\n"
-                    + "For Deadline tasks, use YYYY-MM-DD";
-            return msg;
+            return "Datetime information provided is invalid!\n"
+                    + "For Deadline tasks, use YYYY-MM-DD (e.g., 2025-02-19)";
         }
         case EVENT -> {
-            String msg = "Datetime information provided is invalid!\n"
-                    + "For Event tasks, use YYYY-MM-DD HHMM";
-            return msg;
+            return "Datetime information provided is invalid!\n"
+                    + "For Event tasks, use YYYY-MM-DD HHMM (e.g., 2026-02-19 1430)";
         }
         default -> {
-            String msg = "Datetime information provided is invalid!";
-            return msg;
+            return "Datetime information provided is invalid!";
         }
         }
     }
