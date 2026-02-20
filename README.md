@@ -28,9 +28,9 @@ For the full user guide, see [`docs/README.md`](docs/README.md).
 ## Acknowledgements
 This project made use of GitHub Copilot (powered by Claude Sonnet) as an AI-assisted development tool throughout the codebase. Specifically, it was used for:
 
-Code refactoring – restructuring and cleaning up existing logic without altering behaviour (original logic is preserved and traceable in the project's Git version history)
-Code quality and standards enforcement – recommendations to align with Java coding conventions and best practices
-UI implementation – translating Figma UI prototype designs into JavaFX components
-Autocomplete and code recommendations – general productivity assistance during development
+1) Code refactoring – restructuring and cleaning up existing logic without altering behaviour (original logic is preserved and traceable in the project's Git version history)
+2) Code quality and standards enforcement – recommendations to align with Java coding conventions and best practices
+3) UI implementation – translating Figma UI prototype designs into JavaFX components
+4) Autocomplete and code recommendations – general productivity assistance during development
 
 As per course policy on code reuse and AI tool usage, this acknowledgement is placed here (rather than inline comments) because the use was widespread across the codebase rather than isolated to specific methods or classes. All refactored code retains its original logic, which can be verified through the Git commit history.
