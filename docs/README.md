@@ -98,6 +98,7 @@ New task added to your task list!
 | `event team meeting /from 2026-03-10 1400` | Invalid EVENT command — missing `/to` marker. |
 | `event team meeting /from 2026/03/10 1400 /to 2026/03/10 1600` | Datetime information provided is invalid! For Event tasks, use YYYY-MM-DD HHMM (e.g., 2026-02-19 1430). |
 | `event team meeting /from /to 2026-03-10 1600` | Invalid EVENT command — missing start datetime between `/from` and `/to`. |
+| `event team meeting /from 2026-03-10 1600 /to 2026-03-10 1400` | Event start time must be before end time. |
 
 ---
 
@@ -184,6 +185,10 @@ Task unmarked successfully!
 ### Delete a Task — `delete`
 
 Permanently removes a task from the list.
+
+> **Note:** Task numbers are **never reassigned** after a deletion within a session. If task 2 is deleted, the remaining tasks keep their original numbers. This is intentional — it prevents disorientation if you have memorised a task's number.
+>
+> However, task numbers **are reassigned on the next launch**. Tasks are reloaded from the file sequentially, so gaps are closed. For example, if tasks 1 and 3 remain at the end of a session, the next launch will number them 1 and 2.
 
 **Format:** `delete [task number]`
 

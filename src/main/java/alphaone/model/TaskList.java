@@ -7,6 +7,7 @@ import alphaone.core.AlphaOne;
 import alphaone.exception.InvalidTaskItemException;
 import alphaone.storage.Storage;
 import alphaone.ui.Ui;
+import alphaone.util.StringUtils;
 
 /**
  * In-memory container for Tasks with helper operations.
@@ -55,7 +56,7 @@ public class TaskList {
                 Task currentTask = entry.getValue();
                 output.append(String.format("%d. %s\n", entry.getKey(), currentTask));
             }
-            trimTrailingNewline(output);
+            StringUtils.trimTrailingNewline(output);
         } else {
             output.append("Your task list is currently empty!");
         }
@@ -221,7 +222,7 @@ public class TaskList {
             for (Map.Entry<Integer, Task> entry : matchingTasks.entrySet()) {
                 output.append(String.format("%d. %s\n", entry.getKey(), entry.getValue()));
             }
-            trimTrailingNewline(output);
+            StringUtils.trimTrailingNewline(output);
             return output.toString();
         } else {
             return "No relevant tasks found!";
@@ -257,17 +258,10 @@ public class TaskList {
     private int calculateMaxKey(HashMap<Integer, Task> map) {
         int max = 0;
         for (Integer key : map.keySet()) {
-            if (key != null && key > max) {
+            if (key > max) {
                 max = key;
             }
         }
         return max;
-    }
-
-    private void trimTrailingNewline(StringBuilder builder) {
-        int lastIndex = builder.length() - 1;
-        if (lastIndex >= 0 && builder.charAt(lastIndex) == '\n') {
-            builder.deleteCharAt(lastIndex);
-        }
     }
 }

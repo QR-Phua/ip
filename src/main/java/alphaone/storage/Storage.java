@@ -207,18 +207,15 @@ public class Storage {
 
         switch (type) {
         case "t" -> {
-            // ToDo entries: T!@!<done>!@!<desc>
             return new ToDo(wasDone, parts[2]);
         }
         case "d" -> {
-            // Deadline entries: D!@!<done>!@!<desc>!@!<by>
             if (parts.length < 4) {
                 throw new IllegalArgumentException("malformed Deadline entry, skipping: '" + line + "'");
             }
             return new Deadline(wasDone, parts[2], parts[3]);
         }
         case "e" -> {
-            // Event entries: E!@!<done>!@!<desc>!@!<from>!@!<to>
             if (parts.length < 5) {
                 throw new IllegalArgumentException("malformed Event entry, skipping: '" + line + "'");
             }

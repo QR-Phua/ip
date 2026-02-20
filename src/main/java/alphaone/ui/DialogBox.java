@@ -25,6 +25,7 @@ import javafx.util.Duration;
 public class DialogBox extends HBox {
     private static final Logger LOGGER = Logger.getLogger(DialogBox.class.getName());
     private static final Duration ANIM_DURATION = Duration.millis(220);
+    private static final double SLIDE_FROM_Y_OFFSET = 14;
 
     @FXML
     private Label dialog;
@@ -49,7 +50,7 @@ public class DialogBox extends HBox {
         setOpacity(0);
 
         TranslateTransition slide = new TranslateTransition(ANIM_DURATION, this);
-        slide.setFromY(14);
+        slide.setFromY(SLIDE_FROM_Y_OFFSET);
         slide.setToY(0);
 
         FadeTransition fade = new FadeTransition(ANIM_DURATION, this);

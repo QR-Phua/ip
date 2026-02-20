@@ -18,11 +18,11 @@ public class Deadline extends Task {
      * Creates a Deadline with a description and a date string.
      *
      * @param description  task description.
-     * @param deadlineDate date string in ISO format (YYYY-MM-DD).
+     * @param rawDate      date string in ISO format (YYYY-MM-DD).
      */
-    public Deadline(String description, String deadlineDate) {
+    public Deadline(String description, String rawDate) {
         super(description);
-        this.deadlineDate = LocalDate.parse(deadlineDate);
+        this.deadlineDate = LocalDate.parse(rawDate);
     }
 
     /**
@@ -30,11 +30,11 @@ public class Deadline extends Task {
      *
      * @param wasDone      whether task was previously completed.
      * @param description  the stored description.
-     * @param deadlineDate the stored date string.
+     * @param rawDate      the stored date string.
      */
-    public Deadline(boolean wasDone, String description, String deadlineDate) {
+    public Deadline(boolean wasDone, String description, String rawDate) {
         super(description);
-        this.deadlineDate = LocalDate.parse(deadlineDate);
+        this.deadlineDate = LocalDate.parse(rawDate);
         if (wasDone) {
             this.markDone();
         }

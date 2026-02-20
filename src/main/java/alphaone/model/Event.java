@@ -30,17 +30,17 @@ public class Event extends Task {
     }
 
     /**
-     * Reconstruct an Event from stored state.
+     * Reconstructs an Event from stored state.
      *
-     * @param wasDone       whether the event was previously marked done.
-     * @param description   stored description.
-     * @param startDateTime stored start datetime (ISO format).
-     * @param endDateTime   stored end datetime (ISO format).
+     * @param wasDone          whether the event was previously marked done.
+     * @param description      stored description.
+     * @param storedStartDateTime stored start datetime (ISO format).
+     * @param storedEndDateTime   stored end datetime (ISO format).
      */
-    public Event(boolean wasDone, String description, String startDateTime, String endDateTime) {
+    public Event(boolean wasDone, String description, String storedStartDateTime, String storedEndDateTime) {
         super(description);
-        this.startDateTime = LocalDateTime.parse(startDateTime);
-        this.endDateTime = LocalDateTime.parse(endDateTime);
+        this.startDateTime = LocalDateTime.parse(storedStartDateTime);
+        this.endDateTime = LocalDateTime.parse(storedEndDateTime);
         if (wasDone) {
             this.markDone();
         }

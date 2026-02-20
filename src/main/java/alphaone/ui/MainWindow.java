@@ -20,13 +20,13 @@ import javafx.util.Duration;
  * Controller for the main GUI.
  */
 public class MainWindow extends AnchorPane {
-    // Delay before bot response appears — feels natural, like the bot is thinking
+    /** Delay before bot response appears, so the interaction feels natural. */
     private static final Duration BOT_RESPONSE_DELAY = Duration.millis(600);
-    // Threshold for vvalue considered "at bottom" — used to re-enable auto-scroll
+    /** Threshold for vvalue considered "at bottom" — used to re-enable auto-scroll. */
     private static final double SCROLL_AT_BOTTOM_THRESHOLD = 0.99;
-    // Scroll speed multiplier applied to trackpad delta
+    /** Scroll speed multiplier applied to trackpad delta. */
     private static final double SCROLL_SPEED_MULTIPLIER = 1.5;
-    // Duration of the animated scroll-to-bottom transition
+    /** Duration of the animated scroll-to-bottom transition. */
     private static final Duration SCROLL_ANIMATION_DURATION = Duration.millis(250);
 
     @FXML private ScrollPane scrollPane;
@@ -44,18 +44,15 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void initialize() {
-        // Smooth animated auto-scroll when content height grows
         dialogContainer.heightProperty().addListener((obs, oldH, newH) -> {
             if (autoScroll) {
                 smoothScrollToBottom();
             }
         });
 
-        // Re-enable auto-scroll when user manually scrolls back to the bottom
         scrollPane.vvalueProperty().addListener((obs, oldV, newV) ->
                 autoScroll = newV.doubleValue() >= SCROLL_AT_BOTTOM_THRESHOLD);
 
-        // Trackpad / mouse-wheel gesture scrolling
         scrollPane.setOnScroll(e -> {
             double viewportH = scrollPane.getViewportBounds().getHeight();
             double contentH = dialogContainer.getBoundsInLocal().getHeight();

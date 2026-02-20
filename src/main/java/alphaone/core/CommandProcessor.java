@@ -3,7 +3,6 @@ package alphaone.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import alphaone.exception.IncompleteDetailsException;
@@ -25,9 +24,10 @@ import alphaone.ui.Ui;
 public class CommandProcessor {
     private static final int EXACT_ONE_TOKEN = 1;
     private static final int EXACT_TWO_TOKENS = 2;
-    // Minimum argument count after stripping "contact add": at least one name word + phone
+    /** Minimum argument count after stripping "contact add": at least one name word + phone. */
     private static final int MIN_CONTACT_ADD_ARGS = 2;
 
+    /** Functional interface for all command dispatch handlers. */
     private interface CommandHandler {
         void handle(String[] tokens, String commandWord)
                 throws InvalidCommandException, IncompleteDetailsException,
@@ -37,9 +37,8 @@ public class CommandProcessor {
     private final TaskList taskList;
     private final Storage storage;
     private final ContactList contactList;
-    private boolean isExitRequested = false;
-
     private final Map<String, CommandHandler> handlers = new HashMap<>();
+    private boolean isExitRequested = false;
 
     /**
      * Creates a new CommandProcessor.
@@ -100,7 +99,6 @@ public class CommandProcessor {
         handler.handle(tokens, commandWord);
     }
 
-
     private void handleContact(String[] tokens) throws InvalidCommandException, InvalidContactException {
         if (tokens.length < 2) {
             throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
@@ -154,7 +152,6 @@ public class CommandProcessor {
         Ui.print(contactList.formatContactsDisplay());
     }
 
-
     private void handleBye(String[] tokens) throws InvalidCommandException {
         validateCommandLength(tokens.length, AlphaOne.CommandType.BYE);
         storage.save(taskList.getInternalMap());
@@ -181,18 +178,27 @@ public class CommandProcessor {
         try {
             int taskNumber = Integer.parseInt(tokens[1]);
             taskList.verifyTaskExists(taskNumber);
-            switch (commandWord) {
-            case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
-            case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
-            case "delete" -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
-            default -> throw new InvalidCommandException();
-            }
+            executeTaskModification(taskNumber, commandWord);
         } catch (InvalidTaskItemException invalidTaskItemException) {
             Ui.print(invalidTaskItemException.getMessage());
-        } catch (InvalidCommandException invalidCommandException) {
-            throw invalidCommandException;
         } catch (Exception exception) {
             Ui.print("Invalid task number!");
+        }
+    }
+
+    /**
+     * Executes the mark, unmark, or delete operation for a verified task number.
+     *
+     * @param taskNumber  the verified id of the task to operate on.
+     * @param commandWord the operation to perform: "mark", "unmark", or "delete".
+     * @throws InvalidCommandException if commandWord is not a recognised operation.
+     */
+    private void executeTaskModification(int taskNumber, String commandWord) throws InvalidCommandException {
+        switch (commandWord) {
+        case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
+        case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
+        case "delete" -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
+        default -> throw new InvalidCommandException();
         }
     }
 
@@ -209,7 +215,7 @@ public class CommandProcessor {
         if (tokens.length < 2) {
             throw new IncompleteDetailsException(AlphaOne.TaskType.TODO);
         }
-        Ui.print(taskList.buildAddTaskMessage(extractTodoDescription(tokens), AlphaOne.TaskType.TODO));
+        Ui.print(taskList.buildAddTaskMessage(Parser.joinFromIndex(tokens, 1), AlphaOne.TaskType.TODO));
     }
 
     private void handleDeadline(String[] tokens)
@@ -250,16 +256,5 @@ public class CommandProcessor {
         }
     }
 
-    /**
-     * Joins all tokens after the command word into the todo description string.
-     *
-     * @param tokens the raw token array, where index 0 is the command word.
-     * @return the description text joined from index 1 onward.
-     */
-    private String extractTodoDescription(String[] tokens) {
-        List<String> tokenList = new ArrayList<>(Arrays.asList(tokens));
-        tokenList.remove(0);
-        return String.join(" ", tokenList);
-    }
 }
 

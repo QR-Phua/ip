@@ -22,6 +22,10 @@ import alphaone.util.Constants;
  * timings for deadline and event tasks.
  */
 public class Parser {
+    private static final String BY_MARKER = "/by";
+    private static final String FROM_MARKER = "/from";
+    private static final String TO_MARKER = "/to";
+
     /**
      * Splits raw user input into tokens separated by whitespace.
      *
@@ -65,31 +69,10 @@ public class Parser {
             throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
         switch (taskType) {
         case DEADLINE -> {
-            List<String> tokens = new ArrayList<>(Arrays.asList(commands));
-            tokens.remove(0);
-            int byMarkerIndex = tokens.indexOf("/by");
-            if (byMarkerIndex == -1 || byMarkerIndex == 0) {
-                throw new InvalidCommandException(taskType);
-            }
-            String deadline = extractSegment(tokens, byMarkerIndex + 1, tokens.size(), taskType);
-            validateDateTime(deadline, taskType);
-            String description = String.join(" ", tokens.subList(0, byMarkerIndex));
-            return new ArrayList<>(Arrays.asList(description, deadline));
+            return parseDeadlineArguments(commands);
         }
         case EVENT -> {
-            List<String> tokens = new ArrayList<>(Arrays.asList(commands));
-            tokens.remove(0);
-            int fromMarkerIndex = tokens.indexOf("/from");
-            int toMarkerIndex = tokens.indexOf("/to");
-            if (toMarkerIndex == -1 || fromMarkerIndex == -1 || toMarkerIndex <= fromMarkerIndex + 1) {
-                throw new InvalidCommandException(taskType);
-            }
-            String fromDateTime = extractSegment(tokens, fromMarkerIndex + 1, toMarkerIndex, taskType);
-            validateDateTime(fromDateTime, taskType);
-            String toDateTime = extractSegment(tokens, toMarkerIndex + 1, tokens.size(), taskType);
-            validateDateTime(toDateTime, taskType);
-            String description = String.join(" ", tokens.subList(0, fromMarkerIndex));
-            return new ArrayList<>(Arrays.asList(description, fromDateTime, toDateTime));
+            return parseEventArguments(commands);
         }
         default -> throw new InvalidCommandException();
         }
@@ -140,5 +123,68 @@ public class Parser {
             throw new IncompleteDetailsException(taskType);
         }
         return String.join(" ", segment);
+    }
+
+    /**
+     * Parses tokens for a DEADLINE command into [description, deadline].
+     *
+     * @param commands raw token array including the command word at index 0.
+     * @return list containing the description and deadline date string.
+     * @throws InvalidCommandException    if the /by marker is missing or misplaced.
+     * @throws IncompleteDetailsException if the deadline date segment is empty.
+     * @throws InvalidDateTimeException   if the deadline date fails format validation.
+     */
+    private static ArrayList<String> parseDeadlineArguments(String[] commands)
+            throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
+        List<String> tokens = new ArrayList<>(Arrays.asList(commands));
+        tokens.remove(0);
+        int byMarkerIndex = tokens.indexOf(BY_MARKER);
+        boolean isByMarkerMissingOrAtStart = byMarkerIndex == -1 || byMarkerIndex == 0;
+        if (isByMarkerMissingOrAtStart) {
+            throw new InvalidCommandException(AlphaOne.TaskType.DEADLINE);
+        }
+        String deadline = extractSegment(tokens, byMarkerIndex + 1, tokens.size(), AlphaOne.TaskType.DEADLINE);
+        validateDateTime(deadline, AlphaOne.TaskType.DEADLINE);
+        String description = String.join(" ", tokens.subList(0, byMarkerIndex));
+        return new ArrayList<>(Arrays.asList(description, deadline));
+    }
+
+    /**
+     * Parses tokens for an EVENT command into [description, fromDateTime, toDateTime].
+     *
+     * @param commands raw token array including the command word at index 0.
+     * @return list containing the description, start datetime, and end datetime strings.
+     * @throws InvalidCommandException    if the /from or /to markers are missing or misplaced.
+     * @throws IncompleteDetailsException if the description or a datetime segment is empty.
+     * @throws InvalidDateTimeException   if a datetime fails format validation or start is not before end.
+     */
+    private static ArrayList<String> parseEventArguments(String[] commands)
+            throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
+        List<String> tokens = new ArrayList<>(Arrays.asList(commands));
+        tokens.remove(0);
+        int fromMarkerIndex = tokens.indexOf(FROM_MARKER);
+        int toMarkerIndex = tokens.indexOf(TO_MARKER);
+        boolean areEventMarkersInvalid = toMarkerIndex == -1 || fromMarkerIndex == -1
+                || toMarkerIndex <= fromMarkerIndex + 1;
+        if (areEventMarkersInvalid) {
+            throw new InvalidCommandException(AlphaOne.TaskType.EVENT);
+        }
+        String fromDateTime = extractSegment(tokens, fromMarkerIndex + 1, toMarkerIndex, AlphaOne.TaskType.EVENT);
+        validateDateTime(fromDateTime, AlphaOne.TaskType.EVENT);
+        String toDateTime = extractSegment(tokens, toMarkerIndex + 1, tokens.size(), AlphaOne.TaskType.EVENT);
+        validateDateTime(toDateTime, AlphaOne.TaskType.EVENT);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.INPUT_DATETIME_PATTERN);
+        LocalDateTime parsedFrom = LocalDateTime.parse(fromDateTime, formatter);
+        LocalDateTime parsedTo = LocalDateTime.parse(toDateTime, formatter);
+        boolean isStartNotBeforeEnd = !parsedFrom.isBefore(parsedTo);
+        if (isStartNotBeforeEnd) {
+            throw new InvalidDateTimeException(AlphaOne.TaskType.EVENT,
+                    InvalidDateTimeException.Reason.EVENT_ORDER);
+        }
+        String description = String.join(" ", tokens.subList(0, fromMarkerIndex));
+        if (description.isBlank()) {
+            throw new IncompleteDetailsException(AlphaOne.TaskType.EVENT);
+        }
+        return new ArrayList<>(Arrays.asList(description, fromDateTime, toDateTime));
     }
 }

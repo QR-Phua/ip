@@ -13,7 +13,8 @@ import java.util.function.Consumer;
  */
 public class Ui {
     /** A reusable border string for UI sections. */
-    public static final String BORDER = "+" + "–".repeat(46) + "+";
+    private static final int BORDER_INNER_WIDTH = 46;
+    public static final String BORDER = "+" + "–".repeat(BORDER_INNER_WIDTH) + "+";
     private static final Scanner SCANNER = new Scanner(System.in);
 
     /** Default consumer that prints each message to standard output. */
@@ -27,7 +28,7 @@ public class Ui {
     /**
      * Reads a single line from standard input.
      *
-     * @return the line entered by the user.
+     * @return the line of text entered by the user.
      */
     public static String readLine() {
         return SCANNER.nextLine();
@@ -86,14 +87,13 @@ public class Ui {
      * <p>Wraps the message with standard BORDER lines unless the registered consumer
      * expects raw messages (e.g. the GUI consumer).
      *
-     * @param msg the message to display (raw, without borders).
+     * @param message the message to display (raw, without borders).
      */
-    public static void print(String msg) {
+    public static void print(String message) {
         if (isOutputConsumerExpectingRaw) {
-            outputConsumer.accept(msg);
+            outputConsumer.accept(message);
         } else {
-            // remove leading/trailing whitespace (spaces, tabs, newlines) to avoid extra blank lines
-            String trimmed = msg == null ? "" : msg.strip();
+            String trimmed = message == null ? "" : message.strip();
             String out = BORDER + "\n" + trimmed + "\n" + BORDER;
             outputConsumer.accept(out);
         }

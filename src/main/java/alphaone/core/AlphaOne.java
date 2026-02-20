@@ -54,6 +54,8 @@ public class AlphaOne {
     /**
      * Returns the raw startup message (no borders); the UI layer will add presentation.
      * Includes the ASCII logo — used by the CLI.
+     *
+     * @return the startup message string including the ASCII logo.
      */
     public String getStartupMessage() {
         return Ui.getLogo() + "\n"
@@ -63,6 +65,8 @@ public class AlphaOne {
 
     /**
      * Returns a clean greeting for the GUI — no ASCII logo.
+     *
+     * @return the GUI greeting string.
      */
     public String getGuiGreeting() {
         return "Hello! I'm AlphaOne 👋\nWhat can I help you with today?";

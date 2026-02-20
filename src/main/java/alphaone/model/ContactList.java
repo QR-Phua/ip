@@ -5,13 +5,15 @@ import java.util.Iterator;
 
 import alphaone.exception.InvalidContactException;
 import alphaone.storage.Storage;
+import alphaone.util.StringUtils;
 
 /**
  * Container for contact records used by the application.
  */
 public class ContactList {
     private final ArrayList<Contact> contacts;
-    private final Storage storage; // may be null for in-memory-only
+    /** May be null for in-memory-only usage. */
+    private final Storage storage;
 
     /**
      * Creates a ContactList backed by the provided storage.
@@ -89,10 +91,7 @@ public class ContactList {
             for (Contact contact : contacts) {
                 result.append(String.format("%s (%s)\n", contact.getName(), contact.getPhone()));
             }
-            int lastIndex = result.length() - 1;
-            if (lastIndex >= 0 && result.charAt(lastIndex) == '\n') {
-                result.deleteCharAt(lastIndex);
-            }
+            StringUtils.trimTrailingNewline(result);
         }
         return result.toString();
     }
