@@ -100,7 +100,6 @@ public class CommandProcessor {
         handler.handle(tokens, commandWord);
     }
 
-
     private void handleContact(String[] tokens) throws InvalidCommandException, InvalidContactException {
         if (tokens.length < 2) {
             throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
@@ -154,7 +153,6 @@ public class CommandProcessor {
         Ui.print(contactList.formatContactsDisplay());
     }
 
-
     private void handleBye(String[] tokens) throws InvalidCommandException {
         validateCommandLength(tokens.length, AlphaOne.CommandType.BYE);
         storage.save(taskList.getInternalMap());
@@ -181,18 +179,29 @@ public class CommandProcessor {
         try {
             int taskNumber = Integer.parseInt(tokens[1]);
             taskList.verifyTaskExists(taskNumber);
-            switch (commandWord) {
-            case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
-            case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
-            case "delete" -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
-            default -> throw new InvalidCommandException();
-            }
+            executeTaskModification(taskNumber, commandWord);
         } catch (InvalidTaskItemException invalidTaskItemException) {
             Ui.print(invalidTaskItemException.getMessage());
         } catch (InvalidCommandException invalidCommandException) {
             throw invalidCommandException;
         } catch (Exception exception) {
             Ui.print("Invalid task number!");
+        }
+    }
+
+    /**
+     * Executes the mark, unmark, or delete operation for a verified task number.
+     *
+     * @param taskNumber  the verified id of the task to operate on.
+     * @param commandWord the operation to perform: "mark", "unmark", or "delete".
+     * @throws InvalidCommandException if commandWord is not a recognised operation.
+     */
+    private void executeTaskModification(int taskNumber, String commandWord) throws InvalidCommandException {
+        switch (commandWord) {
+        case "mark" -> Ui.print(taskList.buildMarkDoneMessage(taskNumber));
+        case "unmark" -> Ui.print(taskList.buildUnmarkDoneMessage(taskNumber));
+        case "delete" -> Ui.print(taskList.buildDeleteTaskMessage(taskNumber));
+        default -> throw new InvalidCommandException();
         }
     }
 

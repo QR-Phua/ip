@@ -67,7 +67,8 @@ public class InvalidCommandException extends Exception {
                 return super.getMessage();
             }
             }
-        } else if (commandType != null) {
+        }
+        if (commandType != null) {
             switch (commandType) {
             case MARK -> {
                 return "Invalid MARK command! Please try again.\n"

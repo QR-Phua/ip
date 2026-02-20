@@ -87,9 +87,15 @@ public class ParserTest {
 
     @Test
     public void parseTaskArguments_eventAdjacentFromAndToMarkers_throwsInvalidCommandException() {
-        // /from and /to adjacent means no datetime between them
         String[] tokens = new String[]{"event", "party", "/from", "/to", "2026-01-01", "1700"};
         assertThrows(InvalidCommandException.class, () -> Parser.parseTaskArguments(
+                tokens, AlphaOne.TaskType.EVENT));
+    }
+
+    @Test
+    public void parseTaskArguments_eventFromNotBeforeTo_throwsInvalidDateTimeException() {
+        String[] tokens = new String[]{"event", "party", "/from", "2026-01-01", "1700", "/to", "2026-01-01", "0900"};
+        assertThrows(InvalidDateTimeException.class, () -> Parser.parseTaskArguments(
                 tokens, AlphaOne.TaskType.EVENT));
     }
 }
