@@ -87,6 +87,26 @@ public class InvalidCommandException extends Exception {
                 return "Invalid FIND command! Please enter keyword(s)\n"
                         + "Example: find assignment";
             }
+            case CONTACT -> {
+                return """
+                        Invalid CONTACT command! Available actions: add, remove, list
+                        Examples:
+                          contact add John Doe 91234567
+                          contact remove John Doe
+                          contact list""";
+            }
+            case CONTACT_ADD -> {
+                return """
+                        Invalid CONTACT ADD command!
+                        Format: contact add [name] [phone]
+                        Example: contact add John Doe 91234567""";
+            }
+            case CONTACT_DELETE -> {
+                return """
+                        Invalid CONTACT REMOVE command!
+                        Format: contact remove [name]
+                        Example: contact remove John Doe""";
+            }
             default -> {
                 return super.getMessage();
             }

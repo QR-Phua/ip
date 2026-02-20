@@ -240,6 +240,6 @@ public class Storage {
         if (parts.length < 2) {
             throw new IllegalArgumentException("skipping malformed contact line: '" + line + "'");
         }
-        return new Contact(parts[0], parts[1]);
+        return Contact.fromStorage(parts[0], parts[1]);
     }
 }

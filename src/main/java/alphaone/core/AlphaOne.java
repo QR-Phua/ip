@@ -29,7 +29,7 @@ public class AlphaOne {
      * DELETE — remove a task by index.
      * FIND — search tasks by keyword.</p>
      */
-    public enum CommandType { CONTACT_ADD, CONTACT_DELETE, BYE, LIST, UNMARK, MARK, DELETE, FIND }
+    public enum CommandType { CONTACT, CONTACT_ADD, CONTACT_DELETE, BYE, LIST, UNMARK, MARK, DELETE, FIND }
 
     private final TaskList taskList;
     private final Storage storage;

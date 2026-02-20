@@ -3,6 +3,7 @@ package alphaone.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import alphaone.exception.InvalidContactException;
 import alphaone.storage.Storage;
 
 /**
@@ -36,8 +37,16 @@ public class ContactList {
      * Adds a contact to the list and persists if storage is available.
      *
      * @param contact the Contact to add
+     * @throws InvalidContactException if a contact with the same name already exists
      */
-    public void addContact(Contact contact) {
+    public void addContact(Contact contact) throws InvalidContactException {
+        for (Contact existing : contacts) {
+            if (existing.getName().equalsIgnoreCase(contact.getName())
+                    && existing.getPhone().equals(contact.getPhone())) {
+                String detail = contact.getName() + " (" + contact.getPhone() + ")";
+                throw new InvalidContactException(InvalidContactException.Reason.DUPLICATE_CONTACT, detail);
+            }
+        }
         this.contacts.add(contact);
         if (this.storage != null) {
             this.storage.saveContacts(this.contacts);
@@ -45,12 +54,13 @@ public class ContactList {
     }
 
     /**
-     * Removes the first contact matching the provided name and persists the change.
+     * Removes the first contact matching the provided name (case-insensitive) and persists the change.
      *
      * @param name the name to search for
-     * @return the removed Contact, or null if none matched
+     * @return the removed Contact
+     * @throws InvalidContactException if no contact with that name exists
      */
-    public Contact removeContactByName(String name) {
+    public Contact removeContactByName(String name) throws InvalidContactException {
         Iterator<Contact> iterator = contacts.iterator();
         while (iterator.hasNext()) {
             Contact contact = iterator.next();
@@ -62,7 +72,7 @@ public class ContactList {
                 return contact;
             }
         }
-        return null;
+        throw new InvalidContactException(InvalidContactException.Reason.NOT_FOUND, name);
     }
 
     /**

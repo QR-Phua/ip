@@ -8,6 +8,7 @@ import java.util.Map;
 
 import alphaone.exception.IncompleteDetailsException;
 import alphaone.exception.InvalidCommandException;
+import alphaone.exception.InvalidContactException;
 import alphaone.exception.InvalidDateTimeException;
 import alphaone.exception.InvalidTaskItemException;
 import alphaone.model.Contact;
@@ -24,14 +25,14 @@ import alphaone.ui.Ui;
 public class CommandProcessor {
     private static final int EXACT_ONE_TOKEN = 1;
     private static final int EXACT_TWO_TOKENS = 2;
-    // Minimum argument counts after stripping the command prefix tokens
+    // Minimum argument count after stripping "contact add": at least one name word + phone
     private static final int MIN_CONTACT_ADD_ARGS = 2;
-    private static final int MIN_CONTACT_DELETE_ARGS = 1;
 
     // Small functional interface for handlers that may throw the checked exceptions
     private interface CommandHandler {
         void handle(String[] tokens, String commandWord)
-                throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException;
+                throws InvalidCommandException, IncompleteDetailsException,
+                       InvalidDateTimeException, InvalidContactException;
     }
 
     private final TaskList taskList;
@@ -84,14 +85,16 @@ public class CommandProcessor {
         String commandWord = tokens.length > 0 ? tokens[0].toLowerCase() : "";
         try {
             dispatch(commandWord, tokens);
-        } catch (InvalidCommandException | IncompleteDetailsException | InvalidDateTimeException exception) {
+        } catch (InvalidCommandException | IncompleteDetailsException
+                | InvalidDateTimeException | InvalidContactException exception) {
             Ui.print(exception.getMessage());
         }
     }
 
     // Dispatch using the handlers map; single-level orchestrator.
     private void dispatch(String commandWord, String[] tokens)
-            throws InvalidCommandException, IncompleteDetailsException, InvalidDateTimeException {
+            throws InvalidCommandException, IncompleteDetailsException,
+                   InvalidDateTimeException, InvalidContactException {
         CommandHandler handler = handlers.get(commandWord);
         if (handler == null) {
             throw new InvalidCommandException();
@@ -101,52 +104,62 @@ public class CommandProcessor {
 
     // ---------- Contact handling ----------
 
-    private void handleContact(String[] tokens) throws InvalidCommandException {
+    private void handleContact(String[] tokens) throws InvalidCommandException, InvalidContactException {
         if (tokens.length < 2) {
-            throw new InvalidCommandException();
+            throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
         }
         String action = tokens[1].toLowerCase();
         switch (action) {
         case "add" -> handleContactAdd(tokens);
         case "remove" -> handleContactRemove(tokens);
-        case "list" -> handleContactList();
-        default -> throw new InvalidCommandException();
+        case "list" -> handleContactList(tokens);
+        default -> throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
         }
     }
 
-    private void handleContactAdd(String[] tokens) throws InvalidCommandException {
+    private void handleContactAdd(String[] tokens) throws InvalidCommandException, InvalidContactException {
+        // tokens: ["contact", "add", name..., phone]
+        // After stripping "contact" and "add", need at least 2 tokens: one name word + phone.
         ArrayList<String> arguments = new ArrayList<>(Arrays.asList(tokens));
         arguments.remove(0); // remove "contact"
         arguments.remove(0); // remove "add"
-        validateCommandLength(arguments.size(), AlphaOne.CommandType.CONTACT_ADD);
-        String phone = arguments.get(arguments.size() - 1);
-        String name;
-        if (arguments.size() == 2) {
-            name = arguments.get(0);
-        } else {
-            List<String> nameParts = arguments.subList(0, arguments.size() - 1);
-            name = String.join(" ", nameParts);
+
+        if (arguments.size() < MIN_CONTACT_ADD_ARGS) {
+            throw new InvalidCommandException(AlphaOne.CommandType.CONTACT_ADD);
         }
-        Contact newContact = new Contact(name, phone);
-        contactList.addContact(newContact);
-        Ui.print("New contact added:\n" + String.format("%s (%s)", newContact.getName(), phone));
+
+        String phone = arguments.get(arguments.size() - 1);
+        String name = arguments.size() == MIN_CONTACT_ADD_ARGS
+                ? arguments.get(0)
+                : String.join(" ", arguments.subList(0, arguments.size() - 1));
+
+        // Contact.of() validates name and phone format, throws InvalidContactException on failure.
+        Contact newContact = Contact.of(name, phone);
+        contactList.addContact(newContact); // throws InvalidContactException on duplicate
+        Ui.print("New contact added:\n" + newContact.getName() + " (" + newContact.getPhone() + ")");
     }
 
-    private void handleContactRemove(String[] tokens) throws InvalidCommandException {
+    private void handleContactRemove(String[] tokens) throws InvalidContactException {
+        // tokens: ["contact", "remove", name...]
         ArrayList<String> removeArguments = new ArrayList<>(Arrays.asList(tokens));
         removeArguments.remove(0); // remove "contact"
         removeArguments.remove(0); // remove "remove"
-        validateCommandLength(removeArguments.size(), AlphaOne.CommandType.CONTACT_DELETE);
-        String targetName = String.join(" ", removeArguments);
-        Contact removedContact = contactList.removeContactByName(targetName);
-        if (removedContact == null) {
-            Ui.print("No contact found with that name.");
-            return;
+
+        String targetName = String.join(" ", removeArguments).trim();
+        if (targetName.isEmpty()) {
+            throw new InvalidContactException(InvalidContactException.Reason.EMPTY_NAME);
         }
-        Ui.print("Contact removed:\n" + String.format("%s (%s)", removedContact.getName(), removedContact.getPhone()));
+
+        // throws InvalidContactException(NOT_FOUND) if no match
+        Contact removedContact = contactList.removeContactByName(targetName);
+        Ui.print("Contact removed:\n" + removedContact.getName() + " (" + removedContact.getPhone() + ")");
     }
 
-    private void handleContactList() {
+    private void handleContactList(String[] tokens) throws InvalidCommandException {
+        // "contact list" takes no further arguments — exact 2 tokens required.
+        if (tokens.length != 2) {
+            throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
+        }
         Ui.print(contactList.formatContactsDisplay());
     }
 
@@ -241,18 +254,6 @@ public class CommandProcessor {
         }
         case MARK, UNMARK, DELETE, FIND -> {
             if (actual != EXACT_TWO_TOKENS) {
-                throw new InvalidCommandException(type);
-            }
-        }
-        case CONTACT_ADD -> {
-            // Minimum two tokens after stripping "contact add": at least one name word + phone
-            if (actual < MIN_CONTACT_ADD_ARGS) {
-                throw new InvalidCommandException(type);
-            }
-        }
-        case CONTACT_DELETE -> {
-            // Minimum one token after stripping "contact remove": at least one name word
-            if (actual < MIN_CONTACT_DELETE_ARGS) {
                 throw new InvalidCommandException(type);
             }
         }
