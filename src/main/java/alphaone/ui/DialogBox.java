@@ -69,12 +69,22 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
-    /** Returns a dialog box for a user message. */
+    /**
+     * Returns a dialog box styled for a user message (right-aligned).
+     *
+     * @param text the message text to display
+     * @return a new DialogBox for the user
+     */
     public static DialogBox getUserDialog(String text) {
         return new DialogBox(text);
     }
 
-    /** Returns a dialog box for a bot message (left-aligned). */
+    /**
+     * Returns a dialog box styled for a bot reply (left-aligned, reply style).
+     *
+     * @param text the message text to display
+     * @return a new DialogBox for the bot
+     */
     public static DialogBox getBotDialog(String text) {
         DialogBox db = new DialogBox(text);
         db.flip();

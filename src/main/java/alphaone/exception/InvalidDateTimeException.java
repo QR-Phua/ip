@@ -19,6 +19,12 @@ public class InvalidDateTimeException extends Exception {
         this.taskType = taskType;
     }
 
+    /**
+     * Returns a user-friendly error message explaining the expected date/time format
+     * for the task type that triggered the validation failure.
+     *
+     * @return descriptive error message string
+     */
     @Override
     public String getMessage() {
         switch (taskType) {

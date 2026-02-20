@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class Ui {
     /** A reusable border string for UI sections. */
     public static final String BORDER = "+" + "–".repeat(46) + "+";
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
 
     /** Default consumer that prints each message to standard output. */
     private static final Consumer<String> STDOUT_CONSUMER = System.out::println;
@@ -22,8 +22,6 @@ public class Ui {
     // Pluggable output consumer (GUI can register to receive messages)
     private static Consumer<String> outputConsumer = STDOUT_CONSUMER;
 
-    // Whether the registered consumer expects raw messages (true) or already-formatted (false)
-    // When true, Ui.print will send raw message (no borders); when false it will wrap with BORDER.
     private static boolean isOutputConsumerExpectingRaw = false;
 
     /**
@@ -32,7 +30,7 @@ public class Ui {
      * @return the line entered by the user.
      */
     public static String readLine() {
-        return scanner.nextLine();
+        return SCANNER.nextLine();
     }
 
     /**

@@ -1,22 +1,36 @@
-# AlphaOne project template
+# AlphaOne
 
-This is a project template for a greenfield Java project. It's named after the Java mascot _Duke_. Given below are instructions on how to use it.
+A desktop task manager and contact book with a chat-style GUI, built in Java.
 
-## Setting up in Intellij
+For the full user guide, see [`docs/README.md`](docs/README.md).
 
-Prerequisites: JDK 17, update Intellij to the most recent version.
+## Setting up in IntelliJ
 
-1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
-1. Open the project into Intellij as follows:
-   1. Click `Open`.
-   1. Select the project directory, and click `OK`.
-   1. If there are any further prompts, accept the defaults.
-1. Configure the project to use **JDK 17** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
-   In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/AlphaOne.java` file, right-click it, and choose `Run AlphaOne.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, the chatbot should work start up correctly.
+**Prerequisites:** JDK 17, IntelliJ IDEA (latest version).
 
-**Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+1. Open IntelliJ. If a project is already open, go to `File` > `Close Project` first.
+2. Click `Open`, select the project directory, and accept any defaults.
+3. Configure the project to use **JDK 17**:
+   - Go to `File` > `Project Structure` > `Project`.
+   - Set the SDK to JDK 17 and the language level to `SDK default`.
+4. Run the app by right-clicking `src/main/java/alphaone/Launcher.java` and choosing `Run Launcher.main()`.
+
+> **Note:** Do not rename or move the `src/main/java` folder — Gradle expects Java source files to be there.
+
+## Building
+
+```
+./gradlew run        # run the GUI
+./gradlew test       # run all tests
+./gradlew shadowJar  # build alphaone.jar in build/libs/
+```
 
 ## Acknowledgements
-This project utilises Github Copilot for detecting, maintaining and refactoring code to coding standards and coding quality.
-Specifically, Claude Sonnet 4.6 was used to compare versions of current code with coding quality and standards criteria to generate recommendations.
+This project made use of GitHub Copilot (powered by Claude Sonnet) as an AI-assisted development tool throughout the codebase. Specifically, it was used for:
+
+Code refactoring – restructuring and cleaning up existing logic without altering behaviour (original logic is preserved and traceable in the project's Git version history)
+Code quality and standards enforcement – recommendations to align with Java coding conventions and best practices
+UI implementation – translating Figma UI prototype designs into JavaFX components
+Autocomplete and code recommendations – general productivity assistance during development
+
+As per course policy on code reuse and AI tool usage, this acknowledgement is placed here (rather than inline comments) because the use was widespread across the codebase rather than isolated to specific methods or classes. All refactored code retains its original logic, which can be verified through the Git commit history.

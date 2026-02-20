@@ -72,17 +72,17 @@ public class TaskList {
     /**
      * Adds a task and returns a confirmation message.
      *
-     * @param input  task text
-     * @param type   task type
-     * @param params optional extra params
+     * @param description task description text
+     * @param type        task type
+     * @param dateTimeParams optional date/time strings (1 for deadline, 2 for event)
      * @return confirmation message
      */
-    public String buildAddTaskMessage(String input, AlphaOne.TaskType type, String... params) {
+    public String buildAddTaskMessage(String description, AlphaOne.TaskType type, String... dateTimeParams) {
         Task newTask;
         switch (type) {
-        case TODO -> newTask = new ToDo(input);
-        case DEADLINE -> newTask = new Deadline(input, params[0]);
-        case EVENT -> newTask = new Event(input, params[0], params[1]);
+        case TODO -> newTask = new ToDo(description);
+        case DEADLINE -> newTask = new Deadline(description, dateTimeParams[0]);
+        case EVENT -> newTask = new Event(description, dateTimeParams[0], dateTimeParams[1]);
         default -> {
             return "Invalid task type!";
         }
@@ -98,12 +98,12 @@ public class TaskList {
     /**
      * Adds a task and prints the confirmation.
      *
-     * @param input  task text
-     * @param type   task type
-     * @param params optional params
+     * @param description task description text
+     * @param type        task type
+     * @param dateTimeParams optional date/time strings
      */
-    public void addTask(String input, AlphaOne.TaskType type, String... params) {
-        Ui.print(buildAddTaskMessage(input, type, params));
+    public void addTask(String description, AlphaOne.TaskType type, String... dateTimeParams) {
+        Ui.print(buildAddTaskMessage(description, type, dateTimeParams));
     }
 
     /**

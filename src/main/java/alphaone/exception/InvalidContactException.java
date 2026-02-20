@@ -41,6 +41,12 @@ public class InvalidContactException extends Exception {
         this.detail = detail;
     }
 
+    /**
+     * Returns a user-friendly error message describing the contact error and how to resolve it.
+     * The message is tailored to the specific failure reason.
+     *
+     * @return descriptive error message string
+     */
     @Override
     public String getMessage() {
         switch (reason) {

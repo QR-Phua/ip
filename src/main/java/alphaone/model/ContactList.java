@@ -89,7 +89,6 @@ public class ContactList {
             for (Contact contact : contacts) {
                 result.append(String.format("%s (%s)\n", contact.getName(), contact.getPhone()));
             }
-            // Remove trailing newline after last entry
             int lastIndex = result.length() - 1;
             if (lastIndex >= 0 && result.charAt(lastIndex) == '\n') {
                 result.deleteCharAt(lastIndex);
@@ -97,5 +96,4 @@ public class ContactList {
         }
         return result.toString();
     }
-
 }

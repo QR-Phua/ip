@@ -59,12 +59,23 @@ public class Deadline extends Task {
         return deadlineDate;
     }
 
+    /**
+     * Returns a human-readable string of the form {@code [D] [status] description (by: date)}.
+     *
+     * @return formatted display string
+     */
     @Override
     public String toString() {
         return String.format("[%s] [%s] %s (by: %s)", this.getType(),
                 this.getStatusIcon(), super.getDescription(), deadlineDate.format(DISPLAY_DATE_FORMATTER));
     }
 
+    /**
+     * Serialises this Deadline to a storage line in the format
+     * {@code D!@!<done>!@!<description>!@!<YYYY-MM-DD>}.
+     *
+     * @return serialised storage string
+     */
     @Override
     public String serialiseTask() {
         return this.getType() + Constants.STORAGE_SEPARATOR

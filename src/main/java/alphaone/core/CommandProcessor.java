@@ -28,7 +28,6 @@ public class CommandProcessor {
     // Minimum argument count after stripping "contact add": at least one name word + phone
     private static final int MIN_CONTACT_ADD_ARGS = 2;
 
-    // Small functional interface for handlers that may throw the checked exceptions
     private interface CommandHandler {
         void handle(String[] tokens, String commandWord)
                 throws InvalidCommandException, IncompleteDetailsException,
@@ -91,7 +90,6 @@ public class CommandProcessor {
         }
     }
 
-    // Dispatch using the handlers map; single-level orchestrator.
     private void dispatch(String commandWord, String[] tokens)
             throws InvalidCommandException, IncompleteDetailsException,
                    InvalidDateTimeException, InvalidContactException {
@@ -102,7 +100,6 @@ public class CommandProcessor {
         handler.handle(tokens, commandWord);
     }
 
-    // ---------- Contact handling ----------
 
     private void handleContact(String[] tokens) throws InvalidCommandException, InvalidContactException {
         if (tokens.length < 2) {
@@ -118,11 +115,9 @@ public class CommandProcessor {
     }
 
     private void handleContactAdd(String[] tokens) throws InvalidCommandException, InvalidContactException {
-        // tokens: ["contact", "add", name..., phone]
-        // After stripping "contact" and "add", need at least 2 tokens: one name word + phone.
         ArrayList<String> arguments = new ArrayList<>(Arrays.asList(tokens));
-        arguments.remove(0); // remove "contact"
-        arguments.remove(0); // remove "add"
+        arguments.remove(0);
+        arguments.remove(0);
 
         if (arguments.size() < MIN_CONTACT_ADD_ARGS) {
             throw new InvalidCommandException(AlphaOne.CommandType.CONTACT_ADD);
@@ -133,37 +128,32 @@ public class CommandProcessor {
                 ? arguments.get(0)
                 : String.join(" ", arguments.subList(0, arguments.size() - 1));
 
-        // Contact.of() validates name and phone format, throws InvalidContactException on failure.
         Contact newContact = Contact.of(name, phone);
-        contactList.addContact(newContact); // throws InvalidContactException on duplicate
+        contactList.addContact(newContact);
         Ui.print("New contact added:\n" + newContact.getName() + " (" + newContact.getPhone() + ")");
     }
 
     private void handleContactRemove(String[] tokens) throws InvalidContactException {
-        // tokens: ["contact", "remove", name...]
-        ArrayList<String> removeArguments = new ArrayList<>(Arrays.asList(tokens));
-        removeArguments.remove(0); // remove "contact"
-        removeArguments.remove(0); // remove "remove"
+        ArrayList<String> nameTokens = new ArrayList<>(Arrays.asList(tokens));
+        nameTokens.remove(0);
+        nameTokens.remove(0);
 
-        String targetName = String.join(" ", removeArguments).trim();
+        String targetName = String.join(" ", nameTokens).trim();
         if (targetName.isEmpty()) {
             throw new InvalidContactException(InvalidContactException.Reason.EMPTY_NAME);
         }
 
-        // throws InvalidContactException(NOT_FOUND) if no match
         Contact removedContact = contactList.removeContactByName(targetName);
         Ui.print("Contact removed:\n" + removedContact.getName() + " (" + removedContact.getPhone() + ")");
     }
 
     private void handleContactList(String[] tokens) throws InvalidCommandException {
-        // "contact list" takes no further arguments — exact 2 tokens required.
         if (tokens.length != 2) {
             throw new InvalidCommandException(AlphaOne.CommandType.CONTACT);
         }
         Ui.print(contactList.formatContactsDisplay());
     }
 
-    // ---------- Command handlers ----------
 
     private void handleBye(String[] tokens) throws InvalidCommandException {
         validateCommandLength(tokens.length, AlphaOne.CommandType.BYE);
@@ -238,7 +228,6 @@ public class CommandProcessor {
                 parsedParts.get(1), parsedParts.get(2)));
     }
 
-    // ---------- Small helpers ----------
 
     /**
      * Validates that the actual token count satisfies the requirements of the given command type.

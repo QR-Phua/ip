@@ -61,7 +61,6 @@ public class Storage {
         }
     }
 
-    // ====== Public orchestration methods (small, single-level) ======
 
     /**
      * Loads tasks from the storage file and rebuilds an in-memory task map.
@@ -74,7 +73,7 @@ public class Storage {
             ensureParentAndFileExists(FILE_STORAGE_PATH);
             List<String> lines = readNonBlankLines(FILE_STORAGE_PATH);
             return buildTaskMapFromLines(lines);
-        } catch (IOException ioe) {
+        } catch (IOException ioException) {
             logOrPrintError("Error reading stored file, starting fresh");
             return new HashMap<>();
         }
@@ -111,7 +110,7 @@ public class Storage {
             ensureParentAndFileExists(CONTACT_STORAGE_PATH);
             List<String> lines = readNonBlankLines(CONTACT_STORAGE_PATH);
             return buildContactsFromLines(lines);
-        } catch (IOException ioe) {
+        } catch (IOException ioException) {
             logOrPrintError("Error reading contacts file, starting fresh");
             return new ArrayList<>();
         }
@@ -135,7 +134,6 @@ public class Storage {
         }
     }
 
-    // ====== Low-level helpers (single responsibility / single abstraction level) ======
 
     private void ensureParentAndFileExists(Path path) throws IOException {
         Path parent = path.getParent();
@@ -162,25 +160,23 @@ public class Storage {
         return filtered;
     }
 
-    // Write lines to file, replacing contents.
     private void writeLines(Path path, List<String> lines) throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             for (String line : lines) {
-                bw.write(line);
-                bw.newLine();
+                writer.write(line);
+                writer.newLine();
             }
         }
     }
 
-    // Build a task map from raw storage lines. Handles per-line parse errors.
     private HashMap<Integer, Task> buildTaskMapFromLines(List<String> lines) {
         HashMap<Integer, Task> taskMap = new HashMap<>();
-        int counter = 1;
+        int nextTaskId = 1;
         for (String line : lines) {
             try {
                 Task task = parseTaskLine(line);
-                taskMap.put(counter, task);
-                counter++;
+                taskMap.put(nextTaskId, task);
+                nextTaskId++;
             } catch (IllegalArgumentException e) {
                 logOrPrintWarning("Warning: " + e.getMessage());
             }
@@ -188,7 +184,6 @@ public class Storage {
         return taskMap;
     }
 
-    // Build a contact list from raw storage lines. Handles per-line parse errors.
     private ArrayList<Contact> buildContactsFromLines(List<String> lines) {
         ArrayList<Contact> contacts = new ArrayList<>();
         for (String line : lines) {
@@ -202,7 +197,6 @@ public class Storage {
         return contacts;
     }
 
-    // Parse a single task line into a Task; throws IllegalArgumentException for malformed/unknown types.
     private Task parseTaskLine(String line) {
         String[] parts = line.split(Pattern.quote(Constants.STORAGE_SEPARATOR));
         if (parts.length < 3) {
@@ -234,7 +228,6 @@ public class Storage {
         }
     }
 
-    // Parse a contact line into a Contact; throws IllegalArgumentException for malformed lines.
     private Contact parseContactLine(String line) {
         String[] parts = line.split(Pattern.quote(Constants.STORAGE_SEPARATOR));
         if (parts.length < 2) {

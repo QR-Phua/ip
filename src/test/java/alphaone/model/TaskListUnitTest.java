@@ -23,13 +23,13 @@ public class TaskListUnitTest {
     }
 
     @Test
-    public void verifyTaskExists_throwsOnMissing() {
+    public void verifyTaskExists_nonExistentId_throwsInvalidTaskItemException() {
         TaskList tl = new TaskList();
         assertThrows(InvalidTaskItemException.class, () -> tl.verifyTaskExists(5));
     }
 
     @Test
-    public void searchKeyword_findsMatches() {
+    public void searchKeyword_matchingKeyword_returnsMatchingTasks() {
         TaskList tl = new TaskList();
         tl.addTask("alpha item", alphaone.core.AlphaOne.TaskType.TODO);
         tl.addTask("beta item", alphaone.core.AlphaOne.TaskType.TODO);

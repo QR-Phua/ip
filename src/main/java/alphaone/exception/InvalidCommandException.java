@@ -40,6 +40,12 @@ public class InvalidCommandException extends Exception {
         this.taskType = null;
     }
 
+    /**
+     * Returns a user-friendly error message describing what went wrong and how to correct it.
+     * The message is tailored to the specific task type or command type that caused the error.
+     *
+     * @return descriptive error message string
+     */
     @Override
     public String getMessage() {
         if (taskType != null) {

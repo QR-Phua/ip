@@ -18,6 +18,12 @@ public class IncompleteDetailsException extends Exception {
         this.taskType = taskType;
     }
 
+    /**
+     * Returns a user-friendly error message explaining which required details were missing
+     * and provides a usage example for the relevant task type.
+     *
+     * @return descriptive error message string
+     */
     @Override
     public String getMessage() {
         switch (taskType) {

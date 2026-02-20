@@ -74,6 +74,12 @@ public class Event extends Task {
         return endDateTime;
     }
 
+    /**
+     * Returns a human-readable string of the form
+     * {@code [E] [status] description (from <start> to <end>)}.
+     *
+     * @return formatted display string
+     */
     @Override
     public String toString() {
         return String.format("[%s] [%s] %s (from %s to %s)", this.getType(),
@@ -82,6 +88,12 @@ public class Event extends Task {
                 endDateTime.format(DISPLAY_DATE_FORMATTER));
     }
 
+    /**
+     * Serialises this Event to a storage line in the format
+     * {@code E!@!<done>!@!<description>!@!<startISO>!@!<endISO>}.
+     *
+     * @return serialised storage string
+     */
     @Override
     public String serialiseTask() {
         return this.getType() + Constants.STORAGE_SEPARATOR

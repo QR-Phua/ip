@@ -62,6 +62,12 @@ public class Contact {
     public static Contact fromStorage(String name, String phone) {
         return new Contact(name, phone);
     }
+
+    /**
+     * Returns the contact's name.
+     *
+     * @return contact name
+     */
     public String getName() {
         return name;
     }
